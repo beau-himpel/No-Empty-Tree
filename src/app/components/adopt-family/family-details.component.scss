@@ -1,0 +1,531 @@
+/* Dialog Backdrop and Styling */
+:host ::ng-deep .p-dialog-mask {
+  background-color: rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(2px);
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  z-index: 1000 !important;
+}
+
+:host ::ng-deep .p-dialog {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border-radius: 12px;
+  border: none;
+  background: white !important;
+  z-index: 1001 !important;
+}
+
+:host ::ng-deep .p-dialog-header {
+  background: #f8fafc !important;
+  border-bottom: 1px solid #e2e8f0;
+  border-radius: 12px 12px 0 0;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+:host ::ng-deep .p-dialog-title {
+  text-align: center;
+  width: 100%;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #2d3748;
+}
+
+:host ::ng-deep .p-dialog-content {
+  padding: 0;
+  border-radius: 0 0 12px 12px;
+  background: white !important;
+}
+
+:host ::ng-deep .p-dialog-header-icon {
+  display: none !important;
+}
+
+/* Ensure dialog overlay covers everything */
+:host ::ng-deep .p-component-overlay {
+  background-color: rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(2px);
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  z-index: 999 !important;
+}
+
+/* Additional backdrop layers */
+:host ::ng-deep .p-dialog-mask::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: -1;
+}
+
+/* Family Details Dialog Styles */
+.family-details {
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: 1.5rem;
+}
+
+.family-info {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  
+  h2 {
+    margin: 0 0 0.5rem 0;
+    color: #2d3748;
+    font-size: 1.75rem;
+    font-weight: 700;
+  }
+}
+
+.family-summary {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+  
+  .adults {
+    color: #3182ce;
+    font-weight: 600;
+  }
+  
+  .children {
+    color: #e53e3e;
+    font-weight: 600;
+  }
+}
+
+.members-section {
+  h3 {
+    margin: 0 0 1.5rem 0;
+    color: #2d3748;
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+}
+
+.adopt-all-section {
+  margin-top: 1rem;
+  padding: 1rem 2rem;
+  background: #dc2626;
+  border: 2px solid #dc2626;
+  border-radius: 8px;
+  text-align: center;
+  display: inline-block;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: #b91c1c;
+    border-color: #b91c1c;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  p-button {
+    display: inline-block;
+  }
+}
+
+/* Style the adopt all button to have white text and white heart */
+:host ::ng-deep .adopt-all-section .p-button {
+  background: transparent !important;
+  border: none !important;
+  color: white !important;
+  
+  &:hover {
+    background: transparent !important;
+    border: none !important;
+    color: white !important;
+  }
+  
+  .pi-heart-fill {
+    color: white !important;
+    margin-left: 0.75rem !important;
+  }
+}
+
+.member-card {
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  position: relative;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    border-color: #cbd5e0;
+  }
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+  
+  &.all-adopted {
+    background: #f0fff4;
+    border-color: #9ae6b4;
+    
+    &::before {
+      content: '✓ All Items Adopted';
+      position: absolute;
+      top: -10px;
+      right: 16px;
+      background: #10b981;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .member-header h4 {
+      color: #065f46;
+    }
+  }
+}
+
+.member-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.8rem;
+  flex-wrap: wrap;
+  padding-bottom: 1rem;
+  
+  h4 {
+    margin: 0;
+    color: #1e293b;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+  
+  .member-info {
+    color: #64748b;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+}
+
+.child-badge, .adult-badge {
+  padding: 0.375rem 1rem;
+  border-radius: 25px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.child-badge {
+  background: linear-gradient(135deg, #fed7d7 0%, #feb2b2 100%);
+  color: #c53030;
+  border: 1px solid #fecaca;
+}
+
+.adult-badge {
+  background: linear-gradient(135deg, #bee3f8 0%, #90cdf4 100%);
+  color: #2b6cb0;
+  border: 1px solid #a0c4f4;
+}
+
+.wish-list {
+  margin-left: 16px;
+  
+  h5 {
+    margin: 0 0 0.75rem 0;
+    color: #4a5568;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+}
+
+.wish-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+  
+  &.adopted {
+    background: #f0fff4;
+    border-color: #9ae6b4;
+  }
+}
+
+.adopted-section-divider {
+  margin: 1rem 0;
+  padding: 0.5rem;
+  background: #f0fff4;
+  border: 1px solid #9ae6b4;
+  border-radius: 6px;
+  text-align: center;
+  color: #065f46;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.wish-list-completed {
+  margin-left: 16px;
+  
+  .completed-status {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background: #f0fff4;
+    border: 1px solid #9ae6b4;
+    border-radius: 8px;
+    
+    .completed-badge {
+      background: #10b981;
+      color: white;
+      padding: 0.375rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+  }
+  
+  .wish-list {
+    margin-left: 0;
+    margin-top: 1rem;
+    
+    h5 {
+      color: #065f46;
+      border-bottom: 2px solid #9ae6b4;
+      padding-bottom: 0.5rem;
+    }
+  }
+}
+
+.item-info {
+  flex: 1;
+  
+  .item-category {
+    display: inline-block;
+    background: #edf2f7;
+    color: #4a5568;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+  }
+  
+  .item-description {
+    display: block;
+    color: #2d3748;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+  }
+  
+  .item-detail {
+    display: inline-block;
+    color: #718096;
+    font-size: 0.875rem;
+    margin-right: 1rem;
+    
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+  
+  .item-details {
+    color: #4a5568;
+    font-size: 0.875rem;
+    font-style: italic;
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    border-left: 3px solid #e2e8f0;
+    border-radius: 0 4px 4px 0;
+    line-height: 1.4;
+  }
+  
+  .item-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: #3182ce;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    margin-top: 0.5rem;
+    transition: color 0.2s ease;
+    
+    &:hover {
+      color: #2c5282;
+      text-decoration: underline;
+    }
+    
+    .pi-external-link {
+      font-size: 0.75rem;
+    }
+  }
+}
+
+.item-actions {
+  flex-shrink: 0;
+}
+
+.adopted-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 120px;
+}
+
+.adopted-badge {
+  background: #9ae6b4;
+  color: #22543d;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.adopted-by {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 500;
+  text-align: center;
+}
+
+/* Custom styling for unadopt button */
+:host ::ng-deep .p-button.p-button-secondary {
+  background: #f8fafc;
+  border: 1px solid #cbd5e0;
+  color: #4a5568;
+  font-size: 0.75rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: #edf2f7;
+    border-color: #a0aec0;
+    color: #2d3748;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Make heart icons red */
+:host ::ng-deep .p-button .pi-heart-fill {
+  color: #e53e3e !important;
+}
+
+.no-wishes {
+  color: #a0aec0;
+  font-style: italic;
+  margin: 0;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .member-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .wish-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  
+  .dialog-actions {
+    flex-direction: column;
+  }
+  
+  :host ::ng-deep .p-dialog {
+    margin: 1rem;
+    width: calc(100vw - 2rem) !important;
+    max-width: none !important;
+  }
+}
+
+.adopt-all-btn {
+  :host ::ng-deep .p-button {
+    background: #dc2626 !important;
+    border: 2px solid #dc2626 !important;
+    color: #fff !important;
+    font-weight: 600;
+    border-radius: 8px !important;
+    padding: 0.5rem 1.25rem !important;
+    font-size: 1rem !important;
+    box-shadow: none;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    
+    &:hover {
+      background: #b91c1c !important;
+      border-color: #b91c1c !important;
+      color: #fff !important;
+    }
+    &:active {
+      background: #991b1b !important;
+      border-color: #991b1b !important;
+      color: #fff !important;
+    }
+    .pi-heart-fill {
+      color: #fff !important;
+      margin-left: 0.75rem !important;
+    }
+  }
+} 

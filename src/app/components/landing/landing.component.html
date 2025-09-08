@@ -1,0 +1,25 @@
+<div class="landing-container">
+  <!-- Sign in button for non-authenticated users -->
+  @if (!isLoggedIn()) {
+    <div class="sign-in-section">
+      <button (click)="navigateToSignIn()" class="sign-in-btn">
+        🔐 Sign In to Get Started
+      </button>
+    </div>
+  }
+  
+  <div class="side nominate" 
+       (mouseenter)="hover('nominate')" 
+       (mouseleave)="hover('')" 
+       [class.focus]="focus==='nominate'" 
+       (click)="navigate('nominate')">
+    <h2>Nominate a Family</h2>
+  </div>
+  <div class="side adopt" 
+       (mouseenter)="hover('adopt')" 
+       (mouseleave)="hover('')" 
+       [class.focus]="focus==='adopt'" 
+       (click)="navigate('adopt')">
+    <h2>Adopt a Family</h2>
+  </div>
+</div> 

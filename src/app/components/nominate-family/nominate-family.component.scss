@@ -1,0 +1,310 @@
+/* Styles for NominateFamilyComponent */ 
+
+.nominate-container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.nomination-card {
+  ::ng-deep .p-card {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+  }
+  
+  ::ng-deep .p-card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 12px 12px 0 0;
+    padding: 1.5rem;
+    
+    h2 {
+      margin: 0;
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+  }
+}
+
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.family-info-section,
+.family-members-section {
+  h3 {
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  label {
+    font-weight: 500;
+    color: #34495e;
+    font-size: 0.9rem;
+  }
+
+  input, textarea {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 0.75rem;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+
+    &:focus {
+      outline: none;
+      border-color: #007bff;
+      box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+    }
+
+    &.ng-invalid.ng-touched {
+      border-color: #dc3545;
+      box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.25);
+    }
+  }
+}
+
+.error-message {
+  color: #dc3545;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.members-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.member-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+
+  .member-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    .member-name {
+      font-weight: 600;
+      color: #2c3e50;
+    }
+
+    .member-details {
+      font-size: 0.9rem;
+      color: #6c757d;
+    }
+
+    .member-type {
+      font-size: 0.8rem;
+      color: #007bff;
+      font-weight: 500;
+    }
+  }
+
+  .member-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+}
+
+.member-card-container {
+  perspective: 1000px;
+  margin: 1rem 0;
+}
+
+.member-card {
+  position: relative;
+  width: 100%;
+  height: auto;
+  transition: transform 0.8s;
+  transform-style: preserve-3d;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+
+  &.flipped {
+    transform: rotateY(180deg);
+  }
+}
+
+.card-front,
+.card-back {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+}
+
+.card-back {
+  transform: rotateY(180deg);
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.card-front h4,
+.card-back h4 {
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.card-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  justify-content: flex-end;
+}
+
+.wish-list-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.wish-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+
+  .wish-info {
+    flex: 1;
+
+    .wish-category {
+      font-weight: 600;
+      color: #007bff;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .wish-description {
+      font-weight: 500;
+      color: #2c3e50;
+      margin: 0.25rem 0;
+    }
+
+    .wish-details {
+      font-size: 0.85rem;
+      color: #6c757d;
+      font-style: italic;
+    }
+  }
+}
+
+.add-wish-form {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+
+  h5 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  .wish-actions {
+    margin-top: 1rem;
+  }
+}
+
+.save-section {
+  display: flex;
+  justify-content: center;
+  padding-top: 1rem;
+  border-top: 1px solid #e9ecef;
+}
+
+// Outlined button styling
+::ng-deep .outlined-button {
+  .p-button {
+    border: 2px solid #667eea;
+    background: transparent;
+    color: #667eea;
+    border-radius: 25px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+    
+    &:active {
+      transform: translateY(0);
+    }
+    
+    .p-button-icon-right {
+      margin-left: 16px;
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .nominate-container {
+    padding: 1rem;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .section-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  .card-front,
+  .card-back {
+    padding: 1.5rem;
+  }
+
+  .card-actions {
+    flex-direction: column;
+  }
+} 

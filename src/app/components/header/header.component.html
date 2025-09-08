@@ -1,0 +1,33 @@
+<header class="app-header">
+  <div class="header-container">
+    <div class="header-left">
+      <h1 class="app-title">No Empty Tree</h1>
+    </div>
+    
+    <nav class="header-nav">
+      <p-button 
+        label="Adopt Families" 
+        severity="secondary"
+        (click)="navigateToAdopt()">
+      </p-button>
+      
+      <p-button 
+        label="Nominate Family" 
+        severity="secondary"
+        (click)="navigateToNominate()">
+      </p-button>
+      
+      <p-button 
+        label="My Adoptions" 
+        severity="secondary"
+        (click)="navigateToMyAdoptions()">
+      </p-button>
+      
+      <p-button 
+        label="Logout" 
+        severity="danger"
+        (click)="logout()">
+      </p-button>
+    </nav>
+  </div>
+</header> 

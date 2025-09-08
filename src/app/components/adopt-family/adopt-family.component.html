@@ -1,0 +1,35 @@
+<div class="adopt-container">
+  <p-card header="Adopt a Family" styleClass="adopt-card">
+    <div class="families-grid">
+      @for (family of availableFamilies(); track family.id) {
+        <div class="family-card" (click)="viewFamilyDetails(family)">
+          <div class="family-header">
+            <h3>{{ family.name }}</h3>
+            <div class="family-stats">
+              <span class="adults">{{ getFamilyCounts(family.id).adultCount }} Adults</span>
+              <span class="children">{{ getFamilyCounts(family.id).childCount }} Children</span>
+            </div>
+          </div>
+          <div class="family-actions">
+            <span class="view-details-text">Click to view details</span>
+          </div>
+        </div>
+      } @empty {
+        <div class="no-families">
+          <p>No families available for adoption at this time.</p>
+          <p-button 
+            label="Nominate a Family" 
+            icon="pi pi-plus" 
+            (click)="navigateToNominate()">
+          </p-button>
+        </div>
+      }
+    </div>
+  </p-card>
+</div>
+
+<!-- Family Details Component -->
+<app-family-details 
+  [family]="selectedFamily()" 
+  [currentUser]="currentUser()">
+</app-family-details> 

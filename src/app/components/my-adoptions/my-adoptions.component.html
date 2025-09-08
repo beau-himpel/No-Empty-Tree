@@ -1,0 +1,70 @@
+<div class="my-adoptions-container">
+  <p-card header="My Adopted Items" styleClass="adoptions-card">
+    @if (adoptedItemsByFamily().length > 0) {
+      <div class="families-section">
+        @for (familyGroup of adoptedItemsByFamily(); track familyGroup.family.id) {
+          <div class="family-section">
+            <h3 class="family-name">{{ familyGroup.family.name }}</h3>
+            
+            <div class="members-section">
+              @for (memberItem of familyGroup.items; track memberItem.member.name + memberItem.item.id) {
+                <div class="member-item">
+                  <div class="member-info">
+                    <h4>{{ memberItem.member.name }}</h4>
+                    <span class="member-details">{{ memberItem.member.age }} years old • {{ memberItem.member.gender }}</span>
+                    @if (memberItem.member.isChild) {
+                      <span class="child-badge">Child</span>
+                    } @else {
+                      <span class="adult-badge">Adult</span>
+                    }
+                  </div>
+                  
+                  <div class="item-details">
+                    <div class="item-info">
+                      <span class="item-category">{{ memberItem.item.category }}</span>
+                      <span class="item-description">{{ memberItem.item.description }}</span>
+                      @if (memberItem.item.color) {
+                        <span class="item-detail">Color: {{ memberItem.item.color }}</span>
+                      }
+                      @if (memberItem.item.size) {
+                        <span class="item-detail">Size: {{ memberItem.item.size }}</span>
+                      }
+                      @if (memberItem.item.details) {
+                        <div class="item-details-text">{{ memberItem.item.details }}</div>
+                      }
+                      @if (memberItem.item.link) {
+                        <a href="{{ memberItem.item.link }}" target="_blank" class="item-link">
+                          <i class="pi pi-external-link"></i> View Item
+                        </a>
+                      }
+                    </div>
+                    
+                    <div class="item-actions">
+                      <p-button 
+                        label="Unadopt" 
+                        icon="pi pi-times" 
+                        size="small"
+                        severity="secondary"
+                        (click)="unadoptItem(memberItem.item, familyGroup.family)">
+                      </p-button>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="no-adoptions">
+        <p>You haven't adopted any items yet.</p>
+        <p-button 
+          label="Browse Families" 
+          icon="pi pi-heart" 
+          severity="success"
+          routerLink="/adopt-family">
+        </p-button>
+      </div>
+    }
+  </p-card>
+</div> 
