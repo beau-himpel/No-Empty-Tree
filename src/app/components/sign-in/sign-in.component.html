@@ -1,7 +1,73 @@
 <div class="sign-in-container">
-  <p-button 
-    label="Sign in with Google" 
-    icon="pi pi-google"
-    (click)="signInWithGoogle()">
-  </p-button>
+  <p-card header="Welcome to No Empty Tree" styleClass="auth-card">
+    <div class="auth-form">
+      <div class="google-signin">
+        <p-button 
+          label="Sign in with Google" 
+          icon="pi pi-google"
+          [loading]="isLoading()"
+          (click)="signInWithGoogle()"
+          styleClass="google-button">
+        </p-button>
+      </div>
+
+      <div class="divider">
+        <span>or</span>
+      </div>
+
+      <form (ngSubmit)="signInWithEmail()" class="email-form">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input 
+            id="email"
+            type="email" 
+            pInputText 
+            [ngModel]="email()" 
+            (ngModelChange)="email.set($event)"
+            name="email"
+            placeholder="Enter your email"
+            required>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <p-password 
+            id="password"
+            [ngModel]="password()" 
+            (ngModelChange)="password.set($event)"
+            name="password"
+            placeholder="Enter your password"
+            [feedback]="false"
+            [toggleMask]="true"
+            required>
+          </p-password>
+        </div>
+
+        <div class="form-actions">
+          <p-button 
+            [label]="isSignUp() ? 'Sign Up' : 'Sign In'"
+            type="submit"
+            [loading]="isLoading()"
+            styleClass="primary-button">
+          </p-button>
+        </div>
+
+        <div class="toggle-signup">
+          <button 
+            type="button" 
+            class="link-button"
+            (click)="toggleSignUp()">
+            {{ isSignUp() ? 'Already have an account? Sign In' : "Don't have an account? Sign Up" }}
+          </button>
+        </div>
+      </form>
+
+      <p-message 
+        *ngIf="errorMessage()" 
+        [text]="errorMessage()" 
+        severity="error" 
+        styleClass="error-message">
+      </p-message>
+    </div>
+  </p-card>
 </div> 

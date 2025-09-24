@@ -36,7 +36,10 @@ export class AdoptFamilyComponent implements OnInit, AfterViewInit {
   );
 
   ngOnInit(): void {
-    this.currentUser.set(this.authService.getCurrentUser());
+    const user = this.authService.getCurrentUser();
+    if (user) {
+      this.currentUser.set(user.email ?? 'Unknown User');
+    }
   }
 
   ngAfterViewInit(): void {

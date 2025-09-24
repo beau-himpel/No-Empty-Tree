@@ -1,9 +1,8 @@
 <div class="landing-container">
-  <!-- Sign in button for non-authenticated users -->
   @if (!isLoggedIn()) {
     <div class="sign-in-section">
-      <button (click)="navigateToSignIn()" class="sign-in-btn">
-        🔐 Sign In to Get Started
+      <button (click)="signInWithGoogle()" class="sign-in-btn">
+        Sign In to Get Started
       </button>
     </div>
   }

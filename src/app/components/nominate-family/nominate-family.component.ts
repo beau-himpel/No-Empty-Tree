@@ -40,7 +40,6 @@ interface FamilyInfo {
     CardModule, 
     ButtonModule, 
     InputTextModule, 
-    InputTextarea, 
     DropdownModule
   ],
   templateUrl: './nominate-family.component.html',
