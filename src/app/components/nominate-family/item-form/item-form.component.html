@@ -1,0 +1,95 @@
+<div class="item-form-container">
+  <div class="form-header">
+    <h5>Items for {{ memberName || 'Family Member' }}</h5>
+    <p-button 
+      label="Add Another Item" 
+      icon="pi pi-plus" 
+      iconPos="right"
+      severity="info" 
+      size="small"
+      (click)="addAnotherItemForm()">
+    </p-button>
+  </div>
+
+  <!-- Existing Items -->
+  @if (existingItems.length > 0) {
+    <div class="existing-items">
+      <h6>Current Items</h6>
+      @for (item of existingItems; track $index; let itemIndex = $index) {
+        <div class="existing-item">
+          <div class="item-info">
+            <div class="item-category">{{ item.category }}</div>
+            <div class="item-description">{{ item.description }}</div>
+            @if (item.color || item.size) {
+              <div class="item-details">
+                {{ item.color }} {{ item.size }}
+              </div>
+            }
+          </div>
+          <p-button 
+            icon="pi pi-trash" 
+            iconPos="right"
+            severity="danger" 
+            size="small"
+            (click)="removeExistingItem(itemIndex)">
+          </p-button>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- New Item Forms -->
+  <div class="new-items-section">
+    <h6>Add New Items</h6>
+    @for (itemForm of itemForms(); track $index; let formIndex = $index) {
+      <div class="item-form-wrapper">
+        <div class="item-form-header">
+          <h6>Item {{ formIndex + 1 }}</h6>
+          @if (itemForms().length > 1) {
+            <p-button 
+              icon="pi pi-trash" 
+              iconPos="right"
+              severity="danger" 
+              size="small"
+              (click)="removeItemForm(formIndex)">
+            </p-button>
+          }
+        </div>
+        <form [formGroup]="itemForm" class="form-grid">
+          <div class="form-field">
+            <label [for]="'itemCategory' + formIndex">Category *</label>
+            <p-select 
+              [id]="'itemCategory' + formIndex" 
+              [options]="itemCategoryOptions" 
+              formControlName="category">
+            </p-select>
+          </div>
+          <div class="form-field">
+            <label [for]="'itemDescription' + formIndex">Description *</label>
+            <input pInputText [id]="'itemDescription' + formIndex" formControlName="description" />
+          </div>
+          @if (itemForm.get('category')?.value === 'Clothing') {
+            <div class="form-field">
+              <label [for]="'itemColor' + formIndex">Color</label>
+              <input pInputText [id]="'itemColor' + formIndex" formControlName="color" />
+            </div>
+            <div class="form-field">
+              <label [for]="'itemSize' + formIndex">Size</label>
+              <input pInputText [id]="'itemSize' + formIndex" formControlName="size" />
+            </div>
+          }
+        </form>
+      </div>
+    }
+    
+    <div class="form-actions">
+      <p-button 
+        label="Save All Items" 
+        icon="pi pi-save" 
+        iconPos="right"
+        (click)="saveAllItems()"
+        [disabled]="!isAnyFormValid()">
+      </p-button>
+    </div>
+  </div>
+</div>

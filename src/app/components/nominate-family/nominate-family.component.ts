@@ -7,22 +7,9 @@ import { InputTextarea } from 'primeng/inputtextarea';
 import { SelectModule } from 'primeng/select';
 import { Router } from '@angular/router';
 import { AuthService } from '../../auth.service';
+import { ItemFormComponent, Item } from './item-form/item-form.component';
+import { MemberDetailsComponent, FamilyMember } from './member-details/member-details.component';
 
-interface FamilyMember {
-  name: string;
-  age: number;
-  gender: string;
-  ethnicity: string;
-  isChild: boolean;
-  wishList: WishItem[];
-}
-
-interface WishItem {
-  category: string;
-  description: string;
-  color?: string;
-  size?: string;
-}
 
 interface FamilyInfo {
   name: string;
@@ -40,7 +27,9 @@ interface FamilyInfo {
     CardModule, 
     ButtonModule, 
     InputTextModule, 
-    SelectModule
+    SelectModule,
+    ItemFormComponent,
+    MemberDetailsComponent
   ],
   templateUrl: './nominate-family.component.html',
   styleUrls: ['./nominate-family.component.scss']
@@ -59,19 +48,14 @@ export class NominateFamilyComponent {
   });
 
   readonly currentMember = signal<FamilyMember>({
+    id: '',
     name: '',
     age: 0,
     gender: '',
     ethnicity: '',
     isChild: false,
-    wishList: []
-  });
-
-  readonly newWish = signal<WishItem>({
-    category: '',
-    description: '',
-    color: '',
-    size: ''
+    items: [],
+    showItemsView: false
   });
 
   readonly isAddingMember = signal(false);
@@ -94,13 +78,9 @@ export class NominateFamilyComponent {
 
   readonly isMemberValid = computed(() => {
     const member = this.currentMember();
-    return this.isMemberBasicInfoValid() && member.wishList.length > 0;
+    return this.isMemberBasicInfoValid() && member.items.length > 0;
   });
 
-  readonly isWishValid = computed(() => {
-    const wish = this.newWish();
-    return !!(wish.category && wish.description.trim());
-  });
 
   readonly isMemberBasicInfoValid = computed(() => {
     const member = this.currentMember();
@@ -120,86 +100,24 @@ export class NominateFamilyComponent {
     email: ['', [Validators.required, Validators.email, Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)]]
   });
 
-  readonly memberForm = this.fb.group({
-    name: ['', [Validators.required]],
-    age: [0, [Validators.required, Validators.min(1)]],
-    gender: ['', [Validators.required]],
-    ethnicity: [''],
-    isChild: [false, [Validators.required]]
-  });
 
-  readonly wishForm = this.fb.group({
-    category: ['', [Validators.required]],
-    description: ['', [Validators.required]],
-    color: [''],
-    size: ['']
-  });
 
   constructor() {
-    // Subscribe to form value changes to automatically sync with current member
-    this.memberForm.valueChanges.subscribe(formValue => {
-      if (this.isAddingMember() && this.currentMember()) {
-        const currentMember = this.currentMember();
-        const updatedMember = {
-          ...currentMember,
-          name: formValue.name || '',
-          age: formValue.age || 0,
-          gender: formValue.gender || '',
-          ethnicity: formValue.ethnicity || '',
-          isChild: formValue.isChild || false
-        };
-        this.currentMember.set(updatedMember);
-        
-        // Update the pending members array
-        const pending = this.pendingMembers();
-        const memberIndex = pending.findIndex(p => p === currentMember);
-        if (memberIndex >= 0) {
-          pending[memberIndex] = updatedMember;
-          this.pendingMembers.set([...pending]);
-        }
-      }
-    });
-
-    this.wishForm.valueChanges.subscribe(formValue => {
-      if (this.isAddingMember() && this.currentMember()) {
-        const currentMember = this.currentMember();
-        const updatedMember = {
-          ...currentMember,
-          wishList: currentMember.wishList // Keep existing wish list
-        };
-        this.currentMember.set(updatedMember);
-      }
-    });
+    // No longer needed as member form is handled by MemberDetailsComponent
   }
 
-  // Dropdown options
-  readonly genderOptions = [
-    { label: 'Male', value: 'Male' },
-    { label: 'Female', value: 'Female' },
-    { label: 'Other', value: 'Other' }
-  ];
 
-  readonly memberTypeOptions = [
-    { label: 'Child', value: true },
-    { label: 'Adult', value: false }
-  ];
-
-  readonly wishCategoryOptions = [
-    { label: 'Toy', value: 'Toy' },
-    { label: 'Clothing', value: 'Clothing' },
-    { label: 'Book', value: 'Book' },
-    { label: 'Electronics', value: 'Electronics' },
-    { label: 'Other', value: 'Other' }
-  ];
 
   addFamilyMember(): void {
     const newMember: FamilyMember = {
+      id: this.generateMemberId(),
       name: '',
       age: 0,
       gender: '',
       ethnicity: '',
       isChild: false,
-      wishList: []
+      items: [],
+      showItemsView: false
     };
     
     const pending = this.pendingMembers();
@@ -218,7 +136,6 @@ export class NominateFamilyComponent {
     this.isAddingMember.set(false);
     const member = this.familyInfo().members[index];
     this.currentMember.set({ ...member });
-    this.memberForm.patchValue(member);
     this.showMemberDetails.set(false);
   }
 
@@ -229,7 +146,23 @@ export class NominateFamilyComponent {
   }
 
   flipCard(): void {
-    this.showMemberDetails.update(show => !show);
+    const member = this.currentMember();
+    member.showItemsView = !member.showItemsView;
+    this.currentMember.set({ ...member });
+    
+    // Update the family info or pending members
+    if (this.editingMemberIndex() !== null) {
+      const family = this.familyInfo();
+      family.members[this.editingMemberIndex()!] = { ...member };
+      this.familyInfo.set({ ...family });
+    } else {
+      const pending = this.pendingMembers();
+      const memberIndex = pending.findIndex(p => p.id === this.currentMember().id);
+      if (memberIndex >= 0) {
+        pending[memberIndex] = { ...member };
+        this.pendingMembers.set([...pending]);
+      }
+    }
   }
 
   cancelAddMember(): void {
@@ -243,26 +176,13 @@ export class NominateFamilyComponent {
     if (pending.length > 0) {
       const nextMember = pending[0];
       this.currentMember.set(nextMember);
-      this.memberForm.patchValue({
-        name: nextMember.name,
-        age: nextMember.age,
-        gender: nextMember.gender,
-        ethnicity: nextMember.ethnicity,
-        isChild: nextMember.isChild
-      });
+      // Member form is now handled by MemberDetailsComponent
       this.isAddingMember.set(true);
     }
   }
 
   selectPendingMember(member: FamilyMember): void {
     this.currentMember.set(member);
-    this.memberForm.patchValue({
-      name: member.name,
-      age: member.age,
-      gender: member.gender,
-      ethnicity: member.ethnicity,
-      isChild: member.isChild
-    });
     this.isAddingMember.set(true);
     this.editingMemberIndex.set(null);
     this.showMemberDetails.set(false);
@@ -270,13 +190,13 @@ export class NominateFamilyComponent {
 
   removePendingMember(member: FamilyMember): void {
     const pending = this.pendingMembers();
-    const index = pending.findIndex(p => p === member);
+    const index = pending.findIndex(p => p.id === member.id);
     if (index >= 0) {
       pending.splice(index, 1);
       this.pendingMembers.set([...pending]);
       
       // If this was the current member, switch to another pending member or reset
-      if (this.currentMember() === member) {
+      if (this.currentMember().id === member.id) {
         if (pending.length > 0) {
           this.selectPendingMember(pending[0]);
         } else {
@@ -286,42 +206,95 @@ export class NominateFamilyComponent {
     }
   }
 
-  addWish(): void {
-    if (this.wishForm.valid) {
-      const wish = this.wishForm.value as WishItem;
-      const member = this.currentMember();
-      member.wishList.push(wish);
-      this.currentMember.set({ ...member });
-      this.resetNewWish();
+  onItemsSaved(items: Item[]): void {
+    const member = this.currentMember();
+    member.items = items;
+    this.currentMember.set({ ...member });
+    
+    // Update the family info or pending members
+    if (this.editingMemberIndex() !== null) {
+      const family = this.familyInfo();
+      family.members[this.editingMemberIndex()!] = { ...member };
+      this.familyInfo.set({ ...family });
+    } else {
+      const pending = this.pendingMembers();
+      const memberIndex = pending.findIndex(p => p.id === this.currentMember().id);
+      if (memberIndex >= 0) {
+        pending[memberIndex] = { ...member };
+        this.pendingMembers.set([...pending]);
+      }
     }
   }
 
-  removeWish(index: number): void {
+  onItemsUpdated(items: Item[]): void {
     const member = this.currentMember();
-    member.wishList.splice(index, 1);
+    member.items = items;
     this.currentMember.set({ ...member });
+    
+    // Update the family info or pending members
+    if (this.editingMemberIndex() !== null) {
+      const family = this.familyInfo();
+      family.members[this.editingMemberIndex()!] = { ...member };
+      this.familyInfo.set({ ...family });
+    } else {
+      const pending = this.pendingMembers();
+      const memberIndex = pending.findIndex(p => p.id === this.currentMember().id);
+      if (memberIndex >= 0) {
+        pending[memberIndex] = { ...member };
+        this.pendingMembers.set([...pending]);
+      }
+    }
+  }
+
+  onMemberUpdated(member: FamilyMember): void {
+    this.currentMember.set(member);
+    
+    // Update the family info or pending members
+    if (this.editingMemberIndex() !== null) {
+      const family = this.familyInfo();
+      family.members[this.editingMemberIndex()!] = { ...member };
+      this.familyInfo.set({ ...family });
+    } else {
+      const pending = this.pendingMembers();
+      const memberIndex = pending.findIndex(p => p.id === member.id);
+      if (memberIndex >= 0) {
+        pending[memberIndex] = { ...member };
+        this.pendingMembers.set([...pending]);
+      }
+    }
+  }
+
+  onFlipCardFromDetails(): void {
+    this.flipCard();
+  }
+
+  onSaveMemberFromDetails(): void {
+    this.saveMember();
+  }
+
+  onCancelMemberFromDetails(): void {
+    this.cancelAddMember();
   }
 
   saveMember(): void {
-    if (this.memberForm.valid && this.isMemberValid()) {
-      const memberData = this.memberForm.value as FamilyMember;
-      const member = { ...memberData, wishList: this.currentMember().wishList };
-      
+    const member = this.currentMember();
+    
+    if (this.isMemberValid()) {
       const family = this.familyInfo();
       const editingIndex = this.editingMemberIndex();
       
       if (editingIndex !== null) {
         // Editing existing member
-        family.members[editingIndex] = member;
+        family.members[editingIndex] = { ...member };
         this.familyInfo.set({ ...family });
       } else {
         // Adding new member from pending list
-        family.members.push(member);
+        family.members.push({ ...member });
         this.familyInfo.set({ ...family });
         
         // Remove from pending list
         const pending = this.pendingMembers();
-        const memberIndex = pending.findIndex(p => p === this.currentMember());
+        const memberIndex = pending.findIndex(p => p.id === this.currentMember().id);
         if (memberIndex >= 0) {
           pending.splice(memberIndex, 1);
           this.pendingMembers.set([...pending]);
@@ -343,27 +316,23 @@ export class NominateFamilyComponent {
     }
   }
 
+  private generateMemberId(): string {
+    return 'member_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+  }
+
   private resetCurrentMember(): void {
     this.currentMember.set({
+      id: '',
       name: '',
       age: 0,
       gender: '',
       ethnicity: '',
       isChild: false,
-      wishList: []
+      items: [],
+      showItemsView: false
     });
-    this.memberForm.reset();
   }
 
-  private resetNewWish(): void {
-    this.newWish.set({
-      category: '',
-      description: '',
-      color: '',
-      size: ''
-    });
-    this.wishForm.reset();
-  }
 
   // Form getters for template
   get familyName() { return this.familyForm.get('name'); }
@@ -371,16 +340,7 @@ export class NominateFamilyComponent {
   get familyPhone() { return this.familyForm.get('phone'); }
   get familyEmail() { return this.familyForm.get('email'); }
   
-  get memberName() { return this.memberForm.get('name'); }
-  get memberAge() { return this.memberForm.get('age'); }
-  get memberGender() { return this.memberForm.get('gender'); }
-  get memberEthnicity() { return this.memberForm.get('ethnicity'); }
-  get memberType() { return this.memberForm.get('isChild'); }
   
-  get wishCategory() { return this.wishForm.get('category'); }
-  get wishDescription() { return this.wishForm.get('description'); }
-  get wishColor() { return this.wishForm.get('color'); }
-  get wishSize() { return this.wishForm.get('size'); }
 
   // Helper method for email validation errors
   getEmailErrorMessage(): string {

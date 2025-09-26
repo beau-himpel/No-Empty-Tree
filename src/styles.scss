@@ -31,43 +31,379 @@ h1, h2, h3, h4, h5, h6 {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
 }
 
-.p-button {
+/* Global p-button styling */
+p-button {
   font-weight: 500;
   letter-spacing: 0.025em;
-  border-radius: 8px;
+  border-radius: 16px;
   transition: all 0.2s ease;
   padding: 0.5rem 1rem;
+  border: 1px solid #ddd !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 1rem !important;
+  min-height: 2.5rem !important;
+  box-sizing: border-box;
+  
+  .p-button-label {
+    display: flex;
+    align-items: center;
+  }
+  
+  .p-button-icon {
+    display: flex;
+    align-items: center;
+  }
+  
+  .p-button-icon-left {
+    margin-right: 1rem !important;
+  }
+  
+  .p-button-icon-right {
+    margin-left: 1rem !important;
+  }
+  
+  /* Hover effects */
+  &:hover:not(.p-disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  /* Active state */
+  &:active:not(.p-disabled) {
+    transform: translateY(0);
+  }
+  
+  /* Disabled state */
+  &.p-disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 }
 
-.p-card {
+/* Button size variants */
+p-button[size="small"] {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  min-height: 2rem;
+}
+
+p-button[size="large"] {
+  padding: 0.75rem 1.5rem;
+  font-size: 1.125rem;
+  min-height: 3rem;
+}
+
+/* Button severity variants */
+p-button[severity="primary"] {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: white;
+  
+  &:hover:not(.p-disabled) {
+    background: #2563eb;
+    border-color: #2563eb;
+  }
+}
+
+p-button[severity="secondary"] {
+  background: #6b7280;
+  border-color: #6b7280;
+  color: white;
+  
+  &:hover:not(.p-disabled) {
+    background: #4b5563;
+    border-color: #4b5563;
+  }
+}
+
+p-button[severity="success"] {
+  background: #10b981;
+  border-color: #10b981;
+  color: white;
+  
+  &:hover:not(.p-disabled) {
+    background: #059669;
+    border-color: #059669;
+  }
+}
+
+p-button[severity="info"] {
+  background: #06b6d4;
+  border-color: #06b6d4;
+  color: white;
+  
+  &:hover:not(.p-disabled) {
+    background: #0891b2;
+    border-color: #0891b2;
+  }
+}
+
+p-button[severity="warning"] {
+  background: #f59e0b;
+  border-color: #f59e0b;
+  color: white;
+  
+  &:hover:not(.p-disabled) {
+    background: #d97706;
+    border-color: #d97706;
+  }
+}
+
+p-button[severity="danger"] {
+  background: #ef4444;
+  border-color: #ef4444;
+  color: white;
+  
+  &:hover:not(.p-disabled) {
+    background: #dc2626;
+    border-color: #dc2626;
+  }
+}
+
+p-button[severity="help"] {
+  background: #8b5cf6;
+  border-color: #8b5cf6;
+  color: white;
+  
+  &:hover:not(.p-disabled) {
+    background: #7c3aed;
+    border-color: #7c3aed;
+  }
+}
+
+p-button[severity="text"] {
+  background: transparent;
+  border-color: transparent;
+  color: #3b82f6;
+  
+  &:hover:not(.p-disabled) {
+    background: #f1f5f9;
+    border-color: #e2e8f0;
+  }
+}
+
+p-button[severity="outlined"] {
+  background: transparent;
+  color: #3b82f6;
+  border-color: #3b82f6;
+  
+  &:hover:not(.p-disabled) {
+    background: #3b82f6;
+    color: white;
+  }
+}
+
+/* Special outlined button styling */
+.outlined-button p-button {
+  border: 2px solid #667eea !important;
+  background: transparent;
+  color: #667eea;
+  border-radius: 25px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  
+  &:hover:not(.p-disabled) {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  }
+  
+  &:active:not(.p-disabled) {
+    transform: translateY(0);
+  }
+}
+
+p-card {
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   border: none;
 }
 
-.p-inputtext, .p-inputtextarea {
+/* Input styling */
+p-inputtext, p-inputtextarea {
   border-radius: 8px;
   border: 1px solid #e2e8f0;
+  background: #ffffff;
   transition: all 0.2s ease;
+  padding: 0.75rem;
+  font-size: 1rem;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 32px;
 }
 
-.p-inputtext:focus, .p-inputtextarea:focus {
+p-inputtext:focus, p-inputtextarea:focus {
   border-color: #3b82f6;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  outline: none;
 }
 
-.p-dropdown {
+p-inputtext.ng-invalid.ng-touched, p-inputtextarea.ng-invalid.ng-touched {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+/* Password input styling */
+p-password .p-password-input {
   border-radius: 8px;
   border: 1px solid #e2e8f0;
+  background: #ffffff;
+  transition: all 0.2s ease;
+  padding: 0.75rem;
+  font-size: 1rem;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 32px;
 }
 
-.p-dropdown:not(.p-disabled):hover {
-  border-color: #3b82f6;
-}
-
-.p-dropdown:not(.p-disabled).p-focus {
+p-password .p-password-input:focus {
   border-color: #3b82f6;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  outline: none;
+}
+
+p-password .p-password-input.ng-invalid.ng-touched {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+/* Select/Dropdown styling */
+p-select, p-dropdown {
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+p-select .p-select-label, p-dropdown .p-dropdown-label {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.75rem;
+  font-size: 1rem;
+  transition: border-color 0.2s ease;
+  background: #ffffff;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+p-select .p-select-trigger, p-dropdown .p-dropdown-trigger {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.75rem;
+  font-size: 1rem;
+  transition: border-color 0.2s ease;
+  background: #ffffff;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+p-select:not(.p-disabled):hover .p-select-label,
+p-select:not(.p-disabled):hover .p-select-trigger,
+p-dropdown:not(.p-disabled):hover .p-dropdown-label,
+p-dropdown:not(.p-disabled):hover .p-dropdown-trigger {
+  border-color: #3b82f6;
+}
+
+p-select:not(.p-disabled).p-focus .p-select-label,
+p-select:not(.p-disabled).p-focus .p-select-trigger,
+p-dropdown:not(.p-disabled).p-focus .p-dropdown-label,
+p-dropdown:not(.p-disabled).p-focus .p-dropdown-trigger {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+p-select.ng-invalid.ng-touched .p-select-label,
+p-select.ng-invalid.ng-touched .p-select-trigger,
+p-dropdown.ng-invalid.ng-touched .p-dropdown-label,
+p-dropdown.ng-invalid.ng-touched .p-dropdown-trigger {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+/* Dropdown panel styling */
+p-select .p-select-overlay, p-dropdown .p-dropdown-overlay {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  margin-top: 4px;
+  background: white;
+  z-index: 1000;
+}
+
+p-select .p-select-list .p-select-option,
+p-dropdown .p-dropdown-list .p-dropdown-item {
+  padding: 0.75rem;
+  font-size: 1rem;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+
+p-select .p-select-list .p-select-option:hover,
+p-dropdown .p-dropdown-list .p-dropdown-item:hover {
+  background-color: #f8f9fa;
+}
+
+p-select .p-select-list .p-select-option.p-highlight,
+p-dropdown .p-dropdown-list .p-dropdown-item.p-highlight {
+  background-color: #3b82f6;
+  color: white;
+}
+
+/* Global input styling for all input types */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="tel"],
+input[type="url"],
+input[type="search"],
+textarea {
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  transition: all 0.2s ease;
+  padding: 0.75rem;
+  font-size: 1rem;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 32px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+input[type="tel"]:focus,
+input[type="url"]:focus,
+input[type="search"]:focus,
+textarea:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  outline: none;
+}
+
+input[type="text"].ng-invalid.ng-touched,
+input[type="email"].ng-invalid.ng-touched,
+input[type="password"].ng-invalid.ng-touched,
+input[type="number"].ng-invalid.ng-touched,
+input[type="tel"].ng-invalid.ng-touched,
+input[type="url"].ng-invalid.ng-touched,
+input[type="search"].ng-invalid.ng-touched,
+textarea.ng-invalid.ng-touched {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
 }
 
 /* Remove number input spinners globally */
