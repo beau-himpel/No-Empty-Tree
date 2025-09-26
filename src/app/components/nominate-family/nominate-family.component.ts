@@ -4,7 +4,7 @@ import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputTextarea } from 'primeng/inputtextarea';
-import { DropdownModule } from 'primeng/dropdown';
+import { SelectModule } from 'primeng/select';
 import { Router } from '@angular/router';
 import { AuthService } from '../../auth.service';
 
@@ -40,7 +40,7 @@ interface FamilyInfo {
     CardModule, 
     ButtonModule, 
     InputTextModule, 
-    DropdownModule
+    SelectModule
   ],
   templateUrl: './nominate-family.component.html',
   styleUrls: ['./nominate-family.component.scss']
@@ -77,6 +77,7 @@ export class NominateFamilyComponent {
   readonly isAddingMember = signal(false);
   readonly editingMemberIndex = signal<number | null>(null);
   readonly showMemberDetails = signal(false);
+  readonly pendingMembers = signal<FamilyMember[]>([]);
 
   // Computed values
   readonly isFamilyValid = computed(() => {
@@ -134,6 +135,43 @@ export class NominateFamilyComponent {
     size: ['']
   });
 
+  constructor() {
+    // Subscribe to form value changes to automatically sync with current member
+    this.memberForm.valueChanges.subscribe(formValue => {
+      if (this.isAddingMember() && this.currentMember()) {
+        const currentMember = this.currentMember();
+        const updatedMember = {
+          ...currentMember,
+          name: formValue.name || '',
+          age: formValue.age || 0,
+          gender: formValue.gender || '',
+          ethnicity: formValue.ethnicity || '',
+          isChild: formValue.isChild || false
+        };
+        this.currentMember.set(updatedMember);
+        
+        // Update the pending members array
+        const pending = this.pendingMembers();
+        const memberIndex = pending.findIndex(p => p === currentMember);
+        if (memberIndex >= 0) {
+          pending[memberIndex] = updatedMember;
+          this.pendingMembers.set([...pending]);
+        }
+      }
+    });
+
+    this.wishForm.valueChanges.subscribe(formValue => {
+      if (this.isAddingMember() && this.currentMember()) {
+        const currentMember = this.currentMember();
+        const updatedMember = {
+          ...currentMember,
+          wishList: currentMember.wishList // Keep existing wish list
+        };
+        this.currentMember.set(updatedMember);
+      }
+    });
+  }
+
   // Dropdown options
   readonly genderOptions = [
     { label: 'Male', value: 'Male' },
@@ -155,9 +193,23 @@ export class NominateFamilyComponent {
   ];
 
   addFamilyMember(): void {
+    const newMember: FamilyMember = {
+      name: '',
+      age: 0,
+      gender: '',
+      ethnicity: '',
+      isChild: false,
+      wishList: []
+    };
+    
+    const pending = this.pendingMembers();
+    pending.push(newMember);
+    this.pendingMembers.set([...pending]);
+    
+    // Set up for editing the new member
     this.isAddingMember.set(true);
     this.editingMemberIndex.set(null);
-    this.resetCurrentMember();
+    this.currentMember.set(newMember);
     this.showMemberDetails.set(false);
   }
 
@@ -185,6 +237,53 @@ export class NominateFamilyComponent {
     this.editingMemberIndex.set(null);
     this.showMemberDetails.set(false);
     this.resetCurrentMember();
+    
+    // If there are pending members, switch to the next one
+    const pending = this.pendingMembers();
+    if (pending.length > 0) {
+      const nextMember = pending[0];
+      this.currentMember.set(nextMember);
+      this.memberForm.patchValue({
+        name: nextMember.name,
+        age: nextMember.age,
+        gender: nextMember.gender,
+        ethnicity: nextMember.ethnicity,
+        isChild: nextMember.isChild
+      });
+      this.isAddingMember.set(true);
+    }
+  }
+
+  selectPendingMember(member: FamilyMember): void {
+    this.currentMember.set(member);
+    this.memberForm.patchValue({
+      name: member.name,
+      age: member.age,
+      gender: member.gender,
+      ethnicity: member.ethnicity,
+      isChild: member.isChild
+    });
+    this.isAddingMember.set(true);
+    this.editingMemberIndex.set(null);
+    this.showMemberDetails.set(false);
+  }
+
+  removePendingMember(member: FamilyMember): void {
+    const pending = this.pendingMembers();
+    const index = pending.findIndex(p => p === member);
+    if (index >= 0) {
+      pending.splice(index, 1);
+      this.pendingMembers.set([...pending]);
+      
+      // If this was the current member, switch to another pending member or reset
+      if (this.currentMember() === member) {
+        if (pending.length > 0) {
+          this.selectPendingMember(pending[0]);
+        } else {
+          this.cancelAddMember();
+        }
+      }
+    }
   }
 
   addWish(): void {
@@ -212,12 +311,23 @@ export class NominateFamilyComponent {
       const editingIndex = this.editingMemberIndex();
       
       if (editingIndex !== null) {
+        // Editing existing member
         family.members[editingIndex] = member;
+        this.familyInfo.set({ ...family });
       } else {
+        // Adding new member from pending list
         family.members.push(member);
+        this.familyInfo.set({ ...family });
+        
+        // Remove from pending list
+        const pending = this.pendingMembers();
+        const memberIndex = pending.findIndex(p => p === this.currentMember());
+        if (memberIndex >= 0) {
+          pending.splice(memberIndex, 1);
+          this.pendingMembers.set([...pending]);
+        }
       }
       
-      this.familyInfo.set({ ...family });
       this.cancelAddMember();
     }
   }

@@ -1,4 +1,14 @@
 <div class="nominate-container">
+  <div class="save-section">
+    <p-button 
+      label="Submit Family" 
+      icon="pi pi-save" 
+      size="large"
+      (click)="saveFamily()"
+      [disabled]="!isFamilyValid()">
+    </p-button>
+  </div>
+  
   <p-card styleClass="nomination-card">
     <div class="form-container">
       <!-- Family Information Section -->
@@ -7,28 +17,19 @@
         <form [formGroup]="familyForm" class="form-grid">
           <div class="form-field">
             <label for="familyName">Family Name *</label>
-            <input pInputText id="familyName" formControlName="name" placeholder="Enter family name" />
-            @if (familyName?.invalid && familyName?.touched) {
-              <div class="error-message">Family name is required</div>
-            }
+            <input pInputText id="familyName" formControlName="name" />
           </div>
           <div class="form-field">
             <label for="address">Address *</label>
-            <input pInputText id="address" formControlName="address" placeholder="Enter full address" />
-            @if (familyAddress?.invalid && familyAddress?.touched) {
-              <div class="error-message">Address is required</div>
-            }
+            <input pInputText id="address" formControlName="address" />
           </div>
           <div class="form-field">
             <label for="phone">Phone Number</label>
-            <input pInputText id="phone" formControlName="phone" placeholder="Enter phone number" />
+            <input pInputText id="phone" formControlName="phone" />
           </div>
           <div class="form-field">
             <label for="email">Email *</label>
-            <input pInputText id="email" formControlName="email" placeholder="Enter email address" type="email" />
-            @if (getEmailErrorMessage()) {
-              <div class="error-message">{{ getEmailErrorMessage() }}</div>
-            }
+            <input pInputText id="email" formControlName="email" type="email" />
           </div>
         </form>
       </div>
@@ -39,11 +40,8 @@
           <h3>Family Members</h3>
           <p-button 
             label="Add Family Member" 
-            icon="pi pi-plus" 
-            iconPos="right"
             styleClass="outlined-button"
-            (click)="addFamilyMember()"
-            [disabled]="isAddingMember()">
+            (click)="addFamilyMember()">
           </p-button>
         </div>
 
@@ -76,75 +74,86 @@
           </div>
         }
 
+        <!-- Pending Members List -->
+        @if (pendingMembers().length > 0) {
+          <div class="pending-members-section">
+            <div class="pending-members-list">
+              @for (pendingMember of pendingMembers(); track $index; let i = $index) {
+                <div class="pending-member-item" 
+                     [class.active]="pendingMember === currentMember()"
+                     (click)="selectPendingMember(pendingMember)">
+                  <span class="member-preview">
+                    {{ pendingMember.name || 'New Member ' + (i + 1) }}
+                    @if (pendingMember.name) {
+                      <span class="member-details">{{ pendingMember.age }} years old, {{ pendingMember.gender }}</span>
+                    }
+                  </span>
+                  <div class="pending-actions">
+                    <p-button 
+                      icon="pi pi-trash" 
+                      severity="danger" 
+                      size="small"
+                      (click)="removePendingMember(pendingMember); $event.stopPropagation()">
+                    </p-button>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
         <!-- Add/Edit Family Member Card -->
         @if (isAddingMember() || editingMemberIndex() !== null) {
           <div class="member-card-container">
             <div class="member-card" [class.flipped]="showMemberDetails()">
               <!-- Front of card - Basic Info -->
               <div class="card-front">
-                <h4>{{ editingMemberIndex() !== null ? 'Edit' : 'Add' }} Family Member</h4>
+                <h4>
+                  @if (editingMemberIndex() !== null) {
+                    Edit {{ currentMember().name || 'Family Member' }}
+                  } @else {
+                    {{ currentMember().name ? currentMember().name : 'Add Family Member' }}
+                  }
+                </h4>
                 <form [formGroup]="memberForm" class="form-grid">
                   <div class="form-field">
                     <label for="memberName">Name *</label>
-                    <input pInputText id="memberName" formControlName="name" placeholder="Enter name" />
-                    @if (memberName?.invalid && memberName?.touched) {
-                      <div class="error-message">Name is required</div>
-                    }
+                    <input pInputText id="memberName" formControlName="name" />
+                 
                   </div>
                   <div class="form-field">
                     <label for="memberAge">Age *</label>
-                    <input pInputText id="memberAge" type="number" formControlName="age" placeholder="Enter age" />
-                    @if (memberAge?.invalid && memberAge?.touched) {
-                      <div class="error-message">Valid age is required</div>
-                    }
+                    <input pInputText id="memberAge" type="number" formControlName="age" />
+                  
                   </div>
                   <div class="form-field">
                     <label for="memberGender">Gender *</label>
-                    <p-dropdown 
+                    <p-select 
                       id="memberGender" 
                       [options]="genderOptions" 
                       formControlName="gender"
-                      placeholder="Select gender">
-                    </p-dropdown>
-                    @if (memberGender?.invalid && memberGender?.touched) {
-                      <div class="error-message">Gender is required</div>
-                    }
+>
+                    </p-select>
                   </div>
                   <div class="form-field">
                     <label for="memberEthnicity">Ethnicity</label>
-                    <input pInputText id="memberEthnicity" formControlName="ethnicity" placeholder="Enter ethnicity" />
+                    <input pInputText id="memberEthnicity" formControlName="ethnicity" />
                   </div>
                   <div class="form-field">
                     <label for="memberType">Type *</label>
-                    <p-dropdown 
+                    <p-select 
                       id="memberType" 
                       [options]="memberTypeOptions" 
                       formControlName="isChild"
-                      placeholder="Select type">
-                    </p-dropdown>
-                    @if (memberType?.invalid && memberType?.touched) {
-                      <div class="error-message">Type is required</div>
-                    }
+>
+                    </p-select>
                   </div>
                 </form>
-                <div class="card-actions">
-                  <p-button 
-                    label="Next" 
-                    icon="pi pi-arrow-right" 
-                    (click)="flipCard()"
-                    [disabled]="!isMemberBasicInfoValid()">
-                  </p-button>
-                  <p-button 
-                    label="Cancel" 
-                    severity="secondary" 
-                    (click)="cancelAddMember()">
-                  </p-button>
-                </div>
               </div>
 
               <!-- Back of card - Wish List -->
               <div class="card-back">
-                <h4>Wish List for {{ currentMember().name }}</h4>
+                <h4>Wish List for {{ currentMember().name || 'Family Member' }}</h4>
                 <div class="wish-list-section">
                   @for (wish of currentMember().wishList; track wish.description; let wishIndex = $index) {
                     <div class="wish-item">
@@ -171,31 +180,25 @@
                     <form [formGroup]="wishForm" class="form-grid">
                       <div class="form-field">
                         <label for="wishCategory">Category *</label>
-                        <p-dropdown 
+                        <p-select 
                           id="wishCategory" 
                           [options]="wishCategoryOptions" 
                           formControlName="category"
-                          placeholder="Select category">
-                        </p-dropdown>
-                        @if (wishCategory?.invalid && wishCategory?.touched) {
-                          <div class="error-message">Category is required</div>
-                        }
+>
+                        </p-select>
                       </div>
                       <div class="form-field">
                         <label for="wishDescription">Description *</label>
-                        <input pInputText id="wishDescription" formControlName="description" placeholder="Describe the item" />
-                        @if (wishDescription?.invalid && wishDescription?.touched) {
-                          <div class="error-message">Description is required</div>
-                        }
+                        <input pInputText id="wishDescription" formControlName="description" />
                       </div>
                       @if (wishForm.get('category')?.value === 'Clothing') {
                         <div class="form-field">
                           <label for="wishColor">Color</label>
-                          <input pInputText id="wishColor" formControlName="color" placeholder="Enter color preference" />
+                          <input pInputText id="wishColor" formControlName="color" />
                         </div>
                         <div class="form-field">
                           <label for="wishSize">Size</label>
-                          <input pInputText id="wishSize" formControlName="size" placeholder="Enter size" />
+                          <input pInputText id="wishSize" formControlName="size" />
                         </div>
                       }
                     </form>
@@ -209,35 +212,10 @@
                     </div>
                   </div>
                 </div>
-                <div class="card-actions">
-                  <p-button 
-                    label="Back" 
-                    icon="pi pi-arrow-left" 
-                    severity="secondary"
-                    (click)="flipCard()">
-                  </p-button>
-                  <p-button 
-                    label="Save Member" 
-                    icon="pi pi-check" 
-                    (click)="saveMember()"
-                    [disabled]="!isMemberValid()">
-                  </p-button>
-                </div>
               </div>
             </div>
           </div>
         }
-      </div>
-
-      <!-- Save Family Button -->
-      <div class="save-section">
-        <p-button 
-          label="Save Family" 
-          icon="pi pi-save" 
-          size="large"
-          (click)="saveFamily()"
-          [disabled]="!isFamilyValid()">
-        </p-button>
       </div>
     </div>
   </p-card>

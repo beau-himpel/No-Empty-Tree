@@ -21,11 +21,20 @@ export class AuthService {
   }
 
   private async initializeAuth(): Promise<void> {
-    const { data: { session } } = await this.supabaseService.client.auth.getSession();
-    this.updateAuthState(session ?? null);
+    try {
+      const { data: { session } } = await this.supabaseService.client.auth.getSession();
+      this.updateAuthState(session ?? null);
+    } catch (error) {
+      console.warn('Error getting initial session:', error);
+      this.updateAuthState(null);
+    }
 
     this.supabaseService.client.auth.onAuthStateChange((_event, session) => {
-      this.updateAuthState(session ?? null);
+      try {
+        this.updateAuthState(session ?? null);
+      } catch (error) {
+        console.warn('Error updating auth state:', error);
+      }
     });
   }
 
@@ -36,27 +45,48 @@ export class AuthService {
   }
 
   async signInWithGoogle(): Promise<void> {
-    const { error } = await this.supabaseService.client.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: `${window.location.origin}/landing` }
-    });
-    if (error) throw error;
+    try {
+      const { error } = await this.supabaseService.client.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: `${window.location.origin}/landing` }
+      });
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error signing in with Google:', error);
+      throw error;
+    }
   }
 
   async signInWithEmail(email: string, password: string): Promise<void> {
-    const { error } = await this.supabaseService.client.auth.signInWithPassword({ email, password });
-    if (error) throw error;
+    try {
+      const { error } = await this.supabaseService.client.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error signing in with email:', error);
+      throw error;
+    }
   }
 
   async signUpWithEmail(email: string, password: string): Promise<void> {
-    const { error } = await this.supabaseService.client.auth.signUp({ email, password });
-    if (error) throw error;
+    try {
+      const { error } = await this.supabaseService.client.auth.signUp({ email, password });
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error signing up with email:', error);
+      throw error;
+    }
   }
 
   async signOut(): Promise<void> {
-    const { error } = await this.supabaseService.client.auth.signOut();
-    if (error) throw error;
-    this.router.navigate(['/sign-in']);
+    try {
+      const { error } = await this.supabaseService.client.auth.signOut();
+      if (error) throw error;
+      this.router.navigate(['/sign-in']);
+    } catch (error) {
+      console.error('Error signing out:', error);
+      // Still navigate to sign-in page even if signOut fails
+      this.router.navigate(['/sign-in']);
+    }
   }
 
   getCurrentUser(): User | null {
