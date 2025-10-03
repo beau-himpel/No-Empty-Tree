@@ -55,7 +55,7 @@ export class SignInComponent {
         this.errorMessage.set('Check your email for a confirmation link!');
       } else {
         await this.authService.signInWithEmail(this.email(), this.password());
-        this.router.navigate(['/landing']);
+        this.router.navigate(['/']);
       }
     } catch (error: any) {
       console.error('Sign in failed:', error);

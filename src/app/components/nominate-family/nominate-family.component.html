@@ -1,5 +1,6 @@
 <div class="nominate-container">
-  <div class="save-section">
+  <div class="flex justify-between items-center mb-10">
+    <h3>Family Information</h3>
     <p-button 
       label="Submit Family" 
       icon="pi pi-save" 
@@ -12,21 +13,19 @@
   
   <p-card styleClass="nomination-card">
     <div class="form-container">
-      <!-- Family Information Section -->
       <div class="family-info-section">
-        <h3>Family Information</h3>
         <form [formGroup]="familyForm" class="form-grid">
           <div class="form-field">
             <label for="familyName">Family Name *</label>
-            <input pInputText id="familyName" formControlName="name" />
+            <input pInputText id="familyName" formControlName="name" type="text" />
           </div>
           <div class="form-field">
             <label for="address">Address *</label>
-            <input pInputText id="address" formControlName="address" />
+            <input pInputText id="address" formControlName="address" type="text" />
           </div>
           <div class="form-field">
             <label for="phone">Phone Number</label>
-            <input pInputText id="phone" formControlName="phone" />
+            <input pInputText id="phone" formControlName="phone" type="text" />
           </div>
           <div class="form-field">
             <label for="email">Email *</label>
@@ -35,7 +34,6 @@
         </form>
       </div>
 
-      <!-- Family Members Section -->
       <div class="family-members-section">
         <div class="section-header">
           <h3>Family Members</h3>
@@ -48,119 +46,30 @@
           </p-button>
         </div>
 
-        <!-- Existing Family Members List -->
-        @if (familyInfo().members.length > 0) {
-          <div class="members-list">
-            @for (member of familyInfo().members; track member.name; let i = $index) {
-              <div class="member-item">
-                <div class="member-info">
-                  <span class="member-name">{{ member.name }}</span>
-                  <span class="member-details">{{ member.age }} years old, {{ member.gender }}</span>
-                  <span class="member-type">{{ member.isChild ? 'Child' : 'Adult' }}</span>
-                </div>
-                <div class="member-actions">
-                  <p-button 
-                    label="Add Items" 
-                    icon="pi pi-plus" 
-                    iconPos="right"
-                    severity="info" 
-                    size="small"
-                    (click)="editMember(i)">
-                  </p-button>
-                  <p-button 
-                    icon="pi pi-pencil" 
-                    iconPos="right"
-                    severity="secondary" 
-                    size="small"
-                    (click)="editMember(i)">
-                  </p-button>
-                  <p-button 
-                    icon="pi pi-trash" 
-                    iconPos="right"
-                    severity="danger" 
-                    size="small"
-                    (click)="removeMember(i)">
-                  </p-button>
-                </div>
-              </div>
-            }
-          </div>
-        }
+        <p-accordion [value]="0">
+            @for (member of familyInfo().members; track $index; let i = $index) {
 
-        <!-- Pending Members List -->
-        @if (pendingMembers().length > 0) {
-          <div class="pending-members-section">
-            <div class="pending-members-list">
-              @for (pendingMember of pendingMembers(); track $index; let i = $index) {
-                <div class="pending-member-container">
-                  <!-- Member Preview -->
-                  <div class="pending-member-item" 
-                       [class.active]="pendingMember.id === currentMember().id"
-                       (click)="selectPendingMember(pendingMember)">
-                    <span class="member-preview">
-                      {{ pendingMember.name || 'New Member ' + (i + 1) }}
-                      @if (pendingMember.name) {
-                        <span class="member-details">{{ pendingMember.age }} years old, {{ pendingMember.gender }}</span>
-                      }
-                    </span>
-                    <div class="pending-actions">
-                      <p-button 
-                        icon="pi pi-trash" 
-                        iconPos="right"
-                        severity="danger" 
-                        size="small"
-                        (click)="removePendingMember(pendingMember); $event.stopPropagation()">
-                      </p-button>
-                    </div>
-                  </div>
-
-                  <!-- Member Card for this specific pending member -->
-                  @if (pendingMember.id === currentMember().id && (isAddingMember() || editingMemberIndex() !== null)) {
-                    <div class="member-card-container">
-                      <div class="member-card" [class.flipped]="pendingMember.showItemsView">
-                        <!-- Front of card - Basic Info -->
-                        <div class="card-front">
-                          <app-member-details
-                            [member]="pendingMember"
-                            [isEditing]="editingMemberIndex() !== null"
-                            [isAdding]="isAddingMember()"
-                            (memberUpdated)="onMemberUpdated($event)"
-                            (flipCard)="onFlipCardFromDetails()"
-                            (saveMember)="onSaveMemberFromDetails()"
-                            (cancelMember)="onCancelMemberFromDetails()">
-                          </app-member-details>
-                        </div>
-
-                        <!-- Back of card - Items List -->
-                        <div class="card-back">
-                          <div class="card-header">
-                            <h4>Items for {{ pendingMember.name || 'Family Member' }}</h4>
-                            <p-button 
-                              label="Back to Info" 
-                              icon="pi pi-arrow-left" 
-                              iconPos="right"
-                              severity="secondary" 
-                              size="small"
-                              (click)="flipCard()">
-                            </p-button>
-                          </div>
-                          <div class="items-section">
-                            <app-item-form
-                              [memberName]="pendingMember.name"
-                              [existingItems]="pendingMember.items"
-                              (itemsSaved)="onItemsSaved($event)"
-                              (itemsUpdated)="onItemsUpdated($event)">
-                            </app-item-form>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  }
-                </div>
-              }
-            </div>
-          </div>
-        }
+              <p-accordion-panel [value]="i">
+                  <p-accordion-header>{{ member.name }}</p-accordion-header>
+                  <p-accordion-content>
+                    <app-family-member
+                    [member]="member"
+                    [isCurrentMember]="member.id === currentMember().id"
+                    [isAddingMember]="isAddingMember()"
+                    [editingMemberIndex]="editingMemberIndex()"
+                    [memberIndex]="i"
+                    (memberSelected)="editMember(i)"
+                    (memberRemoved)="removeMember(i)"
+                    (memberUpdated)="onMemberUpdated($event)"
+                    (flipCard)="onFlipCardFromDetails()"
+                    (itemsSaved)="onItemsSaved($event)"
+                    (itemsUpdated)="onItemsUpdated($event)">
+                  </app-family-member>
+                  </p-accordion-content>
+              </p-accordion-panel>
+          }
+      </p-accordion>
+  
       </div>
     </div>
   </p-card>

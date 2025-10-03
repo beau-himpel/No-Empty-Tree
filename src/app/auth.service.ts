@@ -81,11 +81,11 @@ export class AuthService {
     try {
       const { error } = await this.supabaseService.client.auth.signOut();
       if (error) throw error;
-      this.router.navigate(['/sign-in']);
+      this.router.navigate(['/']);
     } catch (error) {
       console.error('Error signing out:', error);
-      // Still navigate to sign-in page even if signOut fails
-      this.router.navigate(['/sign-in']);
+      // Still navigate to home page even if signOut fails
+      this.router.navigate(['/']);
     }
   }
 

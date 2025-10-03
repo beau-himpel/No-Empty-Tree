@@ -1,24 +1,35 @@
-<div class="landing-container">
+<div class="flex h-screen relative overflow-hidden">
   @if (!isLoggedIn()) {
-    <div class="sign-in-section">
-      <button (click)="signInWithGoogle()" class="sign-in-btn">
+    <div class="absolute top-5 right-5 z-10">
+      <button (click)="signInWithGoogle()" class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-none px-5 py-3 rounded-lg text-base font-semibold cursor-pointer transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0">
         Sign In to Get Started
       </button>
     </div>
   }
   
-  <div class="side nominate" 
+  <div class="flex-1 flex justify-center items-center transition-all duration-500 ease-out cursor-pointer relative overflow-hidden bg-white hover:bg-slate-50"
+       [class.flex-[2]!]="focus==='nominate'"
+       [class.scale-[1.02]]="focus==='nominate'"
        (mouseenter)="hover('nominate')" 
        (mouseleave)="hover('')" 
-       [class.focus]="focus==='nominate'" 
        (click)="navigate('nominate')">
-    <h2>Nominate a Family</h2>
+    <div class="absolute inset-0 bg-gradient-radial from-transparent via-black/5 to-black/15 opacity-0 transition-opacity duration-500 pointer-events-none"
+         [class.opacity-100]="focus==='nominate'"></div>
+    <h2 class="text-5xl md:text-6xl font-bold text-center m-0 relative z-10 text-shadow-sm transition-all duration-300 ease-out bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent hover:scale-110"
+        [class.scale-110]="focus==='nominate'"
+        [class.text-shadow-md]="focus==='nominate'">Nominate a Family</h2>
   </div>
-  <div class="side adopt" 
+  
+  <div class="flex-1 flex justify-center items-center transition-all duration-500 ease-out cursor-pointer relative overflow-hidden bg-white hover:bg-pink-50"
+       [class.flex-[2]!]="focus==='adopt'"
+       [class.scale-[1.02]]="focus==='adopt'"
        (mouseenter)="hover('adopt')" 
        (mouseleave)="hover('')" 
-       [class.focus]="focus==='adopt'" 
        (click)="navigate('adopt')">
-    <h2>Adopt a Family</h2>
+    <div class="absolute inset-0 bg-gradient-radial from-transparent via-black/5 to-black/15 opacity-0 transition-opacity duration-500 pointer-events-none"
+         [class.opacity-100]="focus==='adopt'"></div>
+    <h2 class="text-5xl md:text-6xl font-bold text-center m-0 relative z-10 text-shadow-sm transition-all duration-300 ease-out bg-gradient-to-r from-pink-400 to-red-500 bg-clip-text text-transparent hover:scale-110"
+        [class.scale-110]="focus==='adopt'"
+        [class.text-shadow-md]="focus==='adopt'">Adopt a Family</h2>
   </div>
 </div> 

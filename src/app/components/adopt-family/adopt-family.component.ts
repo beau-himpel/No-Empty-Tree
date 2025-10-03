@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { Router } from '@angular/router';
@@ -14,11 +14,9 @@ import { Family } from '../../shared/types';
   templateUrl: './adopt-family.component.html',
   styleUrls: ['./adopt-family.component.scss']
 })
-export class AdoptFamilyComponent implements OnInit, AfterViewInit {
+export class AdoptFamilyComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
-
-  @ViewChild(FamilyDetailsComponent) familyDetailsComponent!: FamilyDetailsComponent;
 
   selectedFamily = signal<Family | null>(null);
   currentUser = signal<string | null>(null);
@@ -42,10 +40,6 @@ export class AdoptFamilyComponent implements OnInit, AfterViewInit {
     }
   }
 
-  ngAfterViewInit(): void {
-    // Ensure ViewChild is available
-  }
-
   getFamilyCounts(familyId: string): { adultCount: number; childCount: number } {
     const family = this.availableFamilies().find(f => f.id === familyId);
     if (!family) return { adultCount: 0, childCount: 0 };
@@ -58,20 +52,10 @@ export class AdoptFamilyComponent implements OnInit, AfterViewInit {
 
   viewFamilyDetails(family: Family): void {
     this.selectedFamily.set(family);
-    
-    // Use a more reliable approach to open the dialog
-    if (this.familyDetailsComponent) {
-      this.familyDetailsComponent.openDialog();
-    } else {
-      // Fallback: try again after a short delay
-      setTimeout(() => {
-        if (this.familyDetailsComponent) {
-          this.familyDetailsComponent.openDialog();
-        } else {
-          console.error('FamilyDetailsComponent not available');
-        }
-      }, 100);
-    }
+  }
+
+  onFamilyDetailsClose(): void {
+    this.selectedFamily.set(null);
   }
 
   navigateToNominate(): void {

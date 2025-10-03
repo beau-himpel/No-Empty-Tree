@@ -1,0 +1,65 @@
+<div class="pending-member-container">
+  <!-- Member Preview -->
+  <div class="pending-member-item" 
+       [class.active]="isCurrentMember"
+       (click)="onSelectMember()">
+    <span class="member-preview">
+      {{ member.name || 'New Member ' + (memberIndex + 1) }}
+      @if (member.name) {
+        <span class="member-details">{{ member.age }} years old, {{ member.gender }}</span>
+      }
+    </span>
+    <div class="pending-actions">
+      <p-button 
+        icon="pi pi-trash" 
+        iconPos="right"
+        severity="danger" 
+        size="small"
+        (click)="onRemoveMember($event)">
+      </p-button>
+    </div>
+  </div>
+
+  <!-- Member Card for this specific pending member -->
+  @if (isCurrentMember && (isAddingMember || editingMemberIndex !== null)) {
+    <div class="member-card-container">
+      <div class="member-card" [class.flipped]="member.showItemsView">
+        <!-- Front of card - Basic Info -->
+        <div class="card-front">
+          <app-member-details
+            [member]="member"
+            [isEditing]="editingMemberIndex !== null"
+            [isAdding]="isAddingMember"
+            (memberUpdated)="onMemberUpdated($event)"
+            (flipCard)="onFlipCardFromDetails()"
+            (saveMember)="onSaveMemberFromDetails()"
+            (cancelMember)="onCancelMemberFromDetails()">
+          </app-member-details>
+        </div>
+
+        <!-- Back of card - Items List -->
+        <div class="card-back">
+          <div class="card-header">
+            <h4>Items for {{ member.name || 'Family Member' }}</h4>
+            <p-button 
+              label="Back to Info" 
+              icon="pi pi-arrow-left" 
+              iconPos="right"
+              severity="secondary" 
+              size="small"
+              (click)="onFlipCardFromDetails()">
+            </p-button>
+          </div>
+          <div class="items-section">
+            <app-item-form
+              [memberName]="member.name"
+              [existingItems]="member.items"
+              (itemsSaved)="onItemsSaved($event)"
+              (itemsUpdated)="onItemsUpdated($event)">
+            </app-item-form>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

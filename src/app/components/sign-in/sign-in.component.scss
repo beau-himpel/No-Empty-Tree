@@ -1,107 +1,29 @@
-.sign-in-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  padding: 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+/* PrimeNG component overrides */
+::ng-deep .p-password {
+  width: 100% !important;
 }
 
-.auth-card {
-  width: 100%;
-  max-width: 400px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+::ng-deep .p-password input {
+  border-radius: 8px !important;
+  border: 2px solid #e5e7eb !important;
+  padding: 12px 16px !important;
+  font-size: 16px !important;
+  transition: all 0.2s ease !important;
 }
 
-.auth-form {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+::ng-deep .p-password input:focus {
+  border-color: #667eea !important;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
 }
 
-.google-signin {
-  width: 100%;
-}
-
-.google-button {
-  width: 100%;
-  background-color: #db4437;
-  border-color: #db4437;
-}
-
-.google-button:hover {
-  background-color: #c23321;
-  border-color: #c23321;
-}
-
-.divider {
-  text-align: center;
-  position: relative;
-  color: #666;
-  font-size: 14px;
-}
-
-.divider::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background-color: #ddd;
-  z-index: 1;
-}
-
-.divider span {
-  background-color: white;
-  padding: 0 15px;
-  position: relative;
-  z-index: 2;
-}
-
-.email-form {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.form-group label {
-  font-weight: 500;
-  color: #333;
-}
-
-.form-actions {
-  margin-top: 10px;
-}
-
-.primary-button {
-  width: 100%;
-}
-
-.toggle-signup {
-  text-align: center;
-  margin-top: 10px;
-}
-
-.link-button {
-  background: none;
-  border: none;
-  color: #007ad9;
-  cursor: pointer;
-  text-decoration: underline;
-  font-size: 14px;
-}
-
-.link-button:hover {
-  color: #0056b3;
-}
-
+/* Error message styling */
 .error-message {
-  margin-top: 10px;
-} 
+  margin-top: 12px;
+  padding: 12px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  color: #dc2626;
+  font-size: 14px;
+  text-align: center;
+}

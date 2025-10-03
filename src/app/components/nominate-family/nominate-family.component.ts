@@ -3,13 +3,14 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { InputTextarea } from 'primeng/inputtextarea';
+import { TextareaModule } from 'primeng/textarea';
 import { SelectModule } from 'primeng/select';
 import { Router } from '@angular/router';
 import { AuthService } from '../../auth.service';
-import { ItemFormComponent, Item } from './item-form/item-form.component';
-import { MemberDetailsComponent, FamilyMember } from './member-details/member-details.component';
-
+import { Item } from './item-form/item-form.component';
+import { FamilyMember } from './member-details/member-details.component';
+import { FamilyMemberComponent } from './family-member/family-member.component';
+import { AccordionModule } from 'primeng/accordion';
 
 interface FamilyInfo {
   name: string;
@@ -27,9 +28,10 @@ interface FamilyInfo {
     CardModule, 
     ButtonModule, 
     InputTextModule, 
+    TextareaModule,
     SelectModule,
-    ItemFormComponent,
-    MemberDetailsComponent
+    FamilyMemberComponent,
+    AccordionModule
   ],
   templateUrl: './nominate-family.component.html',
   styleUrls: ['./nominate-family.component.scss']
@@ -38,7 +40,6 @@ export class NominateFamilyComponent {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
 
-  // Signals for reactive state management
   readonly familyInfo = signal<FamilyInfo>({
     name: '',
     address: '',
@@ -61,9 +62,7 @@ export class NominateFamilyComponent {
   readonly isAddingMember = signal(false);
   readonly editingMemberIndex = signal<number | null>(null);
   readonly showMemberDetails = signal(false);
-  readonly pendingMembers = signal<FamilyMember[]>([]);
 
-  // Computed values
   readonly isFamilyValid = computed(() => {
     const family = this.familyInfo();
     const email = this.familyForm.get('email')?.value;
@@ -81,7 +80,6 @@ export class NominateFamilyComponent {
     return this.isMemberBasicInfoValid() && member.items.length > 0;
   });
 
-
   readonly isMemberBasicInfoValid = computed(() => {
     const member = this.currentMember();
     return !!(
@@ -92,7 +90,6 @@ export class NominateFamilyComponent {
     );
   });
 
-  // Form groups
   readonly familyForm = this.fb.group({
     name: ['', [Validators.required]],
     address: ['', [Validators.required]],
@@ -100,15 +97,12 @@ export class NominateFamilyComponent {
     email: ['', [Validators.required, Validators.email, Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)]]
   });
 
+  get familyName() { return this.familyForm.get('name'); }
+  get familyAddress() { return this.familyForm.get('address'); }
+  get familyPhone() { return this.familyForm.get('phone'); }
+  get familyEmail() { return this.familyForm.get('email'); }
 
-
-  constructor() {
-    // No longer needed as member form is handled by MemberDetailsComponent
-  }
-
-
-
-  addFamilyMember(): void {
+  addFamilyMember() {
     const newMember: FamilyMember = {
       id: this.generateMemberId(),
       name: '',
@@ -120,13 +114,14 @@ export class NominateFamilyComponent {
       showItemsView: false
     };
     
-    const pending = this.pendingMembers();
-    pending.push(newMember);
-    this.pendingMembers.set([...pending]);
+    // Add directly to family members
+    const family = this.familyInfo();
+    family.members.push(newMember);
+    this.familyInfo.set({ ...family });
     
     // Set up for editing the new member
     this.isAddingMember.set(true);
-    this.editingMemberIndex.set(null);
+    this.editingMemberIndex.set(family.members.length - 1);
     this.currentMember.set(newMember);
     this.showMemberDetails.set(false);
   }
@@ -150,18 +145,12 @@ export class NominateFamilyComponent {
     member.showItemsView = !member.showItemsView;
     this.currentMember.set({ ...member });
     
-    // Update the family info or pending members
-    if (this.editingMemberIndex() !== null) {
+    // Update the family member
+    const editingIndex = this.editingMemberIndex();
+    if (editingIndex !== null) {
       const family = this.familyInfo();
-      family.members[this.editingMemberIndex()!] = { ...member };
+      family.members[editingIndex] = { ...member };
       this.familyInfo.set({ ...family });
-    } else {
-      const pending = this.pendingMembers();
-      const memberIndex = pending.findIndex(p => p.id === this.currentMember().id);
-      if (memberIndex >= 0) {
-        pending[memberIndex] = { ...member };
-        this.pendingMembers.set([...pending]);
-      }
     }
   }
 
@@ -170,59 +159,20 @@ export class NominateFamilyComponent {
     this.editingMemberIndex.set(null);
     this.showMemberDetails.set(false);
     this.resetCurrentMember();
-    
-    // If there are pending members, switch to the next one
-    const pending = this.pendingMembers();
-    if (pending.length > 0) {
-      const nextMember = pending[0];
-      this.currentMember.set(nextMember);
-      // Member form is now handled by MemberDetailsComponent
-      this.isAddingMember.set(true);
-    }
   }
 
-  selectPendingMember(member: FamilyMember): void {
-    this.currentMember.set(member);
-    this.isAddingMember.set(true);
-    this.editingMemberIndex.set(null);
-    this.showMemberDetails.set(false);
-  }
-
-  removePendingMember(member: FamilyMember): void {
-    const pending = this.pendingMembers();
-    const index = pending.findIndex(p => p.id === member.id);
-    if (index >= 0) {
-      pending.splice(index, 1);
-      this.pendingMembers.set([...pending]);
-      
-      // If this was the current member, switch to another pending member or reset
-      if (this.currentMember().id === member.id) {
-        if (pending.length > 0) {
-          this.selectPendingMember(pending[0]);
-        } else {
-          this.cancelAddMember();
-        }
-      }
-    }
-  }
 
   onItemsSaved(items: Item[]): void {
     const member = this.currentMember();
     member.items = items;
     this.currentMember.set({ ...member });
     
-    // Update the family info or pending members
-    if (this.editingMemberIndex() !== null) {
+    // Update the family member
+    const editingIndex = this.editingMemberIndex();
+    if (editingIndex !== null) {
       const family = this.familyInfo();
-      family.members[this.editingMemberIndex()!] = { ...member };
+      family.members[editingIndex] = { ...member };
       this.familyInfo.set({ ...family });
-    } else {
-      const pending = this.pendingMembers();
-      const memberIndex = pending.findIndex(p => p.id === this.currentMember().id);
-      if (memberIndex >= 0) {
-        pending[memberIndex] = { ...member };
-        this.pendingMembers.set([...pending]);
-      }
     }
   }
 
@@ -231,36 +181,24 @@ export class NominateFamilyComponent {
     member.items = items;
     this.currentMember.set({ ...member });
     
-    // Update the family info or pending members
-    if (this.editingMemberIndex() !== null) {
+    // Update the family member
+    const editingIndex = this.editingMemberIndex();
+    if (editingIndex !== null) {
       const family = this.familyInfo();
-      family.members[this.editingMemberIndex()!] = { ...member };
+      family.members[editingIndex] = { ...member };
       this.familyInfo.set({ ...family });
-    } else {
-      const pending = this.pendingMembers();
-      const memberIndex = pending.findIndex(p => p.id === this.currentMember().id);
-      if (memberIndex >= 0) {
-        pending[memberIndex] = { ...member };
-        this.pendingMembers.set([...pending]);
-      }
     }
   }
 
   onMemberUpdated(member: FamilyMember): void {
     this.currentMember.set(member);
     
-    // Update the family info or pending members
-    if (this.editingMemberIndex() !== null) {
+    // Update the family member
+    const editingIndex = this.editingMemberIndex();
+    if (editingIndex !== null) {
       const family = this.familyInfo();
-      family.members[this.editingMemberIndex()!] = { ...member };
+      family.members[editingIndex] = { ...member };
       this.familyInfo.set({ ...family });
-    } else {
-      const pending = this.pendingMembers();
-      const memberIndex = pending.findIndex(p => p.id === member.id);
-      if (memberIndex >= 0) {
-        pending[memberIndex] = { ...member };
-        this.pendingMembers.set([...pending]);
-      }
     }
   }
 
@@ -284,21 +222,9 @@ export class NominateFamilyComponent {
       const editingIndex = this.editingMemberIndex();
       
       if (editingIndex !== null) {
-        // Editing existing member
+        // Update existing member
         family.members[editingIndex] = { ...member };
         this.familyInfo.set({ ...family });
-      } else {
-        // Adding new member from pending list
-        family.members.push({ ...member });
-        this.familyInfo.set({ ...family });
-        
-        // Remove from pending list
-        const pending = this.pendingMembers();
-        const memberIndex = pending.findIndex(p => p.id === this.currentMember().id);
-        if (memberIndex >= 0) {
-          pending.splice(memberIndex, 1);
-          this.pendingMembers.set([...pending]);
-        }
       }
       
       this.cancelAddMember();
@@ -332,17 +258,7 @@ export class NominateFamilyComponent {
       showItemsView: false
     });
   }
-
-
-  // Form getters for template
-  get familyName() { return this.familyForm.get('name'); }
-  get familyAddress() { return this.familyForm.get('address'); }
-  get familyPhone() { return this.familyForm.get('phone'); }
-  get familyEmail() { return this.familyForm.get('email'); }
   
-  
-
-  // Helper method for email validation errors
   getEmailErrorMessage(): string {
     const emailControl = this.familyForm.get('email');
     if (!emailControl?.errors || !emailControl.touched) return '';
