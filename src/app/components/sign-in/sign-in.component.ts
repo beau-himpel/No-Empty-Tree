@@ -65,8 +65,7 @@ export class SignInComponent {
     }
   }
 
-  toggleSignUp(): void {
-    this.isSignUp.set(!this.isSignUp());
-    this.errorMessage.set('');
+  goToSignUp(): void {
+    
   }
 } 
