@@ -1,6 +1,18 @@
 <div class="flex justify-center items-center min-h-screen p-8 md:p-4">
-  <p-card header="No Empty Tree" class="w-full max-w-md shadow-2xl rounded-2xl border-0 bg-white/95 backdrop-blur-sm">
-    <div class="flex flex-col gap-6 p-2">
+  <div class="flex flex-col lg:flex-row items-center lg:items-start gap-16 lg:gap-28 w-full max-w-4xl">
+    <!-- App Name -->
+    <div class="text-center lg:text-left">
+      <h1 class="text-6xl md:text-7xl lg:text-10xl font-bold bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent mb-4">
+        No Empty Tree
+      </h1>
+      <p class="text-sm md:text-base text-slate-400 font-medium text-center md:mt-6 lg:mt-8">
+        Bringing families together for the holidays
+      </p>
+    </div>
+    
+    <!-- Sign In Form -->
+    <div class="w-full max-w-md">
+      <div class="flex flex-col gap-6 p-2">
       <form (ngSubmit)="signInWithEmail()" class="flex flex-col gap-5">
         <div class="flex flex-col gap-2">
           <label for="email" class="font-semibold text-slate-700 text-sm">Email</label>
@@ -67,5 +79,6 @@
       </button>
       </div>
     </div>
-  </p-card>
+    </div>
+  </div>
 </div> 
