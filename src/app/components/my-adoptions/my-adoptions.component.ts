@@ -1,7 +1,6 @@
 import { Component, inject, signal, computed } from '@angular/core';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
-import { mockFamilies } from '../../mock-data/families';
 import { AuthService } from '../../auth.service';
 import { Family, FamilyMember, WishItem } from '../../shared/types';
 
@@ -13,7 +12,7 @@ import { Family, FamilyMember, WishItem } from '../../shared/types';
   styleUrls: ['./my-adoptions.component.scss']
 })
 export class MyAdoptionsComponent {
-  readonly availableFamilies = signal<Family[]>(mockFamilies);
+  readonly availableFamilies = signal<Family[]>([]);
   private readonly authService = inject(AuthService);
 
   // Computed signal to get all items adopted by current user
@@ -29,7 +28,7 @@ export class MyAdoptionsComponent {
     }> = [];
 
     this.availableFamilies().forEach(family => {
-      family.members.forEach(member => {
+      family.family_members.forEach(member => {
         member.wishlist_items?.forEach(item => {
           if (item.is_adopted && item.adopted_by === currentUser) {
             adoptedItems.push({ family, member, item });

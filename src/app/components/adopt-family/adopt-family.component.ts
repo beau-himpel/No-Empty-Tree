@@ -4,7 +4,7 @@ import { ButtonModule } from 'primeng/button';
 import { Router } from '@angular/router';
 import { AuthService } from '../../auth.service';
 import { SupabaseService } from '../../supabase.service';
-import { FamilyDetailsComponent } from './family-details.component';
+import { FamilyDetailsComponent } from '../family-details/family-details.component';
 import { Family } from '../../shared/types';
 
 @Component({
@@ -31,8 +31,9 @@ export class AdoptFamilyComponent implements OnInit {
   readonly familyCounts = computed(() => 
     this.availableFamilies().map(family => ({
       id: family.id,
-      adultCount: family.members.filter(member => !member.is_parent).length,
-      childCount: family.members.filter(member => member.is_parent).length
+      adultCount: family.family_members.filter(member => !member.is_parent).length,
+      boysCount: family.family_members.filter(member => member.is_parent && member.sex === 'male').length,
+      girlsCount: family.family_members.filter(member => member.is_parent && member.sex === 'female').length
     }))
   );
 
@@ -50,9 +51,7 @@ export class AdoptFamilyComponent implements OnInit {
     
     try {
       const familiesData = await this.supabaseService.getFamiliesWithMembers();
-      // Transform the backend data to match our frontend interface
-      const transformedFamilies = this.transformBackendData(familiesData);
-      this.availableFamilies.set(transformedFamilies);
+      this.availableFamilies.set(familiesData as unknown as Family[]);
     } catch (err) {
       console.error('Error loading families:', err);
       this.error.set('Failed to load families. Please try again.');
@@ -61,50 +60,15 @@ export class AdoptFamilyComponent implements OnInit {
     }
   }
 
-  private transformBackendData(backendData: any[]): Family[] {
-    return backendData.map(family => ({
-      id: family.id,
-      last_name: family.last_name,
-      address: family.address,
-      phone: family.phone,
-      email: family.email,
-      nominated_by: family.nominated_by,
-      created_at: family.created_at,
-      updated_at: family.updated_at,
-      members: family.family_members?.map((member: any) => ({
-        id: member.id,
-        family_id: member.family_id || family.id,
-        first_name: member.first_name,
-        age: member.age,
-        sex: member.sex,
-        is_parent: member.is_parent,
-        created_at: member.created_at,
-        updated_at: member.updated_at,
-        wishlist_items: member.wishlist_items?.map((item: any) => ({
-          id: item.id,
-          family_member_id: item.family_member_id,
-          category: item.category,
-          description: item.description,
-          color: item.color,
-          size: item.size,
-          is_adopted: item.is_adopted,
-          adopted_by: item.adopted_by,
-          link: item.link,
-          details: item.details,
-          created_at: item.created_at,
-          updated_at: item.updated_at
-        })) || []
-      })) || []
-    }));
-  }
 
-  getFamilyCounts(familyId: string): { adultCount: number; childCount: number } {
+  getFamilyCounts(familyId: string): { adultCount: number; boysCount: number; girlsCount: number } {
     const family = this.availableFamilies().find(f => f.id === familyId);
-    if (!family) return { adultCount: 0, childCount: 0 };
+    if (!family) return { adultCount: 0, boysCount: 0, girlsCount: 0 };
     
     return {
-      adultCount: family.members.filter(member => !member.is_parent).length,
-      childCount: family.members.filter(member => member.is_parent).length
+      adultCount: family.family_members.filter(member => !member.is_parent).length,
+      boysCount: family.family_members.filter(member => member.is_parent && member.sex === 'male').length,
+      girlsCount: family.family_members.filter(member => member.is_parent && member.sex === 'female').length
     };
   }
 

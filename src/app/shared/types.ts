@@ -7,7 +7,7 @@ export interface Family {
   nominated_by?: string; // User ID of the user who nominated this family
   created_at: string;
   updated_at: string;
-  members: FamilyMember[];
+  family_members: FamilyMember[];
 }
 
 export interface FamilyMember {
@@ -31,6 +31,9 @@ export interface WishItem {
   size?: string;
   is_adopted: boolean;
   adopted_by?: string;
+  adopted_by_name?: {
+    full_name: string;
+  };
   link?: string;
   details?: string;
   created_at: string;

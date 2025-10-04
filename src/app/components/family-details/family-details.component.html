@@ -1,0 +1,108 @@
+@if (family(); as selectedFamily) {
+  <div class="family-details-inline">
+    
+    <div class="family-details">
+      <div class="family-info">
+        <h2>{{ selectedFamily.last_name }}</h2>
+        <div class="family-summary">
+          <span class="adults">{{ familyCounts().adultCount }} Adults</span>
+          <span class="children">{{ familyCounts().childCount }} Children</span>
+        </div>
+        <div class="adopt-all-section">
+          @if (!hasAnyAdoptedItems(selectedFamily)) {
+            <!-- No items adopted yet - show "Adopt All Items" button -->
+            <button 
+              class="adopt-all-btn"
+              (click)="adoptAllItems(selectedFamily, $event)">
+              <i class="pi pi-heart-fill"></i>
+              Adopt All Items for This Family
+            </button>
+          } @else if (!areAllItemsAdopted(selectedFamily)) {
+            <!-- Some items adopted - show "Adopt All Remaining Items" button -->
+            <button 
+              class="adopt-all-btn"
+              (click)="adoptAllRemainingItems(selectedFamily, $event)">
+              <i class="pi pi-heart-fill"></i>
+              Adopt All Remaining Items
+            </button>
+          } @else {
+            <!-- All items adopted - show completion message -->
+            <div class="all-adopted-message">
+              <i class="pi pi-check-circle"></i>
+              All Items Have Been Adopted!
+            </div>
+          }
+        </div>
+      </div>
+      
+      <div class="members-section">
+        @for (member of selectedFamily.family_members; track member.first_name) {
+          <div class="member-card" [class.all-adopted]="isAllItemsAdopted(member)">
+            <div class="member-header">
+              <h4>{{ member.first_name }}</h4>
+              <span class="member-info">{{ member.age }} years old</span>
+
+              <span [ngClass]=" member.is_parent ? 'adult-badge' : (member.sex === 'male' ? 'boy-badge' : 'girl-badge')">
+                {{ member.is_parent ? (member.sex === 'male' ? 'Man' : 'Woman') : (member.sex === 'male' ? 'Boy' : 'Girl') }}
+              </span>
+
+
+            </div>
+            
+            @if (member.wishlist_items && member.wishlist_items.length > 0) {
+              @if (isAllItemsAdopted(member)) {
+                <!-- All items adopted - show toggle button -->
+                <div class="wish-list-completed">
+                  <div class="completed-status">
+                    <span class="completed-badge">✓ All Items Adopted</span>
+                    <button 
+                      class="toggle-wishlist-btn"
+                      (click)="toggleMemberWishList(member.first_name)">
+                      <i [class]="isMemberExpanded(member.first_name) ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"></i>
+                      {{ isMemberExpanded(member.first_name) ? 'Hide Wish List' : 'Show Wish List' }}
+                    </button>
+                  </div>
+                  
+                  @if (isMemberExpanded(member.first_name)) {
+                    <div class="wish-list">
+                      @for (item of getSortedWishList(member.wishlist_items || []); track item.id) {
+                        <app-wish-item
+                          [item]="item"
+                          [family]="selectedFamily"
+                          [currentUser]="currentUser()"
+                          (adoptItem)="adoptItem($event.item, $event.family)"
+                          (unadoptItem)="unadoptItem($event.item, $event.family)">
+                        </app-wish-item>
+                      }
+                    </div>
+                  }
+                </div>
+              } @else {
+                <!-- Some items not adopted - show wish list normally -->
+                <div class="wish-list">
+                  <h5>Wish List</h5>
+                  @for (item of getSortedWishList(member.wishlist_items || []); track item.id) {
+                    @if (item.is_adopted && $first) {
+                      <div class="adopted-section-divider">
+                        Adopted Items
+                      </div>
+                    }
+                    <app-wish-item
+                      [item]="item"
+                      [family]="selectedFamily"
+                      [currentUser]="currentUser()"
+                      (adoptItem)="adoptItem($event.item, $event.family)"
+                      (unadoptItem)="unadoptItem($event.item, $event.family)">
+                    </app-wish-item>
+                  }
+                </div>
+              }
+            } @else {
+              <p class="no-wishes">No wish list items</p>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}

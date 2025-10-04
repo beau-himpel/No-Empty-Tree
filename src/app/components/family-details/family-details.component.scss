@@ -136,7 +136,6 @@
   }
   
   &.all-adopted {
-    background: #f0fff4;
     border-color: #9ae6b4;
     
     &::before {
@@ -181,26 +180,31 @@
   }
 }
 
-.child-badge, .adult-badge {
+.boy-badge, .girl-badge, .adult-badge {
   padding: 0.375rem 1rem;
   border-radius: 25px;
   font-size: 0.75rem;
   font-weight: 700;
-  text-transform: uppercase;
   letter-spacing: 0.05em;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.child-badge {
-  background: linear-gradient(135deg, #fed7d7 0%, #feb2b2 100%);
-  color: #c53030;
-  border: 1px solid #fecaca;
+.boy-badge {
+  background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+  color: white;
+  border: 1px solid #3b82f6;
+}
+
+.girl-badge {
+  background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%);
+  color: white;
+  border: 1px solid #ec4899;
 }
 
 .adult-badge {
-  background: linear-gradient(135deg, #bee3f8 0%, #90cdf4 100%);
-  color: #2b6cb0;
-  border: 1px solid #a0c4f4;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: white;
+  border: 1px solid #6366f1;
 }
 
 .wish-list {
@@ -216,25 +220,6 @@
   }
 }
 
-.wish-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  margin-bottom: 0.5rem;
-  
-  &:last-child {
-    margin-bottom: 0;
-  }
-  
-  &.adopted {
-    background: #f0fff4;
-    border-color: #9ae6b4;
-  }
-}
 
 .adopted-section-divider {
   margin: 1rem 0;
@@ -288,99 +273,6 @@
   }
 }
 
-.item-info {
-  flex: 1;
-  
-  .item-category {
-    display: inline-block;
-    background: #edf2f7;
-    color: #4a5568;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    margin-bottom: 0.25rem;
-  }
-  
-  .item-description {
-    display: block;
-    color: #2d3748;
-    font-weight: 500;
-    margin-bottom: 0.25rem;
-  }
-  
-  .item-detail {
-    display: inline-block;
-    color: #718096;
-    font-size: 0.875rem;
-    margin-right: 1rem;
-    
-    &:last-child {
-      margin-right: 0;
-    }
-  }
-  
-  .item-details {
-    color: #4a5568;
-    font-size: 0.875rem;
-    font-style: italic;
-    margin-top: 0.5rem;
-    padding: 0.5rem;
-    border-left: 3px solid #e2e8f0;
-    border-radius: 0 4px 4px 0;
-    line-height: 1.4;
-  }
-  
-  .item-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    color: #3182ce;
-    font-size: 0.875rem;
-    font-weight: 500;
-    text-decoration: none;
-    margin-top: 0.5rem;
-    transition: color 0.2s ease;
-    
-    &:hover {
-      color: #2c5282;
-      text-decoration: underline;
-    }
-    
-    .pi-external-link {
-      font-size: 0.75rem;
-    }
-  }
-}
-
-.item-actions {
-  flex-shrink: 0;
-}
-
-.adopted-info {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  min-width: 120px;
-}
-
-.adopted-badge {
-  background: #9ae6b4;
-  color: #22543d;
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-.adopted-by {
-  font-size: 0.75rem;
-  color: #64748b;
-  font-weight: 500;
-  text-align: center;
-}
 
 /* Custom styling for unadopt button */
 :host ::ng-deep .p-button.p-button-secondary {
@@ -434,11 +326,6 @@
     gap: 0.5rem;
   }
   
-  .wish-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.75rem;
-  }
   
   .family-details-header {
     flex-direction: column;
@@ -448,34 +335,85 @@
 }
 
 .adopt-all-btn {
-  :host ::ng-deep .p-button {
-    background: #dc2626 !important;
-    border: 2px solid #dc2626 !important;
-    color: #fff !important;
-    font-weight: 600;
-    border-radius: 8px !important;
-    padding: 0.5rem 1.25rem !important;
-    font-size: 1rem !important;
-    box-shadow: none;
-    transition: all 0.2s ease;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 0;
-    
-    &:hover {
-      background: #b91c1c !important;
-      border-color: #b91c1c !important;
-      color: #fff !important;
-    }
-    &:active {
-      background: #991b1b !important;
-      border-color: #991b1b !important;
-      color: #fff !important;
-    }
-    .pi-heart-fill {
-      color: #fff !important;
-      margin-left: 0.75rem !important;
-    }
+  background: #dc2626;
+  border: 2px solid #dc2626;
+  color: #fff;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 0.5rem 1.25rem;
+  font-size: 1rem;
+  box-shadow: none;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  cursor: pointer;
+  
+  &:hover {
+    background: #b91c1c;
+    border-color: #b91c1c;
+    color: #fff;
+  }
+  
+  &:active {
+    background: #991b1b;
+    border-color: #991b1b;
+    color: #fff;
+  }
+  
+  .pi-heart-fill {
+    color: #fff;
+    margin-right: 0.75rem;
+  }
+}
+
+.all-adopted-message {
+  background: #10b981;
+  border: 2px solid #10b981;
+  color: #fff;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 0.5rem 1.25rem;
+  font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  
+  .pi-check-circle {
+    color: #fff;
+    font-size: 1.1rem;
+  }
+}
+
+.toggle-wishlist-btn {
+  background: #f8fafc;
+  border: 1px solid #cbd5e0;
+  color: #4a5568;
+  font-size: 0.75rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  
+  &:hover {
+    background: #edf2f7;
+    border-color: #a0aec0;
+    color: #2d3748;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+  
+  i {
+    font-size: 0.75rem;
   }
 } 

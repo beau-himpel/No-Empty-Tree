@@ -1,0 +1,48 @@
+<div class="wish-item" [class.adopted]="item().is_adopted">
+  <div class="item-info">
+    <span class="item-category">{{ item().category }}</span>
+    <span class="item-description">{{ item().description }}</span>
+    @if (item().color) {
+      <span class="item-detail">Color: {{ item().color }}</span>
+    }
+    @if (item().size) {
+      <span class="item-detail">Size: {{ item().size }}</span>
+    }
+    @if (item().details) {
+      <div class="item-details">{{ item().details }}</div>
+    }
+    @if (item().link) {
+      <a href="{{ item().link }}" target="_blank" class="item-link">
+        <i class="pi pi-external-link"></i> View Item
+      </a>
+    }
+  </div>
+  <div class="item-actions">
+    @if (!item().is_adopted) {
+      <p-button 
+        class="adopt-all-btn"
+        label="Adopt" 
+        icon="pi pi-heart-fill" 
+        iconPos="right"
+        size="large"
+        (click)="onAdoptItem()">
+      </p-button>
+    } @else {
+      <div class="adopted-info">
+        <span class="adopted-badge">Adopted ✓</span>
+        @if (item().adopted_by) {
+          <div class="adopted-by">by {{ item().adopted_by_name?.full_name || item().adopted_by }}</div>
+        }
+        
+        @if (isAdoptedByCurrentUser()) {
+          <button 
+            class="unadopt-btn"
+            (click)="onUnadoptItem()">
+            <i class="pi pi-times"></i>
+            Unadopt
+          </button>
+        }
+      </div>
+    }
+  </div>
+</div>
