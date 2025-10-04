@@ -40,7 +40,7 @@ export class AdoptFamilyComponent implements OnInit {
   ngOnInit() {
     const user = this.authService.getCurrentUser();
     if (user) {
-      this.currentUser.set(user.email ?? 'Unknown User');
+      this.currentUser.set(user.id);
     }
     this.loadFamilies();
   }

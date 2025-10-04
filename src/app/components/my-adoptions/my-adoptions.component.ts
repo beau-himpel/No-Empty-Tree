@@ -17,8 +17,8 @@ export class MyAdoptionsComponent {
 
   // Computed signal to get all items adopted by current user
   readonly myAdoptedItems = computed(() => {
-    // const currentUser = this.authService.getCurrentUser();
-    const currentUser = 'test';
+    const user = this.authService.getCurrentUser();
+    const currentUser = user?.id;
     if (!currentUser) return [];
 
     const adoptedItems: Array<{

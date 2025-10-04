@@ -1,12 +1,15 @@
 @if (family(); as selectedFamily) {
   <div class="family-details-inline">
     <div class="family-details">
-      <div class="family-info">
-        <h2>{{ selectedFamily.last_name }}</h2>
-        <div class="family-summary">
-          <span class="adults">{{ familyCounts().adultCount }} Adults</span>
-          <span class="children">{{ familyCounts().childCount }} Children</span>
+      <div class="family-header-section">
+        <div class="family-info">
+          <h2>{{ selectedFamily.last_name }}</h2>
+          <div class="family-summary">
+            <span class="adults">{{ familyCounts().adultCount }} {{ familyCounts().adultCount === 1 ? 'Adult' : 'Adults' }}</span>
+            <span class="children">{{ familyCounts().childCount }} {{ familyCounts().childCount === 1 ? 'Child' : 'Children' }}</span>
+          </div>
         </div>
+        
         <div class="adopt-all-section">
           @if (!hasAnyAdoptedItems(selectedFamily)) {
             <button 
@@ -17,10 +20,10 @@
             </button>
           } @else if (!areAllItemsAdopted(selectedFamily)) {
             <button 
-              class="adopt-all-btn"
+              class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
               (click)="adoptAllRemainingItems(selectedFamily, $event)">
-              <i class="pi pi-heart-fill"></i>
               Adopt All Remaining Items
+              <i class="pi pi-heart-fill"></i>
             </button>
           } @else {
             <div class="all-adopted-message">
@@ -47,32 +50,7 @@
             
             @if (member.wishlist_items && member.wishlist_items.length > 0) {
               @if (isAllItemsAdopted(member)) {
-                <div class="wish-list-completed">
-                  <div class="completed-status">
-                    <button 
-                      class="toggle-wishlist-btn"
-                      (click)="toggleMemberWishList(member.first_name)">
-                      <i [class]="isMemberExpanded(member.first_name) ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"></i>
-                      {{ isMemberExpanded(member.first_name) ? 'Hide Wish List' : 'Show Wish List' }}
-                    </button>
-                  </div>
-                  
-                  @if (isMemberExpanded(member.first_name)) {
-                    <div class="wish-list">
-                      @for (item of getSortedWishList(member.wishlist_items || []); track item.id) {
-                        <app-wish-item
-                          [item]="item"
-                          [family]="selectedFamily"
-                          [currentUser]="currentUser()"
-                          (adoptItem)="adoptItem($event.item, $event.family)"
-                          (unadoptItem)="unadoptItem($event.item, $event.family)">
-                        </app-wish-item>
-                      }
-                    </div>
-                  }
-                </div>
               } @else {
-                <!-- Some items not adopted - show wish list normally -->
                 <div class="wish-list">
                   <h5>Wish List</h5>
                   @for (item of getSortedWishList(member.wishlist_items || []); track item.id) {

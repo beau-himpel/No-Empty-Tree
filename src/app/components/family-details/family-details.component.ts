@@ -1,9 +1,10 @@
-import { Component, input, signal, computed, output } from '@angular/core';
+import { Component, input, signal, computed, output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { Family, FamilyMember, WishItem } from '../../shared/types';
 import { WishItemComponent } from '../wish-item/wish-item.component';
+import { SupabaseService } from '../../supabase.service';
 
 @Component({
   selector: 'app-family-details',
@@ -13,6 +14,8 @@ import { WishItemComponent } from '../wish-item/wish-item.component';
   styleUrls: ['./family-details.component.scss']
 })
 export class FamilyDetailsComponent {
+  private supabaseService = inject(SupabaseService);
+  
   family = input<Family | null>(null);
   currentUser = input<string | null>(null);
   expandedMembers = signal<Set<string>>(new Set());
@@ -41,46 +44,50 @@ export class FamilyDetailsComponent {
     });
   }
 
-  toggleMemberWishList(memberName: string) {
-    const current = this.expandedMembers();
-    const newSet = new Set(current);
-    
-    if (newSet.has(memberName)) {
-      newSet.delete(memberName);
-    } else {
-      newSet.add(memberName);
-    }
-    
-    this.expandedMembers.set(newSet);
-  }
-
   isMemberExpanded(memberName: string): boolean {
     return this.expandedMembers().has(memberName);
   }
 
-  adoptItem(item: WishItem, family: Family) {
+  async adoptItem(item: WishItem, family: Family) {
     const user = this.currentUser();
     if (!user) return;
     
-    item.is_adopted = true;
-    item.adopted_by = user;
-    console.log(`Adopted item: ${item.description} for ${family.last_name}`);
+    try {
+      await this.supabaseService.adoptWishlistItem(item.id, user);
+      
+      // Update the local state
+      item.is_adopted = true;
+      item.adopted_by = user;
+      console.log(`Adopted item: ${item.description} for ${family.last_name}`);
+    } catch (error) {
+      console.error('Error adopting item:', error);
+      // You might want to show a user-friendly error message here
+    }
   }
 
-  unadoptItem(item: WishItem, family: Family) {
-    item.is_adopted = false;
-    item.adopted_by = undefined;
-    
-    // Find the member who owns this item and expand their wish list
-    const member = family.family_members.find(m => m.wishlist_items?.includes(item));
-    if (member) {
-      const current = this.expandedMembers();
-      const newSet = new Set(current);
-      newSet.add(member.first_name);
-      this.expandedMembers.set(newSet);
+  async unadoptItem(item: WishItem, family: Family) {
+    try {
+      // Call the backend to unadopt the item
+      await this.supabaseService.unadoptWishlistItem(item.id);
+      
+      // Update the local state
+      item.is_adopted = false;
+      item.adopted_by = undefined;
+      
+      // Find the member who owns this item and expand their wish list
+      const member = family.family_members.find(m => m.wishlist_items?.includes(item));
+      if (member) {
+        const current = this.expandedMembers();
+        const newSet = new Set(current);
+        newSet.add(member.first_name);
+        this.expandedMembers.set(newSet);
+      }
+      
+      console.log(`Unadopted item: ${item.description} for ${family.last_name}`);
+    } catch (error) {
+      console.error('Error unadopting item:', error);
+      // You might want to show a user-friendly error message here
     }
-    
-    console.log(`Unadopted item: ${item.description} for ${family.last_name}`);
   }
 
   isAdoptedByCurrentUser(item: WishItem): boolean {
@@ -88,18 +95,34 @@ export class FamilyDetailsComponent {
     return item.is_adopted && item.adopted_by === user;
   }
 
-  adoptAllItems(family: Family, event: Event) {
+  async adoptAllItems(family: Family, event: Event) {
     event.stopPropagation();
     const user = this.currentUser();
     if (!user) return;
     
-    family.family_members.forEach(member => {
-      member.wishlist_items?.forEach(item => {
-        item.is_adopted = true;
-        item.adopted_by = user;
+    try {
+      // Adopt all items in parallel
+      const adoptPromises = family.family_members.flatMap(member => 
+        member.wishlist_items?.map(item => 
+          this.supabaseService.adoptWishlistItem(item.id, user)
+        ) || []
+      );
+      
+      await Promise.all(adoptPromises);
+      
+      // Update local state
+      family.family_members.forEach(member => {
+        member.wishlist_items?.forEach(item => {
+          item.is_adopted = true;
+          item.adopted_by = user;
+        });
       });
-    });
-    console.log('Adopted all items for family:', family.last_name);
+      
+      console.log('Adopted all items for family:', family.last_name);
+    } catch (error) {
+      console.error('Error adopting all items:', error);
+      // You might want to show a user-friendly error message here
+    }
   }
 
   isAllItemsAdopted(member: FamilyMember): boolean {
@@ -122,19 +145,35 @@ export class FamilyDetailsComponent {
   }
 
   // Adopt all remaining (unadopted) items for the family
-  adoptAllRemainingItems(family: Family, event: Event) {
+  async adoptAllRemainingItems(family: Family, event: Event) {
     event.stopPropagation();
     const user = this.currentUser();
     if (!user) return;
     
-    family.family_members.forEach(member => {
-      member.wishlist_items?.forEach(item => {
-        if (!item.is_adopted) {
-          item.is_adopted = true;
-          item.adopted_by = user;
-        }
+    try {
+      // Adopt all unadopted items in parallel
+      const adoptPromises = family.family_members.flatMap(member => 
+        member.wishlist_items?.filter(item => !item.is_adopted).map(item => 
+          this.supabaseService.adoptWishlistItem(item.id, user)
+        ) || []
+      );
+      
+      await Promise.all(adoptPromises);
+      
+      // Update local state
+      family.family_members.forEach(member => {
+        member.wishlist_items?.forEach(item => {
+          if (!item.is_adopted) {
+            item.is_adopted = true;
+            item.adopted_by = user;
+          }
+        });
       });
-    });
-    console.log('Adopted all remaining items for family:', family.last_name);
+      
+      console.log('Adopted all remaining items for family:', family.last_name);
+    } catch (error) {
+      console.error('Error adopting all remaining items:', error);
+      // You might want to show a user-friendly error message here
+    }
   }
 } 
