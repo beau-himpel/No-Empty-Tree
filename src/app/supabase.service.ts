@@ -94,4 +94,326 @@ export class SupabaseService {
   get client(): SupabaseClient {
     return this.supabase;
   }
+
+  // Family-related methods
+  async getFamiliesWithMembers() {
+    const { data, error } = await this.supabase
+      .from('families')
+      .select(`
+        id,
+        last_name,
+        address,
+        phone,
+        email,
+        nominated_by,
+        created_at,
+        updated_at,
+        family_members (
+          id,
+          first_name,
+          age,
+          sex,
+          is_parent,
+          created_at,
+          updated_at,
+          wishlist_items (
+            id,
+            category,
+            description,
+            color,
+            size,
+            is_adopted,
+            adopted_by,
+            link,
+            details,
+            created_at,
+            updated_at
+          )
+        )
+      `)
+      .order('last_name');
+
+    if (error) throw error;
+    return data;
+  }
+
+  async getFamilyById(familyId: string) {
+    const { data, error } = await this.supabase
+      .from('families')
+      .select(`
+        id,
+        last_name,
+        address,
+        phone,
+        email,
+        nominated_by,
+        created_at,
+        updated_at,
+        family_members (
+          id,
+          first_name,
+          age,
+          sex,
+          is_parent,
+          created_at,
+          updated_at,
+          wishlist_items (
+            id,
+            category,
+            description,
+            color,
+            size,
+            is_adopted,
+            adopted_by,
+            link,
+            details,
+            created_at,
+            updated_at
+          )
+        )
+      `)
+      .eq('id', familyId)
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
+  async createFamily(familyData: {
+    last_name: string;
+    address: string;
+    phone?: string;
+    email?: string;
+    nominated_by?: string;
+  }) {
+    const { data, error } = await this.supabase
+      .from('families')
+      .insert(familyData)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
+  async addFamilyMember(memberData: {
+    family_id: string;
+    first_name: string;
+    age: number;
+    sex: 'male' | 'female' | 'other';
+    is_parent: boolean;
+  }) {
+    const { data, error } = await this.supabase
+      .from('family_members')
+      .insert(memberData)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
+  async updateFamily(familyId: string, updates: {
+    last_name?: string;
+    address?: string;
+    phone?: string;
+    email?: string;
+    nominated_by?: string;
+  }) {
+    const { data, error } = await this.supabase
+      .from('families')
+      .update(updates)
+      .eq('id', familyId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
+  async updateFamilyMember(memberId: string, updates: {
+    first_name?: string;
+    age?: number;
+    sex?: 'male' | 'female' | 'other';
+    is_parent?: boolean;
+  }) {
+    const { data, error } = await this.supabase
+      .from('family_members')
+      .update(updates)
+      .eq('id', memberId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
+  async deleteFamily(familyId: string) {
+    const { error } = await this.supabase
+      .from('families')
+      .delete()
+      .eq('id', familyId);
+
+    if (error) throw error;
+  }
+
+  async deleteFamilyMember(memberId: string) {
+    const { error } = await this.supabase
+      .from('family_members')
+      .delete()
+      .eq('id', memberId);
+
+    if (error) throw error;
+  }
+
+  async getFamiliesNominatedByUser(userId: string) {
+    const { data, error } = await this.supabase
+      .from('families')
+      .select(`
+        id,
+        last_name,
+        address,
+        phone,
+        email,
+        nominated_by,
+        created_at,
+        updated_at,
+        family_members (
+          id,
+          first_name,
+          age,
+          sex,
+          is_parent,
+          created_at,
+          updated_at,
+          wishlist_items (
+            id,
+            category,
+            description,
+            color,
+            size,
+            is_adopted,
+            adopted_by,
+            link,
+            details,
+            created_at,
+            updated_at
+          )
+        )
+      `)
+      .eq('nominated_by', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data;
+  }
+
+  // Wishlist item methods
+  async addWishlistItem(itemData: {
+    family_member_id: string;
+    category: string;
+    description: string;
+    color?: string;
+    size?: string;
+    link?: string;
+    details?: string;
+  }) {
+    const { data, error } = await this.supabase
+      .from('wishlist_items')
+      .insert(itemData)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
+  async updateWishlistItem(itemId: string, updates: {
+    category?: string;
+    description?: string;
+    color?: string;
+    size?: string;
+    link?: string;
+    details?: string;
+  }) {
+    const { data, error } = await this.supabase
+      .from('wishlist_items')
+      .update(updates)
+      .eq('id', itemId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
+  async deleteWishlistItem(itemId: string) {
+    const { error } = await this.supabase
+      .from('wishlist_items')
+      .delete()
+      .eq('id', itemId);
+
+    if (error) throw error;
+  }
+
+  async adoptWishlistItem(itemId: string, adoptedBy: string) {
+    const { data, error } = await this.supabase
+      .from('wishlist_items')
+      .update({ 
+        is_adopted: true, 
+        adopted_by: adoptedBy 
+      })
+      .eq('id', itemId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
+  async unadoptWishlistItem(itemId: string) {
+    const { data, error } = await this.supabase
+      .from('wishlist_items')
+      .update({ 
+        is_adopted: false, 
+        adopted_by: null 
+      })
+      .eq('id', itemId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
+  async getWishlistItemsByUser(userId: string) {
+    const { data, error } = await this.supabase
+      .from('wishlist_items')
+      .select(`
+        id,
+        category,
+        description,
+        color,
+        size,
+        is_adopted,
+        adopted_by,
+        link,
+        details,
+        created_at,
+        updated_at,
+        family_members!inner (
+          id,
+          first_name,
+          families!inner (
+            id,
+            last_name
+          )
+        )
+      `)
+      .eq('adopted_by', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data;
+  }
 } 

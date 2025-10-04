@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
@@ -7,6 +7,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { SelectModule } from 'primeng/select';
 import { Router } from '@angular/router';
 import { AuthService } from '../../auth.service';
+import { NominationSettingsService } from '../../nomination-settings.service';
 import { Item } from './item-form/item-form.component';
 import { FamilyMember } from './member-details/member-details.component';
 import { FamilyMemberComponent } from './family-member/family-member.component';
@@ -36,9 +37,10 @@ interface FamilyInfo {
   templateUrl: './nominate-family.component.html',
   styleUrls: ['./nominate-family.component.scss']
 })
-export class NominateFamilyComponent {
+export class NominateFamilyComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
+  private readonly nominationSettingsService = inject(NominationSettingsService);
 
   readonly familyInfo = signal<FamilyInfo>({
     name: '',
@@ -62,6 +64,11 @@ export class NominateFamilyComponent {
   readonly isAddingMember = signal(false);
   readonly editingMemberIndex = signal<number | null>(null);
   readonly showMemberDetails = signal(false);
+
+  // Nomination settings signals
+  readonly nominationsEnabled = this.nominationSettingsService.nominationsEnabled;
+  readonly loading = this.nominationSettingsService.loading;
+  readonly error = this.nominationSettingsService.error;
 
   readonly isFamilyValid = computed(() => {
     const family = this.familyInfo();
@@ -101,6 +108,11 @@ export class NominateFamilyComponent {
   get familyAddress() { return this.familyForm.get('address'); }
   get familyPhone() { return this.familyForm.get('phone'); }
   get familyEmail() { return this.familyForm.get('email'); }
+
+  ngOnInit() {
+    // The service automatically loads the settings in its constructor
+    // No additional initialization needed here
+  }
 
   addFamilyMember() {
     const newMember: FamilyMember = {

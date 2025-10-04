@@ -3,32 +3,7 @@ import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { mockFamilies } from '../../mock-data/families';
 import { AuthService } from '../../auth.service';
-
-interface Family {
-  id: string;
-  name: string;
-  members: FamilyMember[];
-}
-
-interface FamilyMember {
-  name: string;
-  age: number;
-  gender: string;
-  isChild: boolean;
-  wishList: WishItem[];
-}
-
-interface WishItem {
-  id: string;
-  category: string;
-  description: string;
-  color?: string;
-  size?: string;
-  isAdopted: boolean;
-  adoptedBy?: string;
-  link?: string;
-  details?: string;
-}
+import { Family, FamilyMember, WishItem } from '../../shared/types';
 
 @Component({
   selector: 'app-my-adoptions',
@@ -55,8 +30,8 @@ export class MyAdoptionsComponent {
 
     this.availableFamilies().forEach(family => {
       family.members.forEach(member => {
-        member.wishList.forEach(item => {
-          if (item.isAdopted && item.adoptedBy === currentUser) {
+        member.wishlist_items?.forEach(item => {
+          if (item.is_adopted && item.adopted_by === currentUser) {
             adoptedItems.push({ family, member, item });
           }
         });
@@ -85,8 +60,8 @@ export class MyAdoptionsComponent {
   });
 
   unadoptItem(item: WishItem, family: Family) {
-    item.isAdopted = false;
-    item.adoptedBy = undefined;
-    console.log(`Unadopted item: ${item.description} for ${family.name}`);
+    item.is_adopted = false;
+    item.adopted_by = undefined;
+    console.log(`Unadopted item: ${item.description} for ${family.last_name}`);
   }
 } 

@@ -1,76 +1,96 @@
-<div class="nominate-container">
-  <div class="flex justify-between items-center mb-10">
-    <h3>Family Information</h3>
-    <p-button 
-      label="Submit Family" 
-      icon="pi pi-save" 
-      iconPos="right"
-      size="large"
-      (click)="saveFamily()"
-      [disabled]="!isFamilyValid()">
-    </p-button>
-  </div>
-  
-  <p-card styleClass="nomination-card">
-    <div class="form-container">
-      <div class="family-info-section">
-        <form [formGroup]="familyForm" class="form-grid">
-          <div class="form-field">
-            <label for="familyName">Family Name *</label>
-            <input pInputText id="familyName" formControlName="name" type="text" />
-          </div>
-          <div class="form-field">
-            <label for="address">Address *</label>
-            <input pInputText id="address" formControlName="address" type="text" />
-          </div>
-          <div class="form-field">
-            <label for="phone">Phone Number</label>
-            <input pInputText id="phone" formControlName="phone" type="text" />
-          </div>
-          <div class="form-field">
-            <label for="email">Email *</label>
-            <input pInputText id="email" formControlName="email" type="email" />
-          </div>
-        </form>
-      </div>
-
-      <div class="family-members-section">
-        <div class="section-header">
-          <h3>Family Members</h3>
-          <p-button 
-            label="Add Family Member" 
-            icon="pi pi-plus"
-            iconPos="right"
-            styleClass="outlined-button"
-            (click)="addFamilyMember()">
-          </p-button>
+<div class="p-8 max-w-6xl mx-auto mt-12 border-2 border-gray-300 rounded-xl">
+  @if (loading()) {
+    <div class="flex justify-center items-center min-h-[200px] p-8">
+      <p class="text-gray-600 text-lg">Loading nomination settings...</p>
+    </div>
+  } @else if (error()) {
+    <div class="flex justify-center items-center min-h-[200px] p-8">
+      <p class="text-red-600 text-lg text-center">Error loading nomination settings: {{ error() }}</p>
+    </div>
+  } @else if (!nominationsEnabled()) {
+    <div class="flex justify-center items-center min-h-[200px] p-8">
+      <p-card class="shadow-lg rounded-xl border-2 border-yellow-400 bg-gradient-to-br from-yellow-100 to-yellow-200">
+        <div class="text-center p-8">
+          <h2 class="text-yellow-800 text-3xl font-semibold mb-4">Nominations Currently Closed</h2>
+          <p class="text-yellow-800 text-lg mb-2 leading-relaxed">We are currently not accepting new family nominations at this time.</p>
+          <p class="text-yellow-800 text-lg leading-relaxed">Please check back later or contact us for more information.</p>
+        </div>
+      </p-card>
+    </div>
+  } @else {
+    <div class="flex justify-between items-center mb-10">
+      <h3 class="text-slate-700 text-2xl font-semibold m-0">Family Information</h3>
+      <p-button 
+        label="Submit Family" 
+        icon="pi pi-save" 
+        iconPos="right"
+        size="large"
+        (click)="saveFamily()"
+        [disabled]="!isFamilyValid()">
+      </p-button>
+    </div>
+    
+    <p-card class="shadow-lg rounded-xl">
+      <div class="flex flex-col gap-8">
+        <div class="family-info-section">
+          <form [formGroup]="familyForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="flex flex-col gap-2 min-h-[5rem]">
+              <label for="familyName" class="font-medium text-slate-600 text-sm">Family Name *</label>
+              <input pInputText id="familyName" formControlName="name" type="text" class="w-full" />
+            </div>
+            <div class="flex flex-col gap-2 min-h-[5rem]">
+              <label for="address" class="font-medium text-slate-600 text-sm">Address *</label>
+              <input pInputText id="address" formControlName="address" type="text" class="w-full" />
+            </div>
+            <div class="flex flex-col gap-2 min-h-[5rem]">
+              <label for="phone" class="font-medium text-slate-600 text-sm">Phone Number</label>
+              <input pInputText id="phone" formControlName="phone" type="text" class="w-full" />
+            </div>
+            <div class="flex flex-col gap-2 min-h-[5rem]">
+              <label for="email" class="font-medium text-slate-600 text-sm">Email *</label>
+              <input pInputText id="email" formControlName="email" type="email" class="w-full" />
+            </div>
+          </form>
         </div>
 
-        <p-accordion [value]="0">
-            @for (member of familyInfo().members; track $index; let i = $index) {
+        <div class="family-members-section">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-slate-700 text-2xl font-semibold m-0">Family Members</h3>
+            <p-button 
+              label="Add Family Member" 
+              icon="pi pi-plus"
+              iconPos="right"
+              styleClass="outlined-button"
+              (click)="addFamilyMember()">
+            </p-button>
+          </div>
 
-              <p-accordion-panel [value]="i">
-                  <p-accordion-header>{{ member.name }}</p-accordion-header>
-                  <p-accordion-content>
-                    <app-family-member
-                    [member]="member"
-                    [isCurrentMember]="member.id === currentMember().id"
-                    [isAddingMember]="isAddingMember()"
-                    [editingMemberIndex]="editingMemberIndex()"
-                    [memberIndex]="i"
-                    (memberSelected)="editMember(i)"
-                    (memberRemoved)="removeMember(i)"
-                    (memberUpdated)="onMemberUpdated($event)"
-                    (flipCard)="onFlipCardFromDetails()"
-                    (itemsSaved)="onItemsSaved($event)"
-                    (itemsUpdated)="onItemsUpdated($event)">
-                  </app-family-member>
-                  </p-accordion-content>
-              </p-accordion-panel>
-          }
-      </p-accordion>
-  
+          <p-accordion [value]="0">
+              @for (member of familyInfo().members; track $index; let i = $index) {
+
+                <p-accordion-panel [value]="i">
+                    <p-accordion-header>{{ member.name }}</p-accordion-header>
+                    <p-accordion-content>
+                      <app-family-member
+                      [member]="member"
+                      [isCurrentMember]="member.id === currentMember().id"
+                      [isAddingMember]="isAddingMember()"
+                      [editingMemberIndex]="editingMemberIndex()"
+                      [memberIndex]="i"
+                      (memberSelected)="editMember(i)"
+                      (memberRemoved)="removeMember(i)"
+                      (memberUpdated)="onMemberUpdated($event)"
+                      (flipCard)="onFlipCardFromDetails()"
+                      (itemsSaved)="onItemsSaved($event)"
+                      (itemsUpdated)="onItemsUpdated($event)">
+                    </app-family-member>
+                    </p-accordion-content>
+                </p-accordion-panel>
+            }
+        </p-accordion>
+    
+        </div>
       </div>
-    </div>
-  </p-card>
+    </p-card>
+  }
 </div> 

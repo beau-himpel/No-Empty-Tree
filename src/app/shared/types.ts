@@ -1,25 +1,38 @@
 export interface Family {
   id: string;
-  name: string;
+  last_name: string;
+  address: string;
+  phone?: string;
+  email?: string;
+  nominated_by?: string; // User ID of the user who nominated this family
+  created_at: string;
+  updated_at: string;
   members: FamilyMember[];
 }
 
 export interface FamilyMember {
-  name: string;
+  id: string;
+  family_id: string;
+  first_name: string;
   age: number;
-  gender: string;
-  isChild: boolean;
-  wishList: WishItem[];
+  sex: 'male' | 'female' | 'other';
+  is_parent: boolean;
+  created_at: string;
+  updated_at: string;
+  wishlist_items?: WishItem[];
 }
 
 export interface WishItem {
   id: string;
+  family_member_id: string;
   category: string;
   description: string;
   color?: string;
   size?: string;
-  isAdopted: boolean;
-  adoptedBy?: string;
+  is_adopted: boolean;
+  adopted_by?: string;
   link?: string;
   details?: string;
+  created_at: string;
+  updated_at: string;
 } 

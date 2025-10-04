@@ -28,8 +28,8 @@ export class AdoptFamilyComponent implements OnInit {
   readonly familyCounts = computed(() => 
     this.availableFamilies().map(family => ({
       id: family.id,
-      adultCount: family.members.filter(member => !member.isChild).length,
-      childCount: family.members.filter(member => member.isChild).length
+      adultCount: family.members.filter(member => !member.is_parent).length,
+      childCount: family.members.filter(member => member.is_parent).length
     }))
   );
 
@@ -45,8 +45,8 @@ export class AdoptFamilyComponent implements OnInit {
     if (!family) return { adultCount: 0, childCount: 0 };
     
     return {
-      adultCount: family.members.filter(member => !member.isChild).length,
-      childCount: family.members.filter(member => member.isChild).length
+      adultCount: family.members.filter(member => !member.is_parent).length,
+      childCount: family.members.filter(member => member.is_parent).length
     };
   }
 
