@@ -1,51 +1,60 @@
-<header class="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-50">
-  <div class="w-full px-4 md:px-8 pt-4 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-    <div>
-      <h1 class="m-0 text-slate-700 text-2xl md:text-3xl pb-4 font-bold bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">
+<header class="bg-white sticky top-0 z-50">
+  <div
+    class="w-full flex flex-col md:flex-row md:justify-between"
+  >
+    <div class="px-4 md:px-8 pt-4 border-b flex-1">
+      <h1
+        class="m-0 text-slate-700 text-2xl md:text-3xl pb-4 font-bold bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent"
+      >
         No Empty Tree
       </h1>
     </div>
-    
-    <nav class="flex items-center">
-      <div class="flex gap-4 rounded-lg p-1 shadow-sm">
-        <div 
-          class="px-4 py-2 cursor-pointer rounded-md font-medium text-sm text-slate-500 transition-all duration-200 whitespace-nowrap hover:text-slate-700 hover:bg-white/50"
-          [class.text-slate-800]="isActiveRoute('/adopt-family')"
-          [class.bg-white]="isActiveRoute('/adopt-family')"
-          [class.shadow-sm]="isActiveRoute('/adopt-family')"
-          [class.font-semibold]="isActiveRoute('/adopt-family')"
-          (click)="navigateToAdopt()">
+
+    <nav class="flex items-end">
+        <div
+          class="px-4 py-2 cursor-pointer font-medium text-sm transition-all duration-200 whitespace-nowrap hover:text-slate-700 hover:bg-white/50"
+          [class]="
+            isActiveRoute('/adopt-family')
+              ? 'text-slate-800 bg-white font-semibold border-t border-l border-r border-black'
+              : 'text-slate-500 border-b'
+          "
+          (click)="navigateToAdopt()"
+        >
           Adopt Families
         </div>
-        
-        <div 
-          class="px-4 py-2 cursor-pointer rounded-md font-medium text-sm text-slate-500 transition-all duration-200 whitespace-nowrap hover:text-slate-700 hover:bg-white/50"
-          [class.text-slate-800]="isActiveRoute('/nominate-family')"
-          [class.bg-white]="isActiveRoute('/nominate-family')"
-          [class.shadow-sm]="isActiveRoute('/nominate-family')"
-          [class.font-semibold]="isActiveRoute('/nominate-family')"
-          (click)="navigateToNominate()">
+
+        <div
+          class="px-4 py-2 cursor-pointer font-medium text-sm transition-all duration-200 whitespace-nowrap hover:text-slate-700 hover:bg-white/50"
+          [class]="
+            isActiveRoute('/nominate-family')
+              ? 'text-slate-800 bg-white font-semibold border-t border-l border-r border-black'
+              : 'text-slate-500  border-b'
+          "
+          (click)="navigateToNominate()"
+        >
           Nominate Family
         </div>
-        
-        <div 
-          class="px-4 py-2 cursor-pointer rounded-md font-medium text-sm text-slate-500 transition-all duration-200 whitespace-nowrap hover:text-slate-700 hover:bg-white/50"
-          [class.text-slate-800]="isActiveRoute('/my-adoptions')"
-          [class.bg-white]="isActiveRoute('/my-adoptions')"
-          [class.shadow-sm]="isActiveRoute('/my-adoptions')"
-          [class.font-semibold]="isActiveRoute('/my-adoptions')"
-          (click)="navigateToMyAdoptions()">
+
+        <div
+          class="px-4 py-2 cursor-pointer font-medium text-sm transition-all duration-200 whitespace-nowrap hover:text-slate-700 hover:bg-white/50"
+          [class]="
+            isActiveRoute('/my-adoptions')
+              ? 'text-slate-800 bg-white font-semibold border-t border-l border-r border-black'
+              : 'text-slate-500 border-b'
+          "
+          (click)="navigateToMyAdoptions()"
+        >
           My Adoptions
         </div>
-        
-        <div 
-          class="px-4 py-2 cursor-pointer rounded-md font-medium text-sm text-red-600 transition-all duration-200 whitespace-nowrap hover:text-red-700 hover:bg-red-50"
+
+        <div
+          class="px-4 py-2 border-b cursor-pointer rounded-md font-medium text-sm text-red-600 transition-all duration-200 whitespace-nowrap hover:text-red-700 hover:bg-red-50"
           [class.text-red-700]="isActiveRoute('/logout')"
           [class.bg-red-50]="isActiveRoute('/logout')"
-          (click)="logout()">
+          (click)="logout()"
+        >
           Logout
         </div>
-      </div>
     </nav>
   </div>
-</header> 
+</header>
