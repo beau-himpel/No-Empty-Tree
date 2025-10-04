@@ -2,7 +2,7 @@
   <div
     class="w-full flex flex-col md:flex-row md:justify-between"
   >
-    <div class="px-4 md:px-8 pt-4 border-b flex-1">
+    <div class="px-16 md:px-32 pt-4 border-b flex-1">
       <h1
         class="m-0 text-slate-700 text-2xl md:text-3xl pb-4 font-bold bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent"
       >
@@ -12,7 +12,7 @@
 
     <nav class="flex items-end">
         <div
-          class="px-4 py-2 cursor-pointer font-medium text-sm transition-all duration-200 whitespace-nowrap hover:text-slate-700 hover:bg-white/50"
+          class="px-4 py-4 cursor-pointer font-medium text-sm transition-all duration-200 whitespace-nowrap hover:text-slate-700 hover:bg-white/50"
           [class]="
             isActiveRoute('/adopt-family')
               ? 'text-slate-800 bg-white font-semibold border-t border-l border-r border-black'
@@ -24,7 +24,7 @@
         </div>
 
         <div
-          class="px-4 py-2 cursor-pointer font-medium text-sm transition-all duration-200 whitespace-nowrap hover:text-slate-700 hover:bg-white/50"
+          class="px-4 py-4 cursor-pointer font-medium text-sm transition-all duration-200 whitespace-nowrap hover:text-slate-700 hover:bg-white/50"
           [class]="
             isActiveRoute('/nominate-family')
               ? 'text-slate-800 bg-white font-semibold border-t border-l border-r border-black'
@@ -36,7 +36,7 @@
         </div>
 
         <div
-          class="px-4 py-2 cursor-pointer font-medium text-sm transition-all duration-200 whitespace-nowrap hover:text-slate-700 hover:bg-white/50"
+          class="px-4 py-4 cursor-pointer font-medium text-sm transition-all duration-200 whitespace-nowrap hover:text-slate-700 hover:bg-white/50"
           [class]="
             isActiveRoute('/my-adoptions')
               ? 'text-slate-800 bg-white font-semibold border-t border-l border-r border-black'
@@ -48,7 +48,7 @@
         </div>
 
         <div
-          class="px-4 py-2 border-b cursor-pointer rounded-md font-medium text-sm text-red-600 transition-all duration-200 whitespace-nowrap hover:text-red-700 hover:bg-red-50"
+          class="px-16 py-2 border-b cursor-pointer rounded-md font-medium text-sm text-red-600 transition-all duration-200 whitespace-nowrap hover:text-red-700 hover:bg-red-50"
           [class.text-red-700]="isActiveRoute('/logout')"
           [class.bg-red-50]="isActiveRoute('/logout')"
           (click)="logout()"
