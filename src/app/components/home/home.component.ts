@@ -43,7 +43,7 @@ export class HomeComponent implements OnInit {
       });
   }
   
-  private updateCurrentView(url: string): void {
+  private updateCurrentView(url: string) {
     if (url.includes('/adopt-family')) {
       this.currentView.set('adopt-family');
     } else if (url.includes('/nominate-family')) {

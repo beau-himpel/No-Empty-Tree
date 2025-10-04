@@ -32,15 +32,15 @@ export class HeaderComponent {
     return this.currentRoute === route;
   }
 
-  navigateToAdopt(): void {
+  navigateToAdopt() {
     this.router.navigate(['/adopt-family']);
   }
 
-  navigateToNominate(): void {
+  navigateToNominate() {
     this.router.navigate(['/nominate-family']);
   }
 
-  navigateToMyAdoptions(): void {
+  navigateToMyAdoptions() {
     this.router.navigate(['/my-adoptions']);
   }
 

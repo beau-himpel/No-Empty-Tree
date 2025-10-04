@@ -48,7 +48,7 @@ export class ItemFormComponent implements OnInit {
     this.initializeItemForms();
   }
 
-  initializeItemForms(): void {
+  initializeItemForms() {
     const forms = [this.createItemForm()];
     this.itemForms.set(forms);
   }
@@ -62,13 +62,13 @@ export class ItemFormComponent implements OnInit {
     });
   }
 
-  addAnotherItemForm(): void {
+  addAnotherItemForm() {
     const newForm = this.createItemForm();
     const currentForms = this.itemForms();
     this.itemForms.set([...currentForms, newForm]);
   }
 
-  removeItemForm(index: number): void {
+  removeItemForm(index: number) {
     const currentForms = this.itemForms();
     if (currentForms.length > 1) {
       currentForms.splice(index, 1);
@@ -76,7 +76,7 @@ export class ItemFormComponent implements OnInit {
     }
   }
 
-  saveAllItems(): void {
+  saveAllItems() {
     const forms = this.itemForms();
     const validItems: Item[] = [];
     
@@ -96,7 +96,7 @@ export class ItemFormComponent implements OnInit {
     }
   }
 
-  removeExistingItem(index: number): void {
+  removeExistingItem(index: number) {
     const updatedItems = [...this.existingItems];
     updatedItems.splice(index, 1);
     this.itemsUpdated.emit(updatedItems);

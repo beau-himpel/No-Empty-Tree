@@ -39,37 +39,37 @@ export class FamilyMemberComponent {
   @Output() itemsSaved = new EventEmitter<Item[]>();
   @Output() itemsUpdated = new EventEmitter<Item[]>();
 
-  onSelectMember(): void {
+  onSelectMember() {
     this.memberSelected.emit(this.member);
   }
 
-  onRemoveMember(event: Event): void {
+  onRemoveMember(event: Event) {
     event.stopPropagation();
     this.memberRemoved.emit(this.member);
   }
 
-  onMemberUpdated(updatedMember: FamilyMember): void {
+  onMemberUpdated(updatedMember: FamilyMember) {
     this.memberUpdated.emit(updatedMember);
   }
 
-  onFlipCardFromDetails(): void {
+  onFlipCardFromDetails() {
     this.flipCard.emit();
   }
 
-  onItemsSaved(items: Item[]): void {
+  onItemsSaved(items: Item[]) {
     this.itemsSaved.emit(items);
   }
 
-  onItemsUpdated(items: Item[]): void {
+  onItemsUpdated(items: Item[]) {
     this.itemsUpdated.emit(items);
   }
 
-  onSaveMemberFromDetails(): void {
+  onSaveMemberFromDetails() {
     // This will be handled by the parent component
     // The parent should listen to memberUpdated events
   }
 
-  onCancelMemberFromDetails(): void {
+  onCancelMemberFromDetails() {
     // This will be handled by the parent component
     // The parent should handle the cancel logic
   }

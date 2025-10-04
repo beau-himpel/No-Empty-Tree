@@ -5,7 +5,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { CardModule } from 'primeng/card';
 import { MessageModule } from 'primeng/message';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../auth.service';
 
 @Component({
@@ -17,7 +17,7 @@ import { AuthService } from '../../auth.service';
     PasswordModule,
     CardModule,
     MessageModule,
-    FormsModule
+    ReactiveFormsModule
   ],
   templateUrl: './sign-in.component.html',
   styleUrls: ['./sign-in.component.scss']
@@ -25,12 +25,19 @@ import { AuthService } from '../../auth.service';
 export class SignInComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly fb = inject(FormBuilder);
   
-  email = signal('');
-  password = signal('');
+  signInForm: FormGroup;
   isLoading = signal(false);
   errorMessage = signal('');
   isSignUp = signal(false);
+
+  constructor() {
+    this.signInForm = this.fb.group({
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]]
+    });
+  }
   
   async signInWithGoogle(): Promise<void> {
     try {
@@ -46,15 +53,21 @@ export class SignInComponent {
   }
 
   async signInWithEmail(): Promise<void> {
+    if (this.signInForm.invalid) {
+      return;
+    }
+
+    const { email, password } = this.signInForm.value;
+
     try {
       this.isLoading.set(true);
       this.errorMessage.set('');
       
       if (this.isSignUp()) {
-        await this.authService.signUpWithEmail(this.email(), this.password());
+        await this.authService.signUpWithEmail(email, password);
         this.errorMessage.set('Check your email for a confirmation link!');
       } else {
-        await this.authService.signInWithEmail(this.email(), this.password());
+        await this.authService.signInWithEmail(email, password);
         this.router.navigate(['/']);
       }
     } catch (error: any) {
@@ -65,7 +78,7 @@ export class SignInComponent {
     }
   }
 
-  goToSignUp(): void {
-    
+  goToSignUp() {
+    this.router.navigate(['/sign-up']);
   }
 } 

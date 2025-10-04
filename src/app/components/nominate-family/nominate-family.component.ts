@@ -126,7 +126,7 @@ export class NominateFamilyComponent {
     this.showMemberDetails.set(false);
   }
 
-  editMember(index: number): void {
+  editMember(index: number) {
     this.editingMemberIndex.set(index);
     this.isAddingMember.set(false);
     const member = this.familyInfo().members[index];
@@ -134,13 +134,13 @@ export class NominateFamilyComponent {
     this.showMemberDetails.set(false);
   }
 
-  removeMember(index: number): void {
+  removeMember(index: number) {
     const family = this.familyInfo();
     family.members.splice(index, 1);
     this.familyInfo.set({ ...family });
   }
 
-  flipCard(): void {
+  flipCard() {
     const member = this.currentMember();
     member.showItemsView = !member.showItemsView;
     this.currentMember.set({ ...member });
@@ -154,7 +154,7 @@ export class NominateFamilyComponent {
     }
   }
 
-  cancelAddMember(): void {
+  cancelAddMember() {
     this.isAddingMember.set(false);
     this.editingMemberIndex.set(null);
     this.showMemberDetails.set(false);
@@ -162,7 +162,7 @@ export class NominateFamilyComponent {
   }
 
 
-  onItemsSaved(items: Item[]): void {
+  onItemsSaved(items: Item[]) {
     const member = this.currentMember();
     member.items = items;
     this.currentMember.set({ ...member });
@@ -176,7 +176,7 @@ export class NominateFamilyComponent {
     }
   }
 
-  onItemsUpdated(items: Item[]): void {
+  onItemsUpdated(items: Item[]) {
     const member = this.currentMember();
     member.items = items;
     this.currentMember.set({ ...member });
@@ -190,7 +190,7 @@ export class NominateFamilyComponent {
     }
   }
 
-  onMemberUpdated(member: FamilyMember): void {
+  onMemberUpdated(member: FamilyMember) {
     this.currentMember.set(member);
     
     // Update the family member
@@ -202,19 +202,19 @@ export class NominateFamilyComponent {
     }
   }
 
-  onFlipCardFromDetails(): void {
+  onFlipCardFromDetails() {
     this.flipCard();
   }
 
-  onSaveMemberFromDetails(): void {
+  onSaveMemberFromDetails() {
     this.saveMember();
   }
 
-  onCancelMemberFromDetails(): void {
+  onCancelMemberFromDetails() {
     this.cancelAddMember();
   }
 
-  saveMember(): void {
+  saveMember() {
     const member = this.currentMember();
     
     if (this.isMemberValid()) {
@@ -231,7 +231,7 @@ export class NominateFamilyComponent {
     }
   }
 
-  saveFamily(): void {
+  saveFamily() {
     if (this.familyForm.valid && this.isFamilyValid()) {
       const familyData = this.familyForm.value as Partial<FamilyInfo>;
       const family = { ...this.familyInfo(), ...familyData };
@@ -246,7 +246,7 @@ export class NominateFamilyComponent {
     return 'member_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
   }
 
-  private resetCurrentMember(): void {
+  private resetCurrentMember() {
     this.currentMember.set({
       id: '',
       name: '',

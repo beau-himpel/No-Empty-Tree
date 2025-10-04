@@ -82,7 +82,7 @@ export class SupabaseService {
   }
 
 
-  private handleAuthStateChange(event: string, session: any): void {
+  private handleAuthStateChange(event: string, session: any) {
     try {
       // Handle auth state changes
       console.log('Auth state change:', event, session);

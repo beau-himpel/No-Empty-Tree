@@ -99,7 +99,7 @@ export class MemberDetailsComponent {
     });
   }
 
-  onFlipCard(): void {
+  onFlipCard() {
     this.flipCard.emit();
   }
 

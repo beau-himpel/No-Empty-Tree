@@ -84,7 +84,7 @@ export class MyAdoptionsComponent {
     });
   });
 
-  unadoptItem(item: WishItem, family: Family): void {
+  unadoptItem(item: WishItem, family: Family) {
     item.isAdopted = false;
     item.adoptedBy = undefined;
     console.log(`Unadopted item: ${item.description} for ${family.name}`);

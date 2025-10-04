@@ -33,7 +33,7 @@ export class AdoptFamilyComponent implements OnInit {
     }))
   );
 
-  ngOnInit(): void {
+  ngOnInit() {
     const user = this.authService.getCurrentUser();
     if (user) {
       this.currentUser.set(user.email ?? 'Unknown User');
@@ -50,15 +50,15 @@ export class AdoptFamilyComponent implements OnInit {
     };
   }
 
-  viewFamilyDetails(family: Family): void {
+  viewFamilyDetails(family: Family) {
     this.selectedFamily.set(family);
   }
 
-  onFamilyDetailsClose(): void {
+  onFamilyDetailsClose() {
     this.selectedFamily.set(null);
   }
 
-  navigateToNominate(): void {
+  navigateToNominate() {
     this.router.navigate(['/nominate-family']);
   }
 } 

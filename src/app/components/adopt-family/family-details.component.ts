@@ -218,12 +218,12 @@ export class FamilyDetailsComponent {
     });
   }
 
-  onClose(): void {
+  onClose() {
     this.expandedMembers.set(new Set());
     this.closeRequested.emit();
   }
 
-  toggleMemberWishList(memberName: string): void {
+  toggleMemberWishList(memberName: string) {
     const current = this.expandedMembers();
     const newSet = new Set(current);
     
@@ -240,7 +240,7 @@ export class FamilyDetailsComponent {
     return this.expandedMembers().has(memberName);
   }
 
-  adoptItem(item: WishItem, family: Family): void {
+  adoptItem(item: WishItem, family: Family) {
     const user = this.currentUser();
     if (!user) return;
     
@@ -249,7 +249,7 @@ export class FamilyDetailsComponent {
     console.log(`Adopted item: ${item.description} for ${family.name}`);
   }
 
-  unadoptItem(item: WishItem, family: Family): void {
+  unadoptItem(item: WishItem, family: Family) {
     item.isAdopted = false;
     item.adoptedBy = undefined;
     
@@ -270,7 +270,7 @@ export class FamilyDetailsComponent {
     return item.isAdopted && item.adoptedBy === user;
   }
 
-  adoptAllItems(family: Family, event: Event): void {
+  adoptAllItems(family: Family, event: Event) {
     event.stopPropagation();
     const user = this.currentUser();
     if (!user) return;

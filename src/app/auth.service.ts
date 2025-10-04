@@ -38,7 +38,7 @@ export class AuthService {
     });
   }
 
-  private updateAuthState(session: Session | null): void {
+  private updateAuthState(session: Session | null) {
     this._session.set(session);
     this._isLoggedIn.set(!!session);
     this._currentUser.set(session?.user ?? null);
@@ -67,9 +67,15 @@ export class AuthService {
     }
   }
 
-  async signUpWithEmail(email: string, password: string): Promise<void> {
+  async signUpWithEmail(email: string, password: string, metadata?: any): Promise<void> {
     try {
-      const { error } = await this.supabaseService.client.auth.signUp({ email, password });
+      const { error } = await this.supabaseService.client.auth.signUp({ 
+        email, 
+        password,
+        options: {
+          data: metadata
+        }
+      });
       if (error) throw error;
     } catch (error) {
       console.error('Error signing up with email:', error);
