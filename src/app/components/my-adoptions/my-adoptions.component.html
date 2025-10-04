@@ -40,13 +40,12 @@
                     </div>
                     
                     <div class="flex-shrink-0 md:self-end">
-                      <p-button 
-                        label="Unadopt" 
-                        icon="pi pi-times" 
-                        size="small"
-                        severity="secondary"
+                      <button 
+                        class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-1 px-3 rounded text-sm flex items-center gap-1 transition-colors"
                         (click)="unadoptItem(memberItem.item, familyGroup.family)">
-                      </p-button>
+                        <i class="pi pi-times"></i>
+                        Unadopt
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -58,12 +57,12 @@
     } @else {
       <div class="text-center py-12 px-4">
         <p class="text-slate-500 text-lg mb-6">You haven't adopted any items yet.</p>
-        <p-button 
-          label="Browse Families" 
-          icon="pi pi-heart" 
-          severity="success"
+        <button 
+          class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
           routerLink="/adopt-family">
-        </p-button>
+          <i class="pi pi-heart"></i>
+          Browse Families
+        </button>
       </div>
     }
   </p-card>

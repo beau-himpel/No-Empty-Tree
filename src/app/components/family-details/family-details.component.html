@@ -1,6 +1,5 @@
 @if (family(); as selectedFamily) {
   <div class="family-details-inline">
-    
     <div class="family-details">
       <div class="family-info">
         <h2>{{ selectedFamily.last_name }}</h2>
@@ -10,7 +9,6 @@
         </div>
         <div class="adopt-all-section">
           @if (!hasAnyAdoptedItems(selectedFamily)) {
-            <!-- No items adopted yet - show "Adopt All Items" button -->
             <button 
               class="adopt-all-btn"
               (click)="adoptAllItems(selectedFamily, $event)">
@@ -18,7 +16,6 @@
               Adopt All Items for This Family
             </button>
           } @else if (!areAllItemsAdopted(selectedFamily)) {
-            <!-- Some items adopted - show "Adopt All Remaining Items" button -->
             <button 
               class="adopt-all-btn"
               (click)="adoptAllRemainingItems(selectedFamily, $event)">
@@ -26,7 +23,6 @@
               Adopt All Remaining Items
             </button>
           } @else {
-            <!-- All items adopted - show completion message -->
             <div class="all-adopted-message">
               <i class="pi pi-check-circle"></i>
               All Items Have Been Adopted!
@@ -51,10 +47,8 @@
             
             @if (member.wishlist_items && member.wishlist_items.length > 0) {
               @if (isAllItemsAdopted(member)) {
-                <!-- All items adopted - show toggle button -->
                 <div class="wish-list-completed">
                   <div class="completed-status">
-                    <span class="completed-badge">✓ All Items Adopted</span>
                     <button 
                       class="toggle-wishlist-btn"
                       (click)="toggleMemberWishList(member.first_name)">

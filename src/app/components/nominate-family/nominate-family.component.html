@@ -10,24 +10,23 @@
   } @else if (!nominationsEnabled()) {
     <div class="flex justify-center items-center min-h-[200px] p-8">
       <p-card class="shadow-lg rounded-xl border-2 border-yellow-400 bg-gradient-to-br from-yellow-100 to-yellow-200">
-        <div class="text-center p-8">
-          <h2 class="text-yellow-800 text-3xl font-semibold mb-4">Nominations Currently Closed</h2>
-          <p class="text-yellow-800 text-lg mb-2 leading-relaxed">We are currently not accepting new family nominations at this time.</p>
-          <p class="text-yellow-800 text-lg leading-relaxed">Please check back later or contact us for more information.</p>
+        <div class="text-center text-yellow-800 p-8">
+          <h2 class="text-3xl font-semibold mb-4">Nominations Currently Closed</h2>
+          <p class="text-lg mb-2 leading-relaxed">We are currently not accepting new family nominations at this time.</p>
+          <p class=" text-lg leading-relaxed">Please check back later or contact us for more information.</p>
         </div>
       </p-card>
     </div>
   } @else {
     <div class="flex justify-between items-center mb-10">
       <h3 class="text-slate-700 text-2xl font-semibold m-0">Family Information</h3>
-      <p-button 
-        label="Submit Family" 
-        icon="pi pi-save" 
-        iconPos="right"
-        size="large"
+      <button 
+        class="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium py-3 px-6 rounded-lg flex items-center gap-2 transition-colors text-lg"
         (click)="saveFamily()"
         [disabled]="!isFamilyValid()">
-      </p-button>
+        Submit Family
+        <i class="pi pi-save"></i>
+      </button>
     </div>
     
     <p-card class="shadow-lg rounded-xl">
@@ -56,13 +55,12 @@
         <div class="family-members-section">
           <div class="flex justify-between items-center mb-4">
             <h3 class="text-slate-700 text-2xl font-semibold m-0">Family Members</h3>
-            <p-button 
-              label="Add Family Member" 
-              icon="pi pi-plus"
-              iconPos="right"
-              styleClass="outlined-button"
+            <button 
+              class="border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
               (click)="addFamilyMember()">
-            </p-button>
+              Add Family Member
+              <i class="pi pi-plus"></i>
+            </button>
           </div>
 
           <p-accordion [value]="0">

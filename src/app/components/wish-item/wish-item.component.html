@@ -19,14 +19,12 @@
   </div>
   <div class="item-actions">
     @if (!item().is_adopted) {
-      <p-button 
-        class="adopt-all-btn"
-        label="Adopt" 
-        icon="pi pi-heart-fill" 
-        iconPos="right"
-        size="large"
+      <button 
+        class="adopt-all-btn bg-red-500 hover:bg-red-600 text-white font-medium py-3 px-6 rounded-lg flex items-center gap-2 transition-colors text-lg"
         (click)="onAdoptItem()">
-      </p-button>
+        Adopt
+        <i class="pi pi-heart-fill"></i>
+      </button>
     } @else {
       <div class="adopted-info">
         <span class="adopted-badge">Adopted ✓</span>

@@ -7,14 +7,12 @@
         {{ member.name ? member.name : 'Add Family Member' }}
       }
     </h4>
-    <p-button 
-      label="Add Items" 
-      icon="pi pi-plus" 
-      iconPos="right"
-      severity="info" 
-      size="small"
+    <button 
+      class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-1 px-3 rounded text-sm flex items-center gap-1 transition-colors"
       (click)="onFlipCard()">
-    </p-button>
+      <i class="pi pi-plus"></i>
+      Add Items
+    </button>
   </div>
   
   <form [formGroup]="memberForm" class="form-grid">

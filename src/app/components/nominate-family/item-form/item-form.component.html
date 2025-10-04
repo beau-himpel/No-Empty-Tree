@@ -1,14 +1,12 @@
 <div class="item-form-container">
   <div class="form-header">
     <h5>Items for {{ memberName || 'Family Member' }}</h5>
-    <p-button 
-      label="Add Another Item" 
-      icon="pi pi-plus" 
-      iconPos="right"
-      severity="info" 
-      size="small"
+    <button 
+      class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-1 px-3 rounded text-sm flex items-center gap-1 transition-colors"
       (click)="addAnotherItemForm()">
-    </p-button>
+      <i class="pi pi-plus"></i>
+      Add Another Item
+    </button>
   </div>
 
   <!-- Existing Items -->
@@ -26,13 +24,11 @@
               </div>
             }
           </div>
-          <p-button 
-            icon="pi pi-trash" 
-            iconPos="right"
-            severity="danger" 
-            size="small"
+          <button 
+            class="bg-red-500 hover:bg-red-600 text-white font-medium py-1 px-3 rounded text-sm flex items-center gap-1 transition-colors"
             (click)="removeExistingItem(itemIndex)">
-          </p-button>
+            <i class="pi pi-trash"></i>
+          </button>
         </div>
       }
     </div>
@@ -46,13 +42,11 @@
         <div class="item-form-header">
           <h6>Item {{ formIndex + 1 }}</h6>
           @if (itemForms().length > 1) {
-            <p-button 
-              icon="pi pi-trash" 
-              iconPos="right"
-              severity="danger" 
-              size="small"
+            <button 
+              class="bg-red-500 hover:bg-red-600 text-white font-medium py-1 px-3 rounded text-sm flex items-center gap-1 transition-colors"
               (click)="removeItemForm(formIndex)">
-            </p-button>
+              <i class="pi pi-trash"></i>
+            </button>
           }
         </div>
         <form [formGroup]="itemForm" class="form-grid">
@@ -83,13 +77,13 @@
     }
     
     <div class="form-actions">
-      <p-button 
-        label="Save All Items" 
-        icon="pi pi-save" 
-        iconPos="right"
+      <button 
+        class="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
         (click)="saveAllItems()"
         [disabled]="!isAnyFormValid()">
-      </p-button>
+        Save All Items
+        <i class="pi pi-save"></i>
+      </button>
     </div>
   </div>
 </div>

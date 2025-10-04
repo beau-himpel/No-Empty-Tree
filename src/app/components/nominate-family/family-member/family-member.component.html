@@ -10,13 +10,11 @@
       }
     </span>
     <div class="pending-actions">
-      <p-button 
-        icon="pi pi-trash" 
-        iconPos="right"
-        severity="danger" 
-        size="small"
+      <button 
+        class="bg-red-500 hover:bg-red-600 text-white font-medium py-1 px-3 rounded text-sm flex items-center gap-1 transition-colors"
         (click)="onRemoveMember($event)">
-      </p-button>
+        <i class="pi pi-trash"></i>
+      </button>
     </div>
   </div>
 
@@ -41,14 +39,12 @@
         <div class="card-back">
           <div class="card-header">
             <h4>Items for {{ member.name || 'Family Member' }}</h4>
-            <p-button 
-              label="Back to Info" 
-              icon="pi pi-arrow-left" 
-              iconPos="right"
-              severity="secondary" 
-              size="small"
+            <button 
+              class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-1 px-3 rounded text-sm flex items-center gap-1 transition-colors"
               (click)="onFlipCardFromDetails()">
-            </p-button>
+              <i class="pi pi-arrow-left"></i>
+              Back to Info
+            </button>
           </div>
           <div class="items-section">
             <app-item-form
