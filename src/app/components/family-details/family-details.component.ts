@@ -219,14 +219,12 @@ export class FamilyDetailsComponent {
     return (member.wishlist_items?.length || 0) > 0 && (member.wishlist_items?.every(item => item.is_adopted) || false);
   }
 
-  // Check if any items in the family have been adopted
   hasAnyAdoptedItems(family: Family): boolean {
     return family.family_members.some(member => 
       member.wishlist_items?.some(item => item.is_adopted) || false
     );
   }
 
-  // Check if all items in the family have been adopted
   areAllItemsAdopted(family: Family): boolean {
     return family.family_members.every(member => 
       (member.wishlist_items?.length || 0) === 0 || 
@@ -234,7 +232,6 @@ export class FamilyDetailsComponent {
     );
   }
 
-  // Show confirmation modal for adopting all remaining items
   showAdoptRemainingConfirmation(family: Family, event: Event) {
     event.stopPropagation();
     this.pendingFamily.set(family);

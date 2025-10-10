@@ -11,25 +11,25 @@
         </div>
         
         <div class="adopt-all-section">
-          @if (!hasAnyAdoptedItems(selectedFamily)) {
-            <button 
-              class="adopt-all-btn"
-              (click)="showAdoptAllConfirmation(selectedFamily, $event)">
-              <i class="pi pi-heart-fill"></i>
-              Adopt All Items for This Family
-            </button>
-          } @else if (!areAllItemsAdopted(selectedFamily)) {
-            <button 
-              class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
-              (click)="showAdoptRemainingConfirmation(selectedFamily, $event)">
-              Adopt All Remaining Items
-              <i class="pi pi-heart-fill"></i>
-            </button>
-          } @else {
+          @if (areAllItemsAdopted(selectedFamily)) {
             <div class="all-adopted-message">
               <i class="pi pi-check-circle"></i>
               All Items Have Been Adopted!
             </div>
+          } @else if (hasAnyAdoptedItems(selectedFamily)) {
+            <button 
+            class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
+            (click)="showAdoptRemainingConfirmation(selectedFamily, $event)">
+            Adopt All Remaining Items
+            <i class="pi pi-heart-fill"></i>
+          </button>
+          } @else {
+            <button 
+            class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
+            (click)="showAdoptAllConfirmation(selectedFamily, $event)">
+            Adopt All Items for This Family
+            <i class="pi pi-heart-fill"></i>
+          </button>
           }
         </div>
       </div>
@@ -50,7 +50,6 @@
               @if (isAllItemsAdopted(member)) {
               } @else {
                 <div class="wish-list">
-                  <h5>Wish List</h5>
                   @for (item of getSortedWishList(member.wishlist_items || []); track item.id) {
                     @if (item.is_adopted && $first) {
                       <div class="adopted-section-divider">
@@ -82,21 +81,12 @@
   header="Confirm Adoption" 
   [(visible)]="showConfirmationModal" 
   [modal]="true" 
-  [closable]="true"
+  [closable]="false"
   [style]="{width: '450px'}"
   [draggable]="false"
   [resizable]="false">
   
   <div class="confirmation-content">
-    <div class="confirmation-icon">
-      <i class="pi pi-heart" style="font-size: 3rem; color: #e53e3e;"></i>
-    </div>
-    
-    <h3>
-      {{ modalType() === 'all' ? 'Adopt All Items' : 'Adopt All Remaining Items' }} 
-      for the {{ pendingFamily()?.last_name }} Family?
-    </h3>
-    
     <p>
       You are about to adopt 
       <strong>{{ modalType() === 'all' ? 'all wish list items' : 'all remaining unadopted items' }}</strong> 
@@ -104,10 +94,7 @@
       {{ modalType() === 'all' ? 'every item' : 'all unadopted items' }} 
       as adopted by you.
     </p>
-    
-    <div class="family-summary-modal">
-      <p><strong>Family Members:</strong> {{ familyCounts().adultCount }} {{ familyCounts().adultCount === 1 ? 'Adult' : 'Adults' }}, {{ familyCounts().childCount }} {{ familyCounts().childCount === 1 ? 'Child' : 'Children' }}</p>
-    </div>    
+     
   </div>
   
   <ng-template pTemplate="footer">

@@ -1,6 +1,6 @@
 <div class="w-full p-8 md:p-4">
   <div class="p-6">
-    <h2 class="text-2xl font-bold text-slate-800 mb-6">Adopt a Family</h2>
+    <h2 class="text-center text-2xl font-bold text-slate-800 mb-6">Adopt a Family</h2>
     @if (error()) {
     <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
       <div class="flex items-center">
@@ -11,7 +11,7 @@
     } @if (isLoading()) {
     <div class="text-center py-12">
       <i class="pi pi-spin pi-spinner text-4xl text-slate-400 mb-4"></i>
-      <p class="text-slate-500 text-lg">Loading families...</p>
+      <p class="text-slate-500 text-2xl">Loading families...</p>
     </div>
     } @else {
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
