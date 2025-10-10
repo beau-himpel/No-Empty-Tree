@@ -28,6 +28,7 @@ export class WishItemComponent {
 
   isAdoptedByCurrentUser(): boolean {
     const user = this.currentUser();
+    console.log(this.item().is_adopted, this.item().adopted_by, user);
     return this.item().is_adopted && this.item().adopted_by === user;
   }
 }

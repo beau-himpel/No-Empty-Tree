@@ -1,46 +1,40 @@
 <div class="wish-item" [class.adopted]="item().is_adopted">
   <div class="item-info">
-    <span class="item-category">{{ item().category }}</span>
     <span class="item-description">{{ item().description }}</span>
     @if (item().color) {
-      <span class="item-detail">Color: {{ item().color }}</span>
-    }
-    @if (item().size) {
-      <span class="item-detail">Size: {{ item().size }}</span>
-    }
-    @if (item().details) {
-      <div class="item-details">{{ item().details }}</div>
-    }
-    @if (item().link) {
-      <a href="{{ item().link }}" target="_blank" class="item-link">
-        <i class="pi pi-external-link"></i> View Item
-      </a>
+    <span class="item-detail">Color: {{ item().color }}</span>
+    } @if (item().size) {
+    <span class="item-detail">Size: {{ item().size }}</span>
+    } @if (item().details) {
+    <div class="item-details">{{ item().details }}</div>
+    } @if (item().link) {
+    <a href="{{ item().link }}" target="_blank" class="item-link">
+      View Item
+      <i class="pi pi-external-link"></i>
+    </a>
     }
   </div>
   <div class="item-actions">
     @if (!item().is_adopted) {
-      <button 
-        class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
-        (click)="onAdoptItem()">
-        Adopt
-        <i class="pi pi-heart-fill"></i>
-      </button>
+    <button
+      class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
+      (click)="onAdoptItem()"
+    >
+      Adopt
+      <i class="pi pi-heart-fill"></i>
+    </button>
     } @else {
-      <div class="adopted-info">
-        <span class="adopted-badge">Adopted ✓</span>
-        @if (item().adopted_by) {
-          <div class="adopted-by">by {{ item().adopted_by_name?.full_name || item().adopted_by }}</div>
-        }
-        
-        @if (isAdoptedByCurrentUser()) {
-          <button 
-            class="unadopt-btn"
-            (click)="onUnadoptItem()">
-            <i class="pi pi-times"></i>
-            Unadopt
-          </button>
-        }
-      </div>
+    <div class="adopted-info">
+      <span class="adopted-by">Adopted by
+        {{ item().adopted_by_name?.full_name || item().adopted_by }}
+      </span>
+      @if (isAdoptedByCurrentUser()) {
+      <button class="unadopt-btn" (click)="onUnadoptItem()">
+        <i class="pi pi-times"></i>
+        Unadopt
+      </button>
+      }
+    </div>
     }
   </div>
 </div>
