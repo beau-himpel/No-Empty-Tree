@@ -26,10 +26,10 @@
         class="bg-white hover:bg-red-50 text-red-500 border border-red-500 font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
         (click)="onUnadoptItem()"
       >
-        <span class="w-full">
-          Unadopt
+        <div class="flex items-center gap-4">
+          <span>Unadopt</span>
           <i class="pi pi-undo"></i>
-        </span>
+        </div>
       </button>
       }
     </div>
@@ -38,10 +38,10 @@
       class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
       (click)="onAdoptItem()"
     >
-      <span class="w-full">
-        Adopt
+      <div class="flex items-center gap-4">
+        <span>Adopt</span>
         <i class="pi pi-heart-fill"></i>
-      </span>
+      </div>
     </button>
     }
   </div>

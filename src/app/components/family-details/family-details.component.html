@@ -1,113 +1,145 @@
 @if (family(); as selectedFamily) {
-  <div class="family-details-inline">
-    <div class="family-details">
-      <div class="family-header-section">
-        <div class="family-info">
-          <h2>The {{ selectedFamily.last_name }} Family</h2>
-          <div class="family-summary">
-            <span class="adults">{{ familyCounts().adultCount }} {{ familyCounts().adultCount === 1 ? 'Adult' : 'Adults' }}</span>
-            <span class="children">{{ familyCounts().childCount }} {{ familyCounts().childCount === 1 ? 'Child' : 'Children' }}</span>
-          </div>
-        </div>
-        
-        <div class="adopt-all-section">
-          @if (areAllItemsAdopted(selectedFamily)) {
-            <div class="all-adopted-message">
-              <i class="pi pi-check-circle"></i>
-              All Items Have Been Adopted!
-            </div>
-          } @else if (hasAnyAdoptedItems(selectedFamily)) {
-            <button 
-            class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
-            (click)="showAdoptRemainingConfirmation(selectedFamily, $event)">
-            Adopt All Remaining Items
-            <i class="pi pi-heart-fill"></i>
-          </button>
-          } @else {
-            <button 
-            class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
-            (click)="showAdoptAllConfirmation(selectedFamily, $event)">
-            Adopt All Items for This Family
-            <i class="pi pi-heart-fill"></i>
-          </button>
-          }
+<div class="family-details-inline">
+  <div class="family-details">
+    <div class="family-header-section">
+      <div class="family-info">
+        <h2>The {{ selectedFamily.last_name }} Family</h2>
+        <div class="family-summary">
+          <span class="adults"
+            >{{ familyCounts().adultCount }}
+            {{ familyCounts().adultCount === 1 ? "Adult" : "Adults" }}</span
+          >
+          <span class="children"
+            >{{ familyCounts().childCount }}
+            {{ familyCounts().childCount === 1 ? "Child" : "Children" }}</span
+          >
         </div>
       </div>
-      
-      <div class="members-section">
-        @for (member of selectedFamily.family_members; track member.first_name) {
-          <div class="member-card" [class.all-adopted]="isAllItemsAdopted(member)">
-            <div class="member-header">
-              <h4>{{ member.first_name }}</h4>
-              <span class="member-info">{{ member.age }} years old</span>
 
-              <span [ngClass]=" member.is_parent ?  (member.sex === 'male' ? 'man-badge' : 'woman-badge') : (member.sex === 'male' ? 'boy-badge' : 'girl-badge')">
-                {{ member.is_parent ? (member.sex === 'male' ? 'Man' : 'Woman') : (member.sex === 'male' ? 'Boy' : 'Girl') }}
-              </span>
-            </div>
-            
-            @if (member.wishlist_items && member.wishlist_items.length > 0) {
-              @if (isAllItemsAdopted(member)) {
-              } @else {
-                <div class="wish-list">
-                  @for (item of getSortedWishList(member.wishlist_items || []); track item.id) {
-                    @if (item.is_adopted && $first) {
-                      <div class="adopted-section-divider">
-                        Adopted Items
-                      </div>
-                    }
-                    <app-wish-item
-                      [item]="item"
-                      [family]="selectedFamily"
-                      (adoptItem)="adoptItem($event.item, $event.family)"
-                      (unadoptItem)="unadoptItem($event.item, $event.family)">
-                    </app-wish-item>
-                  }
-                </div>
-              }
-            } @else {
-              <p class="no-wishes">No wish list items</p>
-            }
+      <div class="adopt-all-section">
+        @if (areAllItemsAdopted(selectedFamily)) {
+        <div class="all-adopted-message">
+          <i class="pi pi-check-circle"></i>
+          All Items Have Been Adopted!
+        </div>
+        } @else if (hasAnyAdoptedItems(selectedFamily)) {
+        <button
+          class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
+          (click)="showAdoptRemainingConfirmation(selectedFamily, $event)"
+        >
+          <div class="flex items-center gap-4">
+            <span> Adopt All Remaining Items </span>
+            <i class="pi pi-heart-fill"></i>
           </div>
+        </button>
+        } @else {
+        <button
+          class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
+          (click)="showAdoptAllConfirmation(selectedFamily, $event)"
+        >
+          <div class="flex items-center gap-4">
+            <span> Adopt All Items for This Family </span>
+            <i class="pi pi-heart-fill"></i>
+          </div>
+        </button>
         }
       </div>
     </div>
+
+    <div class="members-section">
+      @for (member of selectedFamily.family_members; track member.first_name) {
+      <div class="member-card" [class.all-adopted]="isAllItemsAdopted(member)">
+        <div class="member-header">
+          <h4>{{ member.first_name }}</h4>
+          <span class="member-info">{{ member.age }} years old</span>
+
+          <span
+            [ngClass]="
+              member.is_parent
+                ? member.sex === 'male'
+                  ? 'man-badge'
+                  : 'woman-badge'
+                : member.sex === 'male'
+                ? 'boy-badge'
+                : 'girl-badge'
+            "
+          >
+            {{
+              member.is_parent
+                ? member.sex === "male"
+                  ? "Man"
+                  : "Woman"
+                : member.sex === "male"
+                ? "Boy"
+                : "Girl"
+            }}
+          </span>
+        </div>
+
+        @if (member.wishlist_items && member.wishlist_items.length > 0) { @if
+        (isAllItemsAdopted(member)) { } @else {
+        <div class="wish-list">
+          @for (item of getSortedWishList(member.wishlist_items || []); track
+          item.id) { @if (item.is_adopted && $first) {
+          <div class="adopted-section-divider">Adopted Items</div>
+          }
+          <app-wish-item
+            [item]="item"
+            [family]="selectedFamily"
+            (adoptItem)="adoptItem($event.item, $event.family)"
+            (unadoptItem)="unadoptItem($event.item, $event.family)"
+          >
+          </app-wish-item>
+          }
+        </div>
+        } } @else {
+        <p class="no-wishes">No wish list items</p>
+        }
+      </div>
+      }
+    </div>
   </div>
+</div>
 }
 
 <!-- Confirmation Modal -->
-<p-dialog 
-  header="Confirm Adoption" 
-  [(visible)]="showConfirmationModal" 
-  [modal]="true" 
+<p-dialog
+  header="Confirm Adoption"
+  [(visible)]="showConfirmationModal"
+  [modal]="true"
   [closable]="false"
-  [style]="{width: '450px'}"
+  [style]="{ width: '450px' }"
   [draggable]="false"
-  [resizable]="false">
-  
+  [resizable]="false"
+>
   <div class="confirmation-content">
     <p>
-      You are about to adopt 
-      <strong>{{ modalType() === 'all' ? 'all wish list items' : 'all remaining unadopted items' }}</strong> 
-      for this family. This action will mark 
-      {{ modalType() === 'all' ? 'every item' : 'all unadopted items' }} 
+      You are about to adopt
+      <strong>{{
+        modalType() === "all"
+          ? "all wish list items"
+          : "all remaining unadopted items"
+      }}</strong>
+      for this family. This action will mark
+      {{ modalType() === "all" ? "every item" : "all unadopted items" }}
       as adopted by you.
     </p>
-     
   </div>
-  
+
   <ng-template pTemplate="footer">
     <div class="dialog-actions">
-      <button 
-        class="cancel-btn"
-        (click)="cancelAdoption()">
-        Cancel
-      </button>
-      <button 
-        class="confirm-btn"
-        (click)="confirmAdoption()">
-        {{ modalType() === 'all' ? 'Yes, Adopt All Items' : 'Yes, Adopt Remaining Items' }}
-        <i class="pi pi-heart-fill"></i>
+      <button class="cancel-btn" (click)="cancelAdoption()">Cancel</button>
+      <button class="confirm-btn" (click)="confirmAdoption()">
+        <div class="flex items-center gap-4">
+          <span>
+            {{
+              modalType() === "all"
+                ? "Yes, Adopt All Items"
+                : "Yes, Adopt Remaining Items"
+            }}</span
+          >
+          <i class="pi pi-heart-fill"></i>
+        </div>
       </button>
     </div>
   </ng-template>

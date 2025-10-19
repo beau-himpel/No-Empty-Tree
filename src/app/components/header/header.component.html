@@ -1,5 +1,8 @@
 <header class="bg-white sticky top-0 z-50 h-20">
-  <div class="w-full h-full flex justify-between">
+  <div
+    class="w-full h-full flex justify-between"
+    [ngClass]="{ 'flex-row-reverse': isMobile() }"
+  >
     <div class="px-4 lg:px-32 flex items-center border-b flex-1">
       <h1
         class="m-0 text-slate-700 text-2xl md:text-3xl font-bold bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent"
@@ -9,7 +12,7 @@
     </div>
 
     @if (isMobile()) {
-    <div class="flex items-center h-full pr-4">
+    <div class="flex items-center h-full pl-8 pr-24 border-b">
       <p-button
         icon="pi pi-bars"
         [text]="true"

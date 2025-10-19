@@ -1,94 +1,147 @@
-<div class="w-full p-8 mt-12 border-2 border-gray-300 rounded-xl">
+<div class="w-full p-8 bg-white border-2 border-gray-300 rounded-xl">
   @if (loading()) {
-    <div class="flex justify-center items-center min-h-[200px] p-8">
-      <p class="text-gray-600 text-lg">Loading nomination settings...</p>
-    </div>
+  <div class="flex justify-center items-center min-h-[200px] p-8">
+    <p class="text-gray-600 text-lg">Loading nomination settings...</p>
+  </div>
   } @else if (error()) {
-    <div class="flex justify-center items-center min-h-[200px] p-8">
-      <p class="text-red-600 text-lg text-center">Error loading nomination settings: {{ error() }}</p>
-    </div>
+  <div class="flex justify-center items-center min-h-[200px] p-8">
+    <p class="text-red-600 text-lg text-center">
+      Error loading nomination settings: {{ error() }}
+    </p>
+  </div>
   } @else if (!nominationsEnabled()) {
-    <div class="flex justify-center items-center min-h-[200px] p-8">
-      <p-card class="shadow-lg rounded-xl border-2 border-yellow-400 bg-gradient-to-br from-yellow-100 to-yellow-200">
-        <div class="text-center text-yellow-800 p-8">
-          <h2 class="text-3xl font-semibold mb-4">Nominations Currently Closed</h2>
-          <p class="text-lg mb-2 leading-relaxed">We are currently not accepting new family nominations at this time.</p>
-          <p class=" text-lg leading-relaxed">Please check back later or contact us for more information.</p>
-        </div>
-      </p-card>
-    </div>
-  } @else {
-    <div class="flex justify-between items-center mb-10">
-      <h3 class="text-slate-700 text-2xl font-semibold m-0">Family Information</h3>
-      <button 
-        class="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium py-3 px-6 rounded-lg flex items-center gap-2 transition-colors text-lg"
-        (click)="saveFamily()"
-        [disabled]="!isFamilyValid()">
-        Submit Family
-        <i class="pi pi-save"></i>
-      </button>
-    </div>
-    
-    <p-card class="shadow-lg rounded-xl">
-      <div class="flex flex-col gap-8">
-        <div class="family-info-section">
-          <form [formGroup]="familyForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="flex flex-col gap-2 min-h-[5rem]">
-              <label for="familyName" class="font-medium text-slate-600 text-sm">Family Name *</label>
-              <input pInputText id="familyName" formControlName="name" type="text" class="w-full" />
-            </div>
-            <div class="flex flex-col gap-2 min-h-[5rem]">
-              <label for="address" class="font-medium text-slate-600 text-sm">Address *</label>
-              <input pInputText id="address" formControlName="address" type="text" class="w-full" />
-            </div>
-            <div class="flex flex-col gap-2 min-h-[5rem]">
-              <label for="phone" class="font-medium text-slate-600 text-sm">Phone Number</label>
-              <input pInputText id="phone" formControlName="phone" type="text" class="w-full" />
-            </div>
-            <div class="flex flex-col gap-2 min-h-[5rem]">
-              <label for="email" class="font-medium text-slate-600 text-sm">Email *</label>
-              <input pInputText id="email" formControlName="email" type="email" class="w-full" />
-            </div>
-          </form>
-        </div>
-
-        <div class="family-members-section">
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="text-slate-700 text-2xl font-semibold m-0">Family Members</h3>
-            <button 
-              class="border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
-              (click)="addFamilyMember()">
-              Add Family Member
-              <i class="pi pi-plus"></i>
-            </button>
-          </div>
-
-          <p-accordion [value]="0">
-              @for (member of familyInfo().members; track $index; let i = $index) {
-
-                <p-accordion-panel [value]="i">
-                    <p-accordion-header>{{ member.name }}</p-accordion-header>
-                    <p-accordion-content>
-                      <app-family-member
-                      [member]="member"
-                      [isCurrentMember]="member.id === currentMember().id"
-                      [isAddingMember]="isAddingMember()"
-                      [editingMemberIndex]="editingMemberIndex()"
-                      [memberIndex]="i"
-                      (memberSelected)="editMember(i)"
-                      (memberRemoved)="removeMember(i)"
-                      (memberUpdated)="onMemberUpdated($event)"
-                      (flipCard)="onFlipCardFromDetails()"
-                      (itemsSaved)="onItemsSaved($event)"
-                      (itemsUpdated)="onItemsUpdated($event)">
-                    </app-family-member>
-                    </p-accordion-content>
-                </p-accordion-panel>
-            }
-        </p-accordion>
-    
-        </div>
+  <div class="flex justify-center items-center min-h-[200px] p-8">
+    <p-card
+      class="shadow-lg rounded-xl border-2 border-yellow-400 bg-gradient-to-br from-yellow-100 to-yellow-200"
+    >
+      <div class="text-center text-yellow-800 p-8">
+        <h2 class="text-3xl font-semibold mb-4">
+          Nominations Currently Closed
+        </h2>
+        <p class="text-lg mb-2 leading-relaxed">
+          We are currently not accepting new family nominations at this time.
+        </p>
+        <p class="text-lg leading-relaxed">
+          Please check back later or contact us for more information.
+        </p>
       </div>
     </p-card>
+  </div>
+  } @else {
+  <div class="flex justify-between items-center mb-10 submit-container">
+    <h3 class="text-slate-700 text-2xl font-semibold m-0">
+      Family Information
+    </h3>
+    <button
+      class="disabled:bg-gray-400 disabled:cursor-not-allowed bg-white hover:bg-red-50 text-red-500 border border-red-500 font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
+      (click)="saveFamily()"
+      [disabled]="!isFamilyValid()"
+    >
+      <div class="flex items-center gap-4">
+        <span> Submit Family </span>
+        <i class="pi pi-plus"></i>
+      </div>
+    </button>
+  </div>
+
+  <p-card class="shadow-lg rounded-xl">
+    <div class="flex flex-col gap-8">
+      <div class="family-info-section">
+        <form
+          [formGroup]="familyForm"
+          class="grid grid-cols-1 md:grid-cols-2 gap-4"
+        >
+          <div class="flex flex-col gap-2 min-h-[5rem]">
+            <label for="familyName" class="font-medium text-slate-600 text-sm"
+              >Family Name *</label
+            >
+            <input
+              pInputText
+              id="familyName"
+              formControlName="name"
+              type="text"
+              class="w-full"
+            />
+          </div>
+          <div class="flex flex-col gap-2 min-h-[5rem]">
+            <label for="address" class="font-medium text-slate-600 text-sm"
+              >Address *</label
+            >
+            <input
+              pInputText
+              id="address"
+              formControlName="address"
+              type="text"
+              class="w-full"
+            />
+          </div>
+          <div class="flex flex-col gap-2 min-h-[5rem]">
+            <label for="phone" class="font-medium text-slate-600 text-sm"
+              >Phone Number</label
+            >
+            <input
+              pInputMask
+              id="phone"
+              formControlName="phone"
+              type="text"
+              class="w-full"
+            />
+          </div>
+          <div class="flex flex-col gap-2 min-h-[5rem]">
+            <label for="email" class="font-medium text-slate-600 text-sm"
+              >Email</label
+            >
+            <input
+              pInputText
+              id="email"
+              formControlName="email"
+              type="email"
+              class="w-full"
+            />
+          </div>
+        </form>
+      </div>
+
+      <div class="flex justify-between items-center mb-4 members-container">
+        <h3 class="text-slate-700 text-2xl font-semibold m-0">
+          Family Members
+        </h3>
+        <button
+          class="border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
+          (click)="addFamilyMember()"
+        >
+          <div class="flex items-center gap-4">
+            <span>Add Family Member</span>
+            <i class="pi pi-plus"></i>
+          </div>
+        </button>
+      </div>
+
+      <p-accordion [value]="0">
+        @for (member of familyInfo().members; track $index; let i = $index) {
+
+        <p-accordion-panel [value]="i">
+          <p-accordion-header>{{ member.name }}</p-accordion-header>
+          <p-accordion-content>
+            <app-family-member
+              [member]="member"
+              [isCurrentMember]="member.id === currentMember().id"
+              [isAddingMember]="isAddingMember()"
+              [editingMemberIndex]="editingMemberIndex()"
+              [memberIndex]="i"
+              (memberSelected)="editMember(i)"
+              (memberRemoved)="removeMember(i)"
+              (memberUpdated)="onMemberUpdated($event)"
+              (flipCard)="onFlipCardFromDetails()"
+              (itemsSaved)="onItemsSaved($event)"
+              (itemsUpdated)="onItemsUpdated($event)"
+            >
+            </app-family-member>
+          </p-accordion-content>
+        </p-accordion-panel>
+        }
+      </p-accordion>
+    </div>
+  </p-card>
   }
-</div> 
+</div>

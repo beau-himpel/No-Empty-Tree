@@ -1,17 +1,16 @@
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { CardModule } from 'primeng/card';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { TextareaModule } from 'primeng/textarea';
-import { SelectModule } from 'primeng/select';
+import { Component, computed, inject, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService } from '../../auth.service';
+import { AccordionModule } from 'primeng/accordion';
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { InputTextModule } from 'primeng/inputtext';
+import { SelectModule } from 'primeng/select';
+import { TextareaModule } from 'primeng/textarea';
 import { NominationSettingsService } from '../../nomination-settings.service';
+import { FamilyMemberComponent } from './family-member/family-member.component';
 import { Item } from './item-form/item-form.component';
 import { FamilyMember } from './member-details/member-details.component';
-import { FamilyMemberComponent } from './family-member/family-member.component';
-import { AccordionModule } from 'primeng/accordion';
 
 interface FamilyInfo {
   name: string;
@@ -37,7 +36,7 @@ interface FamilyInfo {
   templateUrl: './nominate-family.component.html',
   styleUrls: ['./nominate-family.component.scss']
 })
-export class NominateFamilyComponent implements OnInit {
+export class NominateFamilyComponent {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly nominationSettingsService = inject(NominationSettingsService);
@@ -65,7 +64,6 @@ export class NominateFamilyComponent implements OnInit {
   readonly editingMemberIndex = signal<number | null>(null);
   readonly showMemberDetails = signal(false);
 
-  // Nomination settings signals
   readonly nominationsEnabled = this.nominationSettingsService.nominationsEnabled;
   readonly loading = this.nominationSettingsService.loading;
   readonly error = this.nominationSettingsService.error;
@@ -108,11 +106,6 @@ export class NominateFamilyComponent implements OnInit {
   get familyAddress() { return this.familyForm.get('address'); }
   get familyPhone() { return this.familyForm.get('phone'); }
   get familyEmail() { return this.familyForm.get('email'); }
-
-  ngOnInit() {
-    // The service automatically loads the settings in its constructor
-    // No additional initialization needed here
-  }
 
   addFamilyMember() {
     const newMember: FamilyMember = {
@@ -250,7 +243,6 @@ export class NominateFamilyComponent implements OnInit {
       
       // TODO: Save to backend
       console.log('Saving family:', family);
-      this.router.navigate(['/adopt-family']);
     }
   }
 
