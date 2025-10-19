@@ -1,31 +1,17 @@
 <div class="min-h-screen flex flex-col">
-  <!-- Show sign-in component if user is not logged in -->
-  @if (!isLoggedIn()) {
-    <div class="flex-1 flex items-center justify-center p-8 md:p-4">
-      <app-sign-in></app-sign-in>
-    </div>
-  }
-  
-  <!-- Show authenticated content if user is logged in -->
   @if (isLoggedIn()) {
-    <div class="flex-1 flex flex-col">
-      <app-header></app-header>
-      
-      <main class="flex-1 w-full flex justify-center p-8 md:p-4">
-        <div class="w-full flex justify-center">
-          @switch (currentView()) {
-            @case ('my-adoptions') {
-              <app-my-adoptions></app-my-adoptions>
-            }
-            @case ('adopt-family') {
-              <app-adopt-family></app-adopt-family>
-            }
-            @case ('nominate-family') {
-              <app-nominate-family></app-nominate-family>
-            }
-          }
-        </div>
-      </main>
-    </div>
+  <div class="flex-1 flex flex-col">
+    <app-header></app-header>
+
+    <main class="flex-1 w-full flex justify-center p-1 md:p-8">
+      <div class="w-full flex justify-center">
+        <router-outlet></router-outlet>
+      </div>
+    </main>
+  </div>
+  } @else {
+  <div class="flex-1 flex items-center justify-center p-8 md:p-4">
+    <app-sign-in></app-sign-in>
+  </div>
   }
 </div>

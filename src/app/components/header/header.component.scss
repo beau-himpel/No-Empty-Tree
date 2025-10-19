@@ -24,3 +24,43 @@
   color: #64748b;
   border-bottom: 1px solid #e2e8f0;
 }
+
+// Mobile menu styles
+.mobile-menu-button {
+  color: #64748b !important;
+  
+  &:hover {
+    color: #334155 !important;
+    background-color: rgba(255, 255, 255, 0.5) !important;
+  }
+}
+
+:host ::ng-deep .mobile-menu {
+  .p-menu {
+    min-width: 200px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+  
+  .p-menuitem-link {
+    padding: 0.75rem 1rem;
+    color: #374151;
+    transition: all 0.2s;
+    
+    &:hover {
+      background-color: #f3f4f6;
+      color: #111827;
+    }
+  }
+  
+  .p-menuitem-icon {
+    margin-right: 0.5rem;
+    color: #6b7280;
+  }
+  
+  .p-menu-separator {
+    border-top: 1px solid #e5e7eb;
+    margin: 0.5rem 0;
+  }
+}

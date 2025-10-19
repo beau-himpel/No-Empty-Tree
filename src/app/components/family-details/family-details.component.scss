@@ -24,7 +24,6 @@
   }
 }
 
-/* Family Details Inline Styles */
 .family-details {
   padding: 1.5rem;
   display: flex;
@@ -44,6 +43,7 @@
 
 .family-header-section {
   display: flex;
+  flex-wrap: nowrap;
   gap: 2rem;
   margin-bottom: 2rem;
   
@@ -144,6 +144,7 @@
   align-items: center;
   gap: 2.5rem;
   flex-wrap: wrap;
+  margin-bottom: 1rem;
   
   h4 {
     margin: 0;
@@ -411,4 +412,29 @@
       box-shadow: 0 2px 4px rgba(229, 62, 62, 0.3);
     }
   }
-} 
+}
+
+
+@media (max-width: 768px) {
+  .family-details {
+    padding: .5rem;
+  }
+  .member-header {
+    justify-content: space-around;
+  }
+
+  .family-header-section {
+    flex-direction: column;
+    flex-wrap: wrap;
+
+    & .family-info {
+      text-align: center;
+    }
+
+    & .adopt-all-section {
+      display: flex;
+      justify-content: center;
+      ;
+    }
+  }
+}

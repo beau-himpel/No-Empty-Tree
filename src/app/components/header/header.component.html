@@ -1,8 +1,6 @@
 <header class="bg-white sticky top-0 z-50 h-20">
-  <div
-    class="w-full h-full flex flex-col md:flex-row md:justify-between"
-  >
-    <div class="px-16 md:px-32 flex items-center border-b flex-1">
+  <div class="w-full h-full flex justify-between">
+    <div class="px-4 lg:px-32 flex items-center border-b flex-1">
       <h1
         class="m-0 text-slate-700 text-2xl md:text-3xl font-bold bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent"
       >
@@ -10,51 +8,68 @@
       </h1>
     </div>
 
+    @if (isMobile()) {
+    <div class="flex items-center h-full pr-4">
+      <p-button
+        icon="pi pi-bars"
+        [text]="true"
+        severity="secondary"
+        size="large"
+        (onClick)="toggleMenu($event)"
+        class="mobile-menu-button"
+      >
+      </p-button>
+
+      <p-menu [model]="menuItems" [popup]="true" #menu styleClass="mobile-menu">
+      </p-menu>
+    </div>
+    } @else {
     <nav class="flex items-end h-full font-medium text-sm">
-        <div
+      <div
         class="nav-item"
         [class]="
-            isActiveRoute('/adopt-family')
+          isActiveRoute('/adopt-family')
             ? 'nav-item-active'
             : 'nav-item-inactive'
-          "
-          (click)="navigateToAdopt()"
-        >
-          Adopt Families
-        </div>
+        "
+        (click)="navigateToAdopt()"
+      >
+        Adopt Families
+      </div>
 
-        <div
-          class="nav-item"
-          [class]="
-            isActiveRoute('/nominate-family')
-              ? 'nav-item-active'
-              : 'nav-item-inactive'
-          "
-          (click)="navigateToNominate()"
-        >
-          Nominate Family
-        </div>
-
-        <div
+      <div
         class="nav-item"
         [class]="
-            isActiveRoute('/my-adoptions')
+          isActiveRoute('/nominate-family')
             ? 'nav-item-active'
             : 'nav-item-inactive'
-          "
-          (click)="navigateToMyAdoptions()"
-        >
-          My Adoptions
-        </div>
+        "
+        (click)="navigateToNominate()"
+      >
+        Nominate Family
+      </div>
 
-        <div
-          class="px-16  py-4   font-semibold  border-b cursor-pointer rounded-md  text-red-600 transition-all duration-200 whitespace-nowrap hover:text-red-700 hover:bg-red-50"
-          [class.text-red-700]="isActiveRoute('/logout')"
-          [class.bg-red-50]="isActiveRoute('/logout')"
-          (click)="logout()"
-        >
-          Logout
-        </div>
+      <div
+        class="nav-item"
+        [class]="
+          isActiveRoute('/my-adoptions')
+            ? 'nav-item-active'
+            : 'nav-item-inactive'
+        "
+        (click)="navigateToMyAdoptions()"
+      >
+        My Adoptions
+      </div>
+
+      <div
+        class="px-16 py-4 font-semibold border-b cursor-pointer rounded-md text-red-600 transition-all duration-200 whitespace-nowrap hover:text-red-700 hover:bg-red-50"
+        [class.text-red-700]="isActiveRoute('/logout')"
+        [class.bg-red-50]="isActiveRoute('/logout')"
+        (click)="logout()"
+      >
+        Logout
+      </div>
     </nav>
+    }
   </div>
 </header>

@@ -15,26 +15,34 @@
     }
   </div>
   <div class="item-actions">
-    @if (!item().is_adopted) {
+    @if (item().is_adopted) {
+    <div class="adopted-info">
+      <div class="adopted-by">
+        Adopted by
+        {{ item().adopted_by_name?.full_name || item().adopted_by }}
+      </div>
+      @if (isAdoptedByCurrentUser()) {
+      <button
+        class="bg-white hover:bg-red-50 text-red-500 border border-red-500 font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
+        (click)="onUnadoptItem()"
+      >
+        <span class="w-full">
+          Unadopt
+          <i class="pi pi-undo"></i>
+        </span>
+      </button>
+      }
+    </div>
+    } @else {
     <button
       class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
       (click)="onAdoptItem()"
     >
-      Adopt
-      <i class="pi pi-heart-fill"></i>
-    </button>
-    } @else {
-    <div class="adopted-info">
-      <span class="adopted-by">Adopted by
-        {{ item().adopted_by_name?.full_name || item().adopted_by }}
+      <span class="w-full">
+        Adopt
+        <i class="pi pi-heart-fill"></i>
       </span>
-      @if (isAdoptedByCurrentUser()) {
-      <button class="unadopt-btn" (click)="onUnadoptItem()">
-        <i class="pi pi-times"></i>
-        Unadopt
-      </button>
-      }
-    </div>
+    </button>
     }
   </div>
 </div>
