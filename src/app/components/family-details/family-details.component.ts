@@ -13,6 +13,7 @@ import { DialogModule } from 'primeng/dialog';
 import { Family, FamilyMember, WishItem } from '../../shared/types';
 import { WishItemComponent } from '../wish-item/wish-item.component';
 import { SupabaseService } from '../../supabase.service';
+import { AuthService } from '../../auth.service';
 
 @Component({
   selector: 'app-family-details',
@@ -31,12 +32,14 @@ export class FamilyDetailsComponent {
   private supabaseService = inject(SupabaseService);
 
   family = input<Family | null>(null);
-  currentUser = input.required<string>();
+
+  private readonly authService = inject(AuthService);
+
+  currentUser = this.authService.currentUser;
   expandedMembers = signal<Set<string>>(new Set());
   closeRequested = output<void>();
   dataRefreshRequested = output<void>();
 
-  // Modal state management
   showConfirmationModal = signal<boolean>(false);
   pendingFamily = signal<Family | null>(null);
   modalType = signal<'all' | 'remaining'>('all');
@@ -74,13 +77,14 @@ export class FamilyDetailsComponent {
 
   async adoptItem(item: WishItem, family: Family) {
     const user = this.currentUser();
+    if (!user) return;
 
     try {
-      await this.supabaseService.adoptWishlistItem(item.id, user);
+      await this.supabaseService.adoptWishlistItem(item.id, user?.id);
 
       // Update the local state
       item.is_adopted = true;
-      item.adopted_by = user;
+      item.adopted_by = user?.id;
 
       this.refreshFamilyData(family);
     } catch (error) {
@@ -116,7 +120,7 @@ export class FamilyDetailsComponent {
 
   isAdoptedByCurrentUser(item: WishItem): boolean {
     const user = this.currentUser();
-    return item.is_adopted && item.adopted_by === user;
+    return item.is_adopted && item.adopted_by === user?.id;
   }
 
   showAdoptAllConfirmation(family: Family, event: Event) {
@@ -140,7 +144,7 @@ export class FamilyDetailsComponent {
         const adoptPromises = family.family_members.flatMap(
           (member) =>
             member.wishlist_items?.map((item) =>
-              this.supabaseService.adoptWishlistItem(item.id, user)
+              this.supabaseService.adoptWishlistItem(item.id, user?.id)
             ) || []
         );
 
@@ -149,7 +153,7 @@ export class FamilyDetailsComponent {
         family.family_members.forEach((member) => {
           member.wishlist_items?.forEach((item) => {
             item.is_adopted = true;
-            item.adopted_by = user;
+            item.adopted_by = user?.id;
           });
         });
       } else {
@@ -158,7 +162,7 @@ export class FamilyDetailsComponent {
             member.wishlist_items
               ?.filter((item) => !item.is_adopted)
               .map((item) =>
-                this.supabaseService.adoptWishlistItem(item.id, user)
+                this.supabaseService.adoptWishlistItem(item.id, user?.id)
               ) || []
         );
 
@@ -168,7 +172,7 @@ export class FamilyDetailsComponent {
           member.wishlist_items?.forEach((item) => {
             if (!item.is_adopted) {
               item.is_adopted = true;
-              item.adopted_by = user;
+              item.adopted_by = user?.id;
             }
           });
         });

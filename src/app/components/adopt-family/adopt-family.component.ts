@@ -2,7 +2,6 @@ import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { Router } from '@angular/router';
-import { AuthService } from '../../auth.service';
 import { SupabaseService } from '../../supabase.service';
 import { FamilyDetailsComponent } from '../family-details/family-details.component';
 import { Family } from '../../shared/types';
@@ -16,11 +15,9 @@ import { Family } from '../../shared/types';
 })
 export class AdoptFamilyComponent implements OnInit {
   private readonly router = inject(Router);
-  private readonly authService = inject(AuthService);
   private readonly supabaseService = inject(SupabaseService);
 
   selectedFamily = signal<Family | null>(null);
-  currentUser = signal<string | null>(null);
   isLoading = signal<boolean>(false);
   error = signal<string | null>(null);
 
@@ -38,10 +35,6 @@ export class AdoptFamilyComponent implements OnInit {
   );
 
   ngOnInit() {
-    const user = this.authService.getCurrentUser();
-    if (user) {
-      this.currentUser.set(user.id);
-    }
     this.loadFamilies();
   }
 
@@ -53,7 +46,6 @@ export class AdoptFamilyComponent implements OnInit {
       const familiesData = await this.supabaseService.getFamiliesWithMembers();
       this.availableFamilies.set(familiesData as unknown as Family[]);
     } catch (err) {
-      console.error('Error loading families:', err);
       this.error.set('Failed to load families. Please try again.');
     } finally {
       this.isLoading.set(false);

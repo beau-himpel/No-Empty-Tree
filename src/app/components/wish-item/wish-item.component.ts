@@ -1,6 +1,7 @@
-import { Component, input, output } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { WishItem, Family } from '../../shared/types';
+import { AuthService } from '../../auth.service';
 
 @Component({
   selector: 'app-wish-item',
@@ -12,11 +13,13 @@ import { WishItem, Family } from '../../shared/types';
 export class WishItemComponent {
   item = input.required<WishItem>();
   family = input.required<Family>();
-  currentUser = input<string | null>(null);
   showAdoptedInfo = input<boolean>(false);
   
   adoptItem = output<{item: WishItem, family: Family}>();
   unadoptItem = output<{item: WishItem, family: Family}>();
+
+  private readonly authService = inject(AuthService);
+  currentUser = this.authService.currentUser;
 
   onAdoptItem() {
     this.adoptItem.emit({ item: this.item(), family: this.family() });
@@ -28,7 +31,6 @@ export class WishItemComponent {
 
   isAdoptedByCurrentUser(): boolean {
     const user = this.currentUser();
-    console.log(this.item().is_adopted, this.item().adopted_by, user);
-    return this.item().is_adopted && this.item().adopted_by === user;
+    return this.item().is_adopted && this.item().adopted_by === user?.id;
   }
 }
