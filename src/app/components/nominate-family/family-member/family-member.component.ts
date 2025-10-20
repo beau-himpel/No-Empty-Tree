@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
+import { DialogModule } from 'primeng/dialog';
 import { MemberDetailsComponent, FamilyMember } from '../member-details/member-details.component';
 import { ItemFormComponent, Item } from '../item-form/item-form.component';
 import { AccordionModule } from 'primeng/accordion';
@@ -11,6 +12,7 @@ import { AccordionModule } from 'primeng/accordion';
   imports: [
     CommonModule,
     ButtonModule,
+    DialogModule,
     MemberDetailsComponent,
     ItemFormComponent,
     AccordionModule
@@ -41,13 +43,25 @@ export class FamilyMemberComponent {
   @Output() itemsSaved = new EventEmitter<Item[]>();
   @Output() itemsUpdated = new EventEmitter<Item[]>();
 
+  showDeleteDialog = signal(false);
+  showConfirmationModal = signal(false);
+
   onSelectMember() {
     this.memberSelected.emit(this.member);
   }
 
-  onRemoveMember(event: Event) {
+  deleteMember(event: Event) {
     event.stopPropagation();
+    this.showConfirmationModal.set(true);
+  }
+
+  confirmDeleteMember() {
     this.memberRemoved.emit(this.member);
+    this.showConfirmationModal.set(false);
+  }
+
+  cancelDeleteMember() {
+    this.showConfirmationModal.set(false);
   }
 
   onMemberUpdated(updatedMember: FamilyMember) {

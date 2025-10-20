@@ -15,7 +15,7 @@
     <div class="pending-actions">
       <button
         class="bg-red-500 hover:bg-red-600 text-white font-medium py-1 px-3 rounded text-sm flex items-center gap-1 transition-colors"
-        (click)="onRemoveMember($event)"
+        (click)="deleteMember($event)"
       >
         <i class="pi pi-trash"></i>
       </button>
@@ -70,3 +70,33 @@
     }
   </div>
 </p-accordion-content>
+
+
+<!-- Confirmation Modal -->
+<p-dialog
+  header="Confirm removing family member"
+  [(visible)]="showConfirmationModal"
+  [modal]="true"
+  [closable]="false"
+  [style]="{ width: '450px' }"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <div class="confirmation-content">
+    <p>
+      Are you sure you want to delete this family member and all associated wish list items?
+    </p>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex justify-end gap-8">
+      <button class="cancel-btn" (click)="cancelDeleteMember()">Cancel</button>
+      <button class="confirm-btn" (click)="confirmDeleteMember()">
+        <div class="flex items-center gap-4">
+          <span>Delete</span>
+          <i class="pi pi-heart-fill"></i>
+        </div>
+      </button>
+    </div>
+  </ng-template>
+</p-dialog>

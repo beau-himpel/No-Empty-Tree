@@ -27,88 +27,102 @@
       </div>
     </p-card>
   </div>
-  } @else {
+  } @else { @if (currentStep() === 'familyInfo') {
   <div class="flex justify-between items-center mb-10 submit-container">
     <h3 class="text-slate-700 text-2xl font-semibold m-0">
       Family Information
     </h3>
+  </div>
+
+  <div class="family-info-section">
+    <form
+      [formGroup]="familyForm"
+      class="grid grid-cols-1 md:grid-cols-2 gap-4"
+    >
+      <div class="flex flex-col gap-2 min-h-[5rem]">
+        <label for="familyName" class="font-medium text-slate-600 text-sm"
+          >Family Name *</label
+        >
+        <input
+          pInputText
+          id="familyName"
+          formControlName="name"
+          type="text"
+          class="w-full"
+        />
+      </div>
+      <div class="flex flex-col gap-2 min-h-[5rem]">
+        <label for="address" class="font-medium text-slate-600 text-sm"
+          >Address *</label
+        >
+        <input
+          pInputText
+          id="address"
+          formControlName="address"
+          type="text"
+          class="w-full"
+        />
+      </div>
+      <div class="flex flex-col gap-2 min-h-[5rem]">
+        <label for="phone" class="font-medium text-slate-600 text-sm"
+          >Phone Number</label
+        >
+        <input
+          pInputMask
+          id="phone"
+          formControlName="phone"
+          type="text"
+          class="w-full"
+        />
+      </div>
+      <div class="flex flex-col gap-2 min-h-[5rem]">
+        <label for="email" class="font-medium text-slate-600 text-sm"
+          >Email</label
+        >
+        <input
+          pInputText
+          id="email"
+          formControlName="email"
+          type="email"
+          class="w-full"
+        />
+      </div>
+    </form>
+  </div>
+
+  <div class="flex justify-center mt-16">
     <button
-      class="border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
-      (click)="saveFamily()"
-      [disabled]="!isFamilyValid()"
+      class="border border-blue-600 text-blue-600 font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
+      (click)="addFamilyMembers()"
+      [disabled]="!familyForm.valid"
+      [ngClass]="{
+        'bg-blue-600 text-white': familyForm.valid
+      }"
     >
       <div class="flex items-center gap-4">
-        <span> Submit Family </span>
+        <span>Add Family Members</span>
         <i class="pi pi-plus"></i>
       </div>
     </button>
   </div>
-
-  <div>
-    <div class="flex flex-col gap-8">
-      <div class="family-info-section">
-        <form
-          [formGroup]="familyForm"
-          class="grid grid-cols-1 md:grid-cols-2 gap-4"
-        >
-          <div class="flex flex-col gap-2 min-h-[5rem]">
-            <label for="familyName" class="font-medium text-slate-600 text-sm"
-              >Family Name *</label
-            >
-            <input
-              pInputText
-              id="familyName"
-              formControlName="name"
-              type="text"
-              class="w-full"
-            />
-          </div>
-          <div class="flex flex-col gap-2 min-h-[5rem]">
-            <label for="address" class="font-medium text-slate-600 text-sm"
-              >Address *</label
-            >
-            <input
-              pInputText
-              id="address"
-              formControlName="address"
-              type="text"
-              class="w-full"
-            />
-          </div>
-          <div class="flex flex-col gap-2 min-h-[5rem]">
-            <label for="phone" class="font-medium text-slate-600 text-sm"
-              >Phone Number</label
-            >
-            <input
-              pInputMask
-              id="phone"
-              formControlName="phone"
-              type="text"
-              class="w-full"
-            />
-          </div>
-          <div class="flex flex-col gap-2 min-h-[5rem]">
-            <label for="email" class="font-medium text-slate-600 text-sm"
-              >Email</label
-            >
-            <input
-              pInputText
-              id="email"
-              formControlName="email"
-              type="email"
-              class="w-full"
-            />
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-  }
-</div>
-
-<div class="bg-white p-8 mt-24 border-2 border-gray-300 rounded-xl">
+  } @if (currentStep() === 'familyMembers') {
   <div class="flex justify-between items-center mb-4 members-container">
-    <h3 class="text-slate-700 text-2xl font-semibold m-0">Family Members</h3>
+    <div class="flex items-center">
+      <button
+        class="border border-black text-black hover:bg-black hover:text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
+        (click)="showFamilyInfo()"
+      >
+        <div class="flex items-center gap-4">
+          <i class="pi pi-arrow-left"></i>
+          <span>Back to family info</span>
+        </div>
+      </button>
+
+      <h3 class="text-slate-700 text-2xl font-semibold m-0 ml-24">
+        Family Members
+      </h3>
+    </div>
+
     <button
       class="border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
       (click)="addFamilyMember()"
@@ -120,10 +134,10 @@
     </button>
   </div>
 
-  <p-accordion [value]="0">
+  <p-accordion [value]="openAccordionIndex()">
     @for (member of familyInfo().members; track $index; let i = $index) {
 
-    <p-accordion-panel [value]="i">
+    <p-accordion-panel [value]="i" style="box-shadow: none !important;">
       <app-family-member
         [member]="member"
         [isCurrentMember]="member.id === currentMember().id"
@@ -141,4 +155,22 @@
     </p-accordion-panel>
     }
   </p-accordion>
+  } 
+
+  <div class="flex justify-center mt-16">
+    <button
+      class="border border-red-600 text-red-600 font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
+      (click)="saveFamily()"
+      [disabled]="!isFamilyValid()"
+      [ngClass]="{
+        'bg-red-600 text-white': isFamilyValid()
+      }"
+    >
+      <div class="flex items-center gap-4">
+        <span> Submit Family </span>
+        <i class="pi pi-plus"></i>
+      </div>
+    </button>
+  </div>
+}
 </div>

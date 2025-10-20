@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { NgClass } from '@angular/common';
 import { Router } from '@angular/router';
 import { AccordionModule } from 'primeng/accordion';
 import { ButtonModule } from 'primeng/button';
@@ -25,6 +26,7 @@ interface FamilyInfo {
   standalone: true,
   imports: [
     ReactiveFormsModule,
+    NgClass,
     CardModule, 
     ButtonModule, 
     InputTextModule, 
@@ -38,6 +40,9 @@ interface FamilyInfo {
 })
 export class NominateFamilyComponent {
   private readonly fb = inject(FormBuilder);
+  
+  currentStep = signal<'familyInfo' | 'familyMembers' | 'wishItems'>('familyInfo');
+  openAccordionIndex = signal<number | null>(null);
   private readonly router = inject(Router);
   private readonly nominationSettingsService = inject(NominationSettingsService);
 
@@ -68,21 +73,13 @@ export class NominateFamilyComponent {
   readonly loading = this.nominationSettingsService.loading;
   readonly error = this.nominationSettingsService.error;
 
-  readonly isFamilyValid = computed(() => {
-    const family = this.familyInfo();
-    const email = this.familyForm.get('email')?.value;
-    return !!(
-      family.name.trim() &&
-      family.address.trim() &&
-      email && 
-      this.familyForm.get('email')?.valid &&
-      family.members.length > 0
-    );
-  });
-
   readonly isMemberValid = computed(() => {
     const member = this.currentMember();
     return this.isMemberBasicInfoValid() && member.items.length > 0;
+  });
+
+  isFamilyValid = computed(() => {
+    return this.familyForm.valid && this.familyInfo().members.length > 0;
   });
 
   readonly isMemberBasicInfoValid = computed(() => {
@@ -99,7 +96,8 @@ export class NominateFamilyComponent {
     name: ['', [Validators.required]],
     address: ['', [Validators.required]],
     phone: [''],
-    email: ['', [Validators.required, Validators.email, Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)]]
+    email: [''],
+    // email: ['', [Validators.email, Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)]]
   });
 
   get familyName() { return this.familyForm.get('name'); }
@@ -129,6 +127,9 @@ export class NominateFamilyComponent {
     this.editingMemberIndex.set(family.members.length - 1);
     this.currentMember.set(newMember);
     this.showMemberDetails.set(false);
+    
+    // Open the accordion for the newly added member
+    this.openAccordionIndex.set(family.members.length - 1);
   }
 
   editMember(index: number) {
@@ -166,6 +167,13 @@ export class NominateFamilyComponent {
     this.resetCurrentMember();
   }
 
+  addFamilyMembers() {
+    this.currentStep.set('familyMembers');
+  }
+
+  showFamilyInfo() {
+    this.currentStep.set('familyInfo');
+  }
 
   onItemsSaved(items: Item[]) {
     const member = this.currentMember();
@@ -237,7 +245,7 @@ export class NominateFamilyComponent {
   }
 
   saveFamily() {
-    if (this.familyForm.valid && this.isFamilyValid()) {
+    if (this.familyForm.valid && this.familyForm.value) {
       const familyData = this.familyForm.value as Partial<FamilyInfo>;
       const family = { ...this.familyInfo(), ...familyData };
       
