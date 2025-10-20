@@ -18,7 +18,7 @@
   <div class="flex flex-wrap justify-center gap-4 md:gap-6">
     @for (family of availableFamilies(); track family.id) {
     <div
-      class="border rounded-lg p-6 transition-all duration-200 cursor-pointer max-w-[300px]"
+      class="border rounded-lg p-6 transition-all duration-200 cursor-pointer max-w-[450px] flex-1"
       [class]="
         selectedFamily()?.id === family.id
           ? 'border-indigo-500 bg-indigo-50 shadow-md'
@@ -91,9 +91,10 @@
 </div>
 
 @if (selectedFamily()) {
-<app-family-details
-  [family]="selectedFamily()"
-  (closeRequested)="onFamilyDetailsClose()"
->
-</app-family-details>
+<div #familyDetails>
+  <app-family-details
+    [family]="selectedFamily()"
+    (closeRequested)="onFamilyDetailsClose()"
+  />
+</div>
 }

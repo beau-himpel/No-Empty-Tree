@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { MemberDetailsComponent, FamilyMember } from '../member-details/member-details.component';
 import { ItemFormComponent, Item } from '../item-form/item-form.component';
+import { AccordionModule } from 'primeng/accordion';
 
 @Component({
   selector: 'app-family-member',
@@ -11,7 +12,8 @@ import { ItemFormComponent, Item } from '../item-form/item-form.component';
     CommonModule,
     ButtonModule,
     MemberDetailsComponent,
-    ItemFormComponent
+    ItemFormComponent,
+    AccordionModule
   ],
   templateUrl: './family-member.component.html',
   styleUrls: ['./family-member.component.scss']

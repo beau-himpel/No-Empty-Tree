@@ -1,8 +1,9 @@
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { Router } from '@angular/router';
 import { SupabaseService } from '../../supabase.service';
+import { BreakpointService } from '../../breakpoint.service';
 import { FamilyDetailsComponent } from '../family-details/family-details.component';
 import { Family } from '../../shared/types';
 
@@ -13,9 +14,10 @@ import { Family } from '../../shared/types';
   templateUrl: './adopt-family.component.html',
   styleUrls: ['./adopt-family.component.scss']
 })
-export class AdoptFamilyComponent implements OnInit {
+export class AdoptFamilyComponent implements OnInit, AfterViewInit {
   private readonly router = inject(Router);
   private readonly supabaseService = inject(SupabaseService);
+  private readonly breakpointService = inject(BreakpointService);
 
   selectedFamily = signal<Family | null>(null);
   isLoading = signal<boolean>(false);
@@ -23,6 +25,11 @@ export class AdoptFamilyComponent implements OnInit {
 
   // Real data from backend
   readonly availableFamilies = signal<Family[]>([]);
+
+  @ViewChild('familyDetails', { static: false }) familyDetailsRef!: ElementRef;
+
+  // Breakpoint signals
+  readonly isMobile = this.breakpointService.isMobile;
 
   // Computed signals for family counts
   readonly familyCounts = computed(() => 
@@ -36,6 +43,10 @@ export class AdoptFamilyComponent implements OnInit {
 
   ngOnInit() {
     this.loadFamilies();
+  }
+
+  ngAfterViewInit() {
+    // This lifecycle hook is required for AfterViewInit interface
   }
 
   async loadFamilies() {
@@ -65,12 +76,21 @@ export class AdoptFamilyComponent implements OnInit {
   }
 
   viewFamilyDetails(family: Family) {
-    // If clicking on the same family that's already selected, close the details
     if (this.selectedFamily()?.id === family.id) {
       this.selectedFamily.set(null);
     } else {
-      // Otherwise, show the details for the clicked family
       this.selectedFamily.set(family);
+      
+      if (this.isMobile()) {
+        setTimeout(() => {
+          if (this.familyDetailsRef) {
+            this.familyDetailsRef.nativeElement.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'start' 
+            });
+          }
+        }, 0);
+      }
     }
   }
 

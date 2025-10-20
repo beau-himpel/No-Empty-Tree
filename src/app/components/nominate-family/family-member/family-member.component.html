@@ -1,25 +1,32 @@
-<div class="pending-member-container">
-  <!-- Member Preview -->
-  <div class="pending-member-item" 
-       [class.active]="isCurrentMember"
-       (click)="onSelectMember()">
+<p-accordion-header>
+  <div
+    class="pending-member-item"
+    [class.active]="isCurrentMember"
+    (click)="onSelectMember()"
+  >
     <span class="member-preview">
-      {{ member.name || 'New Member ' + (memberIndex + 1) }}
+      {{ member.name || "New Member " + (memberIndex + 1) }}
       @if (member.name) {
-        <span class="member-details">{{ member.age }} years old, {{ member.gender }}</span>
+      <span class="member-details"
+        >{{ member.age }} years old, {{ member.gender }}</span
+      >
       }
     </span>
     <div class="pending-actions">
-      <button 
+      <button
         class="bg-red-500 hover:bg-red-600 text-white font-medium py-1 px-3 rounded text-sm flex items-center gap-1 transition-colors"
-        (click)="onRemoveMember($event)">
+        (click)="onRemoveMember($event)"
+      >
         <i class="pi pi-trash"></i>
       </button>
     </div>
   </div>
+</p-accordion-header>
 
-  <!-- Member Card for this specific pending member -->
-  @if (isCurrentMember && (isAddingMember || editingMemberIndex !== null)) {
+<p-accordion-content>
+  <div class="pending-member-container">
+    <!-- Member Card for this specific pending member -->
+    @if (isCurrentMember && (isAddingMember || editingMemberIndex !== null)) {
     <div class="member-card-container">
       <div class="member-card" [class.flipped]="member.showItemsView">
         <!-- Front of card - Basic Info -->
@@ -31,17 +38,19 @@
             (memberUpdated)="onMemberUpdated($event)"
             (flipCard)="onFlipCardFromDetails()"
             (saveMember)="onSaveMemberFromDetails()"
-            (cancelMember)="onCancelMemberFromDetails()">
+            (cancelMember)="onCancelMemberFromDetails()"
+          >
           </app-member-details>
         </div>
 
         <!-- Back of card - Items List -->
         <div class="card-back">
           <div class="card-header">
-            <h4>Items for {{ member.name || 'Family Member' }}</h4>
-            <button 
+            <h4>Items for {{ member.name || "Family Member" }}</h4>
+            <button
               class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-1 px-3 rounded text-sm flex items-center gap-1 transition-colors"
-              (click)="onFlipCardFromDetails()">
+              (click)="onFlipCardFromDetails()"
+            >
               <i class="pi pi-arrow-left"></i>
               Back to Info
             </button>
@@ -51,11 +60,13 @@
               [memberName]="member.name"
               [existingItems]="member.items"
               (itemsSaved)="onItemsSaved($event)"
-              (itemsUpdated)="onItemsUpdated($event)">
+              (itemsUpdated)="onItemsUpdated($event)"
+            >
             </app-item-form>
           </div>
         </div>
       </div>
     </div>
-  }
-</div>
+    }
+  </div>
+</p-accordion-content>

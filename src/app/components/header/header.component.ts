@@ -1,14 +1,13 @@
-import { Component, inject, signal, ViewChild } from '@angular/core';
+import { Component, inject, signal, ViewChild, effect } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { AuthService } from '../../auth.service';
+import { BreakpointService } from '../../breakpoint.service';
 import { filter } from 'rxjs/operators';
-import { BreakpointObserver } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
 import { MenuModule } from 'primeng/menu';
 import { ButtonModule } from 'primeng/button';
 import { MenuItem } from 'primeng/api';
 import { Menu } from 'primeng/menu';
-import { MOBILE_BREAKPOINT } from '../../shared/constants';
 
 @Component({
   selector: 'app-header',
@@ -20,12 +19,12 @@ import { MOBILE_BREAKPOINT } from '../../shared/constants';
 export class HeaderComponent {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
-  private readonly breakpointObserver = inject(BreakpointObserver);
+  private readonly breakpointService = inject(BreakpointService);
   
   @ViewChild('menu') menu!: Menu;
   
   currentRoute: string = '';
-  isMobile = signal(false);
+  isMobile = this.breakpointService.isMobile;
 
   menuItems: MenuItem[] = [
     {
@@ -64,15 +63,13 @@ export class HeaderComponent {
     // Set initial route
     this.currentRoute = this.router.url;
 
-    // Watch for screen size changes
-    this.breakpointObserver.observe([MOBILE_BREAKPOINT])
-      .subscribe((result: any) => {
-        this.isMobile.set(result.matches);
-        // Close menu when switching to desktop
-        if (!result.matches && this.menu) {
-          this.menu.hide();
-        }
-      });
+    // Watch for breakpoint changes to close menu when switching to desktop
+    effect(() => {
+      const isMobile = this.breakpointService.isMobile();
+      if (!isMobile && this.menu) {
+        this.menu.hide();
+      }
+    });
   }
 
   isActiveRoute(route: string): boolean {
