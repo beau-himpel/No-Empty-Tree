@@ -1,50 +1,29 @@
-<p-accordion-header>
-  <div
-    class="pending-member-item"
-    [class.active]="isCurrentMember"
-    (click)="onSelectMember()"
-  >
-    <span class="member-preview">
+<p-accordion-header (click)="onSelectMember()">
+  <div class="flex gap-8">
+    <div>
       {{ member.name || "New Member " + (memberIndex + 1) }}
-      @if (member.name) {
-      <span class="member-details"
-        >{{ member.age }} years old, {{ member.gender }}</span
-      >
-      }
-    </span>
-    <div class="pending-actions">
-      <button
-        class="bg-red-500 hover:bg-red-600 text-white font-medium py-1 px-3 rounded text-sm flex items-center gap-1 transition-colors"
-        (click)="deleteMember($event)"
-      >
-        <i class="pi pi-trash"></i>
-      </button>
     </div>
+    @if (!isMobile()) {
+    <div class="flex gap-2 italic text-slate-500">
+      <div>{{ member.age }} years old</div>
+      <div>{{ member.gender }}</div>
+    </div>
+    }
   </div>
 </p-accordion-header>
 
 <p-accordion-content>
   <div class="pending-member-container">
-    <!-- Member Card for this specific pending member -->
-    @if (isCurrentMember && (isAddingMember || editingMemberIndex !== null)) {
-    <div class="member-card-container">
-      <div class="member-card" [class.flipped]="member.showItemsView">
-        <!-- Front of card - Basic Info -->
-        <div class="card-front">
-          <app-member-details
-            [member]="member"
-            [isEditing]="editingMemberIndex !== null"
-            [isAdding]="isAddingMember"
-            (memberUpdated)="onMemberUpdated($event)"
-            (flipCard)="onFlipCardFromDetails()"
-            (saveMember)="onSaveMemberFromDetails()"
-            (cancelMember)="onCancelMemberFromDetails()"
-          >
-          </app-member-details>
-        </div>
+    @if (showMemberDetails()) {
+    <app-member-details
+      [member]="member"
+      (memberUpdated)="onMemberUpdated($event)"
+    >
+    </app-member-details>
 
-        <!-- Back of card - Items List -->
-        <div class="card-back">
+    } @else {
+    <!-- Back of card - Items List -->
+    <!-- <div class="card-back">
           <div class="card-header">
             <h4>Items for {{ member.name || "Family Member" }}</h4>
             <button
@@ -64,13 +43,34 @@
             >
             </app-item-form>
           </div>
+        </div> -->
+    } @if (isMobile()) {
+    <div class="flex justify-center mb-8">
+      <button
+        class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
+        (click)="addWishListItems()"
+      >
+        <div class="flex items-center gap-4">
+          <span>Add wish list items</span>
+          <i class="pi pi-plus"></i>
         </div>
-      </div>
+      </button>
+    </div>
+
+    <div class="flex justify-center">
+      <button
+        class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
+        (click)="deleteMember()"
+      >
+        <div class="flex items-center gap-4">
+          <span>Delete family member</span>
+          <i class="pi pi-trash"></i>
+        </div>
+      </button>
     </div>
     }
   </div>
 </p-accordion-content>
-
 
 <!-- Confirmation Modal -->
 <p-dialog
@@ -84,7 +84,8 @@
 >
   <div class="confirmation-content">
     <p>
-      Are you sure you want to delete this family member and all associated wish list items?
+      Are you sure you want to delete this family member and all associated wish
+      list items?
     </p>
   </div>
 

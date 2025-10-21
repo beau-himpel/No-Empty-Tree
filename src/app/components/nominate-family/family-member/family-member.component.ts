@@ -5,6 +5,7 @@ import { DialogModule } from 'primeng/dialog';
 import { MemberDetailsComponent, FamilyMember } from '../member-details/member-details.component';
 import { ItemFormComponent, Item } from '../item-form/item-form.component';
 import { AccordionModule } from 'primeng/accordion';
+import { BreakpointService } from '../../../breakpoint.service';
 
 @Component({
   selector: 'app-family-member',
@@ -39,19 +40,21 @@ export class FamilyMemberComponent {
   @Output() memberSelected = new EventEmitter<FamilyMember>();
   @Output() memberRemoved = new EventEmitter<FamilyMember>();
   @Output() memberUpdated = new EventEmitter<FamilyMember>();
-  @Output() flipCard = new EventEmitter<void>();
   @Output() itemsSaved = new EventEmitter<Item[]>();
   @Output() itemsUpdated = new EventEmitter<Item[]>();
 
   showDeleteDialog = signal(false);
   showConfirmationModal = signal(false);
+  showMemberDetails = signal(true);
+  
+  private readonly breakpointService = inject(BreakpointService);
+  readonly isMobile = this.breakpointService.isMobile;
 
   onSelectMember() {
     this.memberSelected.emit(this.member);
   }
 
-  deleteMember(event: Event) {
-    event.stopPropagation();
+  deleteMember() {
     this.showConfirmationModal.set(true);
   }
 
@@ -68,8 +71,8 @@ export class FamilyMemberComponent {
     this.memberUpdated.emit(updatedMember);
   }
 
-  onFlipCardFromDetails() {
-    this.flipCard.emit();
+  addWishListItems() {
+    this.showMemberDetails.set(false);
   }
 
   onItemsSaved(items: Item[]) {

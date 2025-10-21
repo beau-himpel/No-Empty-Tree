@@ -1,9 +1,9 @@
-import { Component, Input, Output, EventEmitter, signal, computed, inject } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { Component, computed, EventEmitter, inject, Input, Output } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
-import { CommonModule } from '@angular/common';
 
 export interface FamilyMember {
   id: string;
@@ -42,10 +42,7 @@ export class MemberDetailsComponent {
     items: [],
     showItemsView: false
   };
-  @Input() isEditing: boolean = false;
-  @Input() isAdding: boolean = false;
   @Output() memberUpdated = new EventEmitter<FamilyMember>();
-  @Output() flipCard = new EventEmitter<void>();
 
   readonly memberForm = this.fb.group({
     name: ['', [Validators.required]],
@@ -58,7 +55,6 @@ export class MemberDetailsComponent {
   readonly genderOptions = [
     { label: 'Male', value: 'Male' },
     { label: 'Female', value: 'Female' },
-    { label: 'Other', value: 'Other' }
   ];
 
   readonly memberTypeOptions = [
@@ -74,11 +70,6 @@ export class MemberDetailsComponent {
       member.gender &&
       member.isChild !== undefined
     );
-  });
-
-  readonly isMemberValid = computed(() => {
-    const member = this.member;
-    return this.isMemberBasicInfoValid() && member.items.length > 0;
   });
 
   ngOnInit() {
@@ -97,10 +88,6 @@ export class MemberDetailsComponent {
       };
       this.memberUpdated.emit(updatedMember);
     });
-  }
-
-  onFlipCard() {
-    this.flipCard.emit();
   }
 
   // Form getters for template

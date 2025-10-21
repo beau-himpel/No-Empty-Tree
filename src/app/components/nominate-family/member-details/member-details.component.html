@@ -1,20 +1,4 @@
 <div class="member-details-container">
-  <div class="card-header">
-    <h4>
-      @if (isEditing) {
-        Edit {{ member.name || 'Family Member' }}
-      } @else {
-        {{ member.name ? member.name : 'Add Family Member' }}
-      }
-    </h4>
-    <button 
-      class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-1 px-3 rounded text-sm flex items-center gap-1 transition-colors"
-      (click)="onFlipCard()">
-      <i class="pi pi-plus"></i>
-      Add Items
-    </button>
-  </div>
-  
   <form [formGroup]="memberForm" class="form-grid">
     <div class="form-field">
       <label for="memberName">Name *</label>
@@ -26,10 +10,11 @@
     </div>
     <div class="form-field">
       <label for="memberGender">Gender *</label>
-      <p-select 
-        id="memberGender" 
-        [options]="genderOptions" 
-        formControlName="gender">
+      <p-select
+        id="memberGender"
+        [options]="genderOptions"
+        formControlName="gender"
+      >
       </p-select>
     </div>
     <div class="form-field">
@@ -37,11 +22,12 @@
       <input pInputText id="memberEthnicity" formControlName="ethnicity" />
     </div>
     <div class="form-field">
-      <label for="memberType">Type *</label>
-      <p-select 
-        id="memberType" 
-        [options]="memberTypeOptions" 
-        formControlName="isChild">
+      <label for="memberType">Adult or Child *</label>
+      <p-select
+        id="memberType"
+        [options]="memberTypeOptions"
+        formControlName="isChild"
+      >
       </p-select>
     </div>
   </form>

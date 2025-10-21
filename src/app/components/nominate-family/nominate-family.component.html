@@ -1,4 +1,6 @@
-<div class="w-full p-8 bg-white border-2 border-gray-300 rounded-xl">
+<div class="w-full bg-white border-2 border-gray-300 rounded-xl"  
+[ngClass]="isMobile() ? 'p-4' : 'p-8'"
+>
   @if (loading()) {
   <div class="flex justify-center items-center min-h-[200px] p-8">
     <p class="text-gray-600 text-lg">Loading nomination settings...</p>
@@ -107,9 +109,14 @@
   </div>
   } @if (currentStep() === 'familyMembers') {
   <div class="flex justify-between items-center mb-4 members-container">
-    <div class="flex items-center">
+    <div
+      class="flex items-center"
+      [ngClass]="{
+        'flex-wrap flex-direction-column gap-8 w-full': isMobile()
+      }"
+    >
       <button
-        class="border border-black text-black hover:bg-black hover:text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
+        class="text-black font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
         (click)="showFamilyInfo()"
       >
         <div class="flex items-center gap-4">
@@ -118,7 +125,13 @@
         </div>
       </button>
 
-      <h3 class="text-slate-700 text-2xl font-semibold m-0 ml-24">
+      <h3
+        class="text-slate-700 text-2xl font-semibold m-0"
+        [ngClass]="{
+          'w-full ml-0 text-center': isMobile(),
+          'ml-24': !isMobile()
+        }"
+      >
         Family Members
       </h3>
     </div>
@@ -135,27 +148,28 @@
   </div>
 
   <p-accordion [value]="openAccordionIndex()">
-    @for (member of familyInfo().members; track $index; let i = $index) {
+    <div #familyMembersContainer>
+      @for (member of familyInfo().members; track $index; let i = $index) {
 
-    <p-accordion-panel [value]="i" style="box-shadow: none !important;">
-      <app-family-member
-        [member]="member"
-        [isCurrentMember]="member.id === currentMember().id"
-        [isAddingMember]="isAddingMember()"
-        [editingMemberIndex]="editingMemberIndex()"
-        [memberIndex]="i"
-        (memberSelected)="editMember(i)"
-        (memberRemoved)="removeMember(i)"
-        (memberUpdated)="onMemberUpdated($event)"
-        (flipCard)="onFlipCardFromDetails()"
-        (itemsSaved)="onItemsSaved($event)"
-        (itemsUpdated)="onItemsUpdated($event)"
-      >
-      </app-family-member>
-    </p-accordion-panel>
-    }
+      <p-accordion-panel [value]="i" style="box-shadow: none !important">
+        <app-family-member
+          [member]="member"
+          [isCurrentMember]="member.id === currentMember().id"
+          [isAddingMember]="isAddingMember()"
+          [editingMemberIndex]="editingMemberIndex()"
+          [memberIndex]="i"
+          (memberSelected)="editMember(i)"
+          (memberRemoved)="removeMember(i)"
+          (memberUpdated)="onMemberUpdated($event)"
+          (flipCard)="onFlipCardFromDetails()"
+          (itemsSaved)="onItemsSaved($event)"
+          (itemsUpdated)="onItemsUpdated($event)"
+        >
+        </app-family-member>
+      </p-accordion-panel>
+      }
+    </div>
   </p-accordion>
-  } 
 
   <div class="flex justify-center mt-16">
     <button
@@ -172,5 +186,5 @@
       </div>
     </button>
   </div>
-}
+  } }
 </div>

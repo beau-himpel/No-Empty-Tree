@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, ViewChild, ElementRef, QueryList } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgClass } from '@angular/common';
 import { Router } from '@angular/router';
@@ -12,6 +12,7 @@ import { NominationSettingsService } from '../../nomination-settings.service';
 import { FamilyMemberComponent } from './family-member/family-member.component';
 import { Item } from './item-form/item-form.component';
 import { FamilyMember } from './member-details/member-details.component';
+import { BreakpointService } from '../../breakpoint.service';
 
 interface FamilyInfo {
   name: string;
@@ -43,7 +44,10 @@ export class NominateFamilyComponent {
   
   currentStep = signal<'familyInfo' | 'familyMembers' | 'wishItems'>('familyInfo');
   openAccordionIndex = signal<number | null>(null);
+  
+  @ViewChild('familyMembersContainer', { static: false }) familyMembersContainer!: ElementRef;
   private readonly router = inject(Router);
+  private readonly breakpointService = inject(BreakpointService);
   private readonly nominationSettingsService = inject(NominationSettingsService);
 
   readonly familyInfo = signal<FamilyInfo>({
@@ -68,6 +72,7 @@ export class NominateFamilyComponent {
   readonly isAddingMember = signal(false);
   readonly editingMemberIndex = signal<number | null>(null);
   readonly showMemberDetails = signal(false);
+  readonly isMobile = this.breakpointService.isMobile;
 
   readonly nominationsEnabled = this.nominationSettingsService.nominationsEnabled;
   readonly loading = this.nominationSettingsService.loading;
@@ -130,6 +135,26 @@ export class NominateFamilyComponent {
     
     // Open the accordion for the newly added member
     this.openAccordionIndex.set(family.members.length - 1);
+    if (this.isMobile()) {
+      this.scrollMemberToView(family.members.length - 1);
+    }
+  }
+
+  scrollMemberToView(index: number) {
+    console.log('scrollMemberToView', index);
+    setTimeout(() => {
+      if (this.familyMembersContainer) {
+        const accordionPanels = this.familyMembersContainer.nativeElement.querySelectorAll('p-accordion-panel');
+        console.log(accordionPanels);
+        console.log(index);
+        if (accordionPanels[index]) {
+          accordionPanels[index].scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start' 
+          });
+        }
+      }
+    }, 100);
   }
 
   editMember(index: number) {
