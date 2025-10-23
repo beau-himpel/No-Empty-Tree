@@ -1,21 +1,5 @@
 <div class="wish-item" [class.adopted]="item().is_adopted">
-  <div class="item-info">
-    <span class="item-detail">Category: {{ item().category }}</span>
-    <span class="item-detail mb-2">Description: {{ item().description }}</span>
-
-    @if (item().color) {
-    <span class="item-detail">Color: {{ item().color }}</span>
-    } @if (item().size) {
-    <span class="item-detail">Size: {{ item().size }}</span>
-    } @if (item().details) {
-    <div class="item-details">{{ item().details }}</div>
-    } @if (item().link) {
-    <a href="{{ item().link }}" target="_blank" class="item-link mt-2">
-      View Item
-      <i class="pi pi-external-link"></i>
-    </a>
-    }
-  </div>
+  <app-item-info [item]="item()" />
   <div class="item-actions">
     @if (item().is_adopted) {
     <div class="adopted-info">

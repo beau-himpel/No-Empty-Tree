@@ -4,6 +4,7 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { CommonModule } from '@angular/common';
+import { ItemInfoComponent } from '../../item-info/item-info.component';
 
 export interface Item {
   category: string;
@@ -22,7 +23,8 @@ export interface Item {
     ReactiveFormsModule,
     ButtonModule,
     InputTextModule,
-    SelectModule
+    SelectModule,
+    ItemInfoComponent
   ],
   templateUrl: './item-form.component.html',
   styleUrls: ['./item-form.component.scss']

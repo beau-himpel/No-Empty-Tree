@@ -5,7 +5,9 @@ import {
   computed,
   output,
   inject,
+  effect,
 } from '@angular/core';
+import { trigger, state, style, transition, animate } from '@angular/animations';
 import { CommonModule } from '@angular/common';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
@@ -14,6 +16,7 @@ import { Family, FamilyMember, WishItem } from '../../shared/types';
 import { WishItemComponent } from '../wish-item/wish-item.component';
 import { SupabaseService } from '../../supabase.service';
 import { AuthService } from '../../auth.service';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-family-details',
@@ -25,11 +28,20 @@ import { AuthService } from '../../auth.service';
     DialogModule,
     WishItemComponent,
   ],
+  providers: [MessageService],
   templateUrl: './family-details.component.html',
   styleUrls: ['./family-details.component.scss'],
+  animations: [
+    trigger('slideDown', [
+      state('collapsed', style({ height: '0px', opacity: 0, overflow: 'hidden' })),
+      state('expanded', style({ height: '*', opacity: 1, overflow: 'visible' })),
+      transition('collapsed <=> expanded', animate('300ms ease-in-out'))
+    ])
+  ]
 })
 export class FamilyDetailsComponent {
   private supabaseService = inject(SupabaseService);
+  private messageService = inject(MessageService);
 
   family = input<Family | null>(null);
 
@@ -37,14 +49,33 @@ export class FamilyDetailsComponent {
 
   currentUser = this.authService.currentUser;
   expandedMembers = signal<Set<string>>(new Set());
+  collapsedMembers = signal<Set<string>>(new Set());
   closeRequested = output<void>();
   dataRefreshRequested = output<void>();
+
+  // Initialize all members as collapsed when family changes
+  private initializeCollapsedMembers() {
+    const selectedFamily = this.family();
+    if (selectedFamily) {
+      const memberNames = new Set(selectedFamily.family_members.map(member => member.first_name));
+      this.collapsedMembers.set(memberNames);
+    }
+  }
+
+  constructor() {
+    // Watch for family changes and initialize collapsed state
+    effect(() => {
+      const selectedFamily = this.family();
+      if (selectedFamily) {
+        this.initializeCollapsedMembers();
+      }
+    });
+  }
 
   showConfirmationModal = signal<boolean>(false);
   pendingFamily = signal<Family | null>(null);
   modalType = signal<'all' | 'remaining'>('all');
 
-  // Computed signal for selected family counts
   readonly familyCounts = computed(() => {
     const selectedFamily = this.family();
     if (!selectedFamily) return { adultCount: 0, childCount: 0 };
@@ -59,14 +90,11 @@ export class FamilyDetailsComponent {
     };
   });
 
-  // Computed signal to get sorted wish list items (unadopted first)
   getSortedWishList(wishList: WishItem[]): WishItem[] {
     return [...wishList].sort((a, b) => {
-      // Unadopted items first
       if (!a.is_adopted && b.is_adopted) return -1;
       if (a.is_adopted && !b.is_adopted) return 1;
 
-      // If both have same adoption status, maintain original order
       return 0;
     });
   }
@@ -82,13 +110,12 @@ export class FamilyDetailsComponent {
     try {
       await this.supabaseService.adoptWishlistItem(item.id, user?.id);
 
-      // Update the local state
       item.is_adopted = true;
       item.adopted_by = user?.id;
 
       this.refreshFamilyData(family);
     } catch (error) {
-      // You might want to show a user-friendly error message here
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error adopting item' });
     }
   }
 
@@ -100,7 +127,6 @@ export class FamilyDetailsComponent {
     try {
       await this.supabaseService.unadoptWishlistItem(item.id);
 
-      // Update the local state
       item.is_adopted = false;
       item.adopted_by = undefined;
 
@@ -114,7 +140,7 @@ export class FamilyDetailsComponent {
         this.expandedMembers.set(newSet);
       }
     } catch (error) {
-      // You might want to show a user-friendly error message here
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error unadopting item' });
     }
   }
 
@@ -220,5 +246,21 @@ export class FamilyDetailsComponent {
     this.pendingFamily.set(family);
     this.modalType.set('remaining');
     this.showConfirmationModal.set(true);
+  }
+
+  toggleWishlist(memberFirstName: string, event: Event) {
+    event.stopPropagation();
+    const current = this.collapsedMembers();
+    const newSet = new Set(current);
+    if (newSet.has(memberFirstName)) {
+      newSet.delete(memberFirstName);
+    } else {
+      newSet.add(memberFirstName);
+    }
+    this.collapsedMembers.set(newSet);
+  }
+
+  isWishlistCollapsed(memberFirstName: string): boolean {
+    return this.collapsedMembers().has(memberFirstName);
   }
 }

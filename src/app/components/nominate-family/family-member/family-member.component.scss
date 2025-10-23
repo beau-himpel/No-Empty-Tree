@@ -33,32 +33,6 @@
   }
 }
 
-.member-footer {
-  display: flex;
-  justify-content: center;
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid #e9ecef;
-
-  .delete-member-btn {
-    background: #dc3545;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-
-    &:hover {
-      background: #c82333;
-    }
-  }
-}
-
 .card-header {
   display: flex;
   justify-content: space-between;

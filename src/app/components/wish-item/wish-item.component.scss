@@ -1,5 +1,6 @@
 .wish-item {
   display: flex;
+  justify-content: space-between;
   padding: 1rem;
   margin-bottom: 1rem;
   transition: all 0.2s ease;
@@ -10,38 +11,6 @@
     opacity: 0.8;
   }
 
-  .item-info {
-    flex: 1;
-    margin-right: 3rem;
-
-    .item-detail {
-      display: block;
-      color: #666;
-      font-size: 0.9rem;
-    }
-
-    .item-details {
-      color: #555;
-      font-size: 0.9rem;
-      margin-top: 0.5rem;
-    }
-
-    .item-link {
-      display: inline-flex;
-      align-items: center;
-      color: #007bff;
-      text-decoration: none;
-      font-size: 0.9rem;
-
-      &:hover {
-        text-decoration: underline;
-      }
-
-      i {
-        margin-left: 0.5rem;
-      }
-    }
-  }
 
   .item-actions {
     display: flex;

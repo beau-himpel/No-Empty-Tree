@@ -169,21 +169,6 @@
   border: 1px solid #ec4899;
 }
 
-.adopted-section-divider {
-  margin: 1rem 0;
-  padding: 0.5rem;
-  background: #f0fff4;
-  border: 1px solid #9ae6b4;
-  border-radius: 6px;
-  text-align: center;
-  color: #065f46;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-
 /* Custom styling for unadopt button */
 :host ::ng-deep .p-button.p-button-secondary {
   background: #f8fafc;
@@ -299,7 +284,13 @@
   
   i {
     font-size: 0.75rem;
+    transition: transform 0.2s ease;
   }
+}
+
+.wish-list {
+  overflow: hidden;
+  transition: all 0.3s ease;
 }
 
 

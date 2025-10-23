@@ -5,40 +5,14 @@
     <h6>Current Items</h6>
     @for (item of existingItems; track $index; let itemIndex = $index) {
     <div class="existing-item">
-      <div class="item-info">
-        <div class="item-category">{{ item.category }}</div>
-        <div class="item-description">Description: {{ item.description }}</div>
-        @if (item.color || item.size) {
-        <div class="item-details">
-          @if (item.color) {
-          <span class="detail-tag color-tag">{{ item.color }}</span>
-          } @if (item.size) {
-          <span class="detail-tag size-tag">{{ item.size }}</span>
-          }
-        </div>
-        } @if (item.details) {
-        <div class="item-additional-details">
-          <strong>Details:</strong> {{ item.details }}
-        </div>
-        } @if (item.link) {
-        <div class="item-link">
-          <strong>Link:</strong>
-          <a
-            [href]="item.link"
-            target="_blank"
-            class="text-blue-600 hover:text-blue-800 underline"
-          >
-            {{ item.link }}
-          </a>
-        </div>
-        }
-      </div>
+      <app-item-info [item]="item" />
+
       <button
-        class="bg-red-500 hover:bg-red-600 text-white font-medium py-1 px-3 rounded text-sm flex items-center gap-1 transition-colors"
+        pButton
+        icon="pi pi-trash"
+        class="p-button-text !text-red-500"
         (click)="removeExistingItem(itemIndex)"
-      >
-        <i class="pi pi-trash"></i>
-      </button>
+      ></button>
     </div>
     }
   </div>

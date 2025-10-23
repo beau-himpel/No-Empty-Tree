@@ -74,15 +74,36 @@
                 : "Girl"
             }}
           </span>
+
+          <button
+            class="py-1 px-3"
+            (click)="toggleWishlist(member.first_name, $event)"
+          >
+            <div class="flex items-center gap-2">
+              <span class="text-sm">{{
+                isWishlistCollapsed(member.first_name)
+                  ? "Show Wishlist"
+                  : "Hide Wishlist"
+              }}</span>
+              <i
+                [class]="
+                  isWishlistCollapsed(member.first_name)
+                    ? 'pi pi-chevron-down'
+                    : 'pi pi-chevron-up'
+                "
+              ></i>
+            </div>
+          </button>
         </div>
 
-        @if (member.wishlist_items && member.wishlist_items.length > 0) { @if
-        (isAllItemsAdopted(member)) { } @else {
-        <div class="wish-list">
+        <div
+          class="wish-list"
+          [@slideDown]="
+            isWishlistCollapsed(member.first_name) ? 'collapsed' : 'expanded'
+          "
+        >
           @for (item of getSortedWishList(member.wishlist_items || []); track
-          item.id) { @if (item.is_adopted && $first) {
-          <div class="adopted-section-divider">Adopted Items</div>
-          }
+          item.id) {
           <app-wish-item
             [item]="item"
             [family]="selectedFamily"
@@ -92,9 +113,6 @@
           </app-wish-item>
           }
         </div>
-        } } @else {
-        <p class="no-wishes">No wish list items</p>
-        }
       </div>
       }
     </div>

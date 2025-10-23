@@ -16,7 +16,6 @@ import { BreakpointService } from '../../../breakpoint.service';
     DialogModule,
     MemberDetailsComponent,
     ItemFormComponent,
-    ConfirmDeleteModalComponent
   ],
   templateUrl: './family-member.component.html',
   styleUrls: ['./family-member.component.scss']
@@ -40,7 +39,6 @@ export class FamilyMemberComponent {
   @Output() itemsUpdated = new EventEmitter<Item[]>();
   @Output() doneEditing = new EventEmitter<void>();
 
-  showDeleteModal = signal(false);
   showMemberDetails = signal(true);
   
   private readonly breakpointService = inject(BreakpointService);
@@ -55,19 +53,6 @@ export class FamilyMemberComponent {
       member.isChild !== undefined
     );
   });
-
-  deleteMember() {
-    this.showDeleteModal.set(true);
-  }
-
-  onDeleteConfirmed() {
-    this.memberRemoved.emit(this.member);
-    this.showDeleteModal.set(false);
-  }
-
-  onDeleteCancelled() {
-    this.showDeleteModal.set(false);
-  }
 
   onMemberUpdated(updatedMember: FamilyMember) {
     this.memberUpdated.emit(updatedMember);

@@ -27,23 +27,6 @@
       >
       </app-item-form>
     }
-
-    <div class="member-footer">
-      <button
-        class="delete-member-btn"
-        (click)="deleteMember()"
-      >
-        <i class="pi pi-trash"></i>
-        <span>Delete family member</span>
-      </button>
-    </div>
   </div>
 </div>
-
-<app-confirm-delete-modal
-  [visible]="showDeleteModal()"
-  [memberName]="member.name"
-  (confirmed)="onDeleteConfirmed()"
-  (cancelled)="onDeleteCancelled()"
-></app-confirm-delete-modal>
 

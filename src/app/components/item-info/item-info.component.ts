@@ -1,0 +1,13 @@
+import { Component, input } from '@angular/core';
+import { WishItem } from '../../shared/types';
+import { Item } from '../nominate-family/item-form/item-form.component';
+
+@Component({
+  selector: 'app-item-info',
+  standalone: true,
+  templateUrl: './item-info.component.html',
+  styleUrls: ['./item-info.component.scss']
+})
+export class ItemInfoComponent {
+  item = input.required<WishItem | Item>();
+}
