@@ -4,6 +4,7 @@ import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { MemberDetailsComponent, FamilyMember } from '../member-details/member-details.component';
 import { ItemFormComponent, Item } from '../item-form/item-form.component';
+import { ConfirmDeleteModalComponent } from '../../confirm-delete-modal/confirm-delete-modal.component';
 import { BreakpointService } from '../../../breakpoint.service';
 
 @Component({
@@ -14,7 +15,8 @@ import { BreakpointService } from '../../../breakpoint.service';
     ButtonModule,
     DialogModule,
     MemberDetailsComponent,
-    ItemFormComponent
+    ItemFormComponent,
+    ConfirmDeleteModalComponent
   ],
   templateUrl: './family-member.component.html',
   styleUrls: ['./family-member.component.scss']
@@ -38,7 +40,7 @@ export class FamilyMemberComponent {
   @Output() itemsUpdated = new EventEmitter<Item[]>();
   @Output() doneEditing = new EventEmitter<void>();
 
-  showConfirmationModal = signal(false);
+  showDeleteModal = signal(false);
   showMemberDetails = signal(true);
   
   private readonly breakpointService = inject(BreakpointService);
@@ -55,16 +57,16 @@ export class FamilyMemberComponent {
   });
 
   deleteMember() {
-    this.showConfirmationModal.set(true);
+    this.showDeleteModal.set(true);
   }
 
-  confirmDeleteMember() {
+  onDeleteConfirmed() {
     this.memberRemoved.emit(this.member);
-    this.showConfirmationModal.set(false);
+    this.showDeleteModal.set(false);
   }
 
-  cancelDeleteMember() {
-    this.showConfirmationModal.set(false);
+  onDeleteCancelled() {
+    this.showDeleteModal.set(false);
   }
 
   onMemberUpdated(updatedMember: FamilyMember) {

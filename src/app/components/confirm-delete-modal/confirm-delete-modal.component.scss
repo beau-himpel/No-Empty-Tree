@@ -1,0 +1,42 @@
+.confirmation-content {
+  padding: 1rem 0;
+  
+  p {
+    margin: 0;
+    color: #2c3e50;
+    line-height: 1.5;
+  }
+}
+
+.cancel-btn {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background: #5a6268;
+  }
+}
+
+.confirm-btn {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  &:hover {
+    background: #c82333;
+  }
+}

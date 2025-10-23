@@ -5,10 +5,6 @@
       <input pInputText id="memberName" formControlName="name" />
     </div>
     <div class="form-field">
-      <label for="memberAge">Age *</label>
-      <input pInputText id="memberAge" type="number" formControlName="age" />
-    </div>
-    <div class="form-field">
       <label for="memberGender">Gender *</label>
       <p-select
         id="memberGender"
@@ -18,11 +14,15 @@
       </p-select>
     </div>
     <div class="form-field">
+      <label for="memberAge">Age</label>
+      <input pInputText id="memberAge" type="number" formControlName="age" />
+    </div>
+    <div class="form-field">
       <label for="memberEthnicity">Ethnicity</label>
       <input pInputText id="memberEthnicity" formControlName="ethnicity" />
     </div>
     <div class="form-field">
-      <label for="memberType">Adult or Child *</label>
+      <label for="memberType">Adult or Child</label>
       <p-select
         id="memberType"
         [options]="memberTypeOptions"

@@ -40,32 +40,10 @@
   </div>
 </div>
 
-<p-dialog
-  header="Confirm removing family member"
-  [(visible)]="showConfirmationModal"
-  [modal]="true"
-  [closable]="false"
-  [style]="{ width: '450px' }"
-  [draggable]="false"
-  [resizable]="false"
->
-  <div class="confirmation-content">
-    <p>
-      Are you sure you want to delete this family member and all associated wish
-      list items?
-    </p>
-  </div>
-
-  <ng-template pTemplate="footer">
-    <div class="flex justify-end gap-8">
-      <button class="cancel-btn" (click)="cancelDeleteMember()">Cancel</button>
-      <button class="confirm-btn" (click)="confirmDeleteMember()">
-        <div class="flex items-center gap-4">
-          <span>Delete</span>
-          <i class="pi pi-heart-fill"></i>
-        </div>
-      </button>
-    </div>
-  </ng-template>
-</p-dialog>
+<app-confirm-delete-modal
+  [visible]="showDeleteModal()"
+  [memberName]="member.name"
+  (confirmed)="onDeleteConfirmed()"
+  (cancelled)="onDeleteCancelled()"
+></app-confirm-delete-modal>
 

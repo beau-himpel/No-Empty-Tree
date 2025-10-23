@@ -154,7 +154,13 @@
   @if (showMemberList()) {
   <div class="member-list-container">
     @for (member of familyInfo().members; track $index; let i = $index) {
-    <div class="member-list-item">
+    <div
+      class="member-list-item"
+      [ngClass]="{
+        '!border-2 !border-red-500':
+          getMemberValidationErrors(member).length > 0
+      }"
+    >
       <div class="member-info">
         <h4 class="member-name">
           {{ member.name || "New Member " + (i + 1) }}
@@ -167,19 +173,29 @@
         }
       </div>
 
-      <div class="flex items-center gap-4">
+      <div class="flex items-center gap-2">
+        @if (getMemberValidationErrors(member).length > 0) {
         <button
-        pButton
-        icon="pi pi-pencil"
-        class="p-button-text !text-red-500"
-        (click)="addFamilyMember()"
-      ></button>
-      <button
-        pButton
-        icon="pi pi-trash"
-        class="p-button-text !text-blue-500"
-        (click)="addFamilyMember()"
-      ></button>
+          pButton
+          icon="pi pi-question-circle"
+          class="p-button-text !text-orange-500"
+          (click)="showValidationErrors(i)"
+          pTooltip="View missing information"
+          tooltipPosition="top"
+        ></button>
+        }
+        <button
+          pButton
+          icon="pi pi-pencil"
+          class="p-button-text !text-blue-500"
+          (click)="editMember(i)"
+        ></button>
+        <button
+          pButton
+          icon="pi pi-trash"
+          class="p-button-text !text-red-500"
+          (click)="deleteMemberFromList(i)"
+        ></button>
       </div>
     </div>
     }
@@ -203,14 +219,20 @@
     <button
       class="border border-red-600 text-red-600 font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
       (click)="saveFamily()"
-      [disabled]="!isFamilyValid()"
+      [disabled]="!isFamilyValid() || isSaving()"
       [ngClass]="{
-        'bg-red-600 text-white': isFamilyValid()
+        'bg-red-600 text-white': isFamilyValid() && !isSaving(),
+        'opacity-50 cursor-not-allowed': isSaving()
       }"
     >
       <div class="flex items-center gap-4">
-        <span> Submit Family </span>
-        <i class="pi pi-plus"></i>
+        @if (isSaving()) {
+          <span> Saving... </span>
+          <i class="pi pi-spin pi-spinner"></i>
+        } @else {
+          <span> Submit Family </span>
+          <i class="pi pi-plus"></i>
+        }
       </div>
     </button>
   </div>
@@ -226,4 +248,50 @@
   >
   </app-family-member>
   } } }
+
+  <app-confirm-delete-modal
+    [visible]="showDeleteModal()"
+    [memberName]="familyInfo().members[memberToDelete() ?? 0]?.name || ''"
+    (confirmed)="confirmDeleteFromList()"
+    (cancelled)="cancelDeleteFromList()"
+  ></app-confirm-delete-modal>
+
+  <!-- Validation Errors Modal -->
+  <p-dialog
+    [visible]="showValidationModal()"
+    [modal]="true"
+    [closable]="false"
+    [draggable]="false"
+    [resizable]="false"
+    header="Missing Information"
+    [style]="{ width: '400px' }"
+    (onHide)="closeValidationModal()"
+  >
+    <div class="validation-modal-content">
+      <p class="text-gray-600 text-sm mb-4">
+        The following information is required to complete this family member:
+      </p>
+
+      <div class="space-y-2">
+        @for (error of getCurrentValidationErrors(); track error) {
+        <div class="flex items-center gap-3 p-2 bg-red-50 rounded-lg">
+          <span class="w-2 h-2 bg-red-500 rounded-full flex-shrink-0"></span>
+          <span class="text-red-700 text-sm">{{ error }}</span>
+        </div>
+        }
+      </div>
+
+      <div class="flex justify-end mt-6">
+        <button
+          pButton
+          label="Got it"
+          class="p-button-sm"
+          (click)="closeValidationModal()"
+        ></button>
+      </div>
+    </div>
+  </p-dialog>
+  
+  <!-- Toast for notifications -->
+  <p-toast></p-toast>
 </div>
