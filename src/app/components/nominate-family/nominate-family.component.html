@@ -166,14 +166,36 @@
         </div>
         }
       </div>
-      <button class="edit-member-btn" (click)="editMember(i)">Edit</button>
+
+      <div class="flex items-center gap-4">
+        <button
+        pButton
+        icon="pi pi-pencil"
+        class="p-button-text !text-red-500"
+        (click)="addFamilyMember()"
+      ></button>
+      <button
+        pButton
+        icon="pi pi-trash"
+        class="p-button-text !text-blue-500"
+        (click)="addFamilyMember()"
+      ></button>
+      </div>
     </div>
     }
     <div class="member-list-item">
       <div class="member-info">
         <h4 class="member-name">New member</h4>
       </div>
-      <button class="edit-member-btn" (click)="addFamilyMember()">Add</button>
+      <button
+        class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
+        (click)="addFamilyMember()"
+      >
+        <div class="flex items-center gap-4">
+          <span>Add</span>
+          <i class="pi pi-plus"></i>
+        </div>
+      </button>
     </div>
   </div>
 

@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { NgClass } from '@angular/common';
 import { Router } from '@angular/router';
@@ -38,8 +38,9 @@ interface FamilyInfo {
   templateUrl: './nominate-family.component.html',
   styleUrls: ['./nominate-family.component.scss']
 })
-export class NominateFamilyComponent {
+export class NominateFamilyComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
+  private readonly FAMILY_INFO_STORAGE_KEY = 'nominateFamilyInfo';
   
   currentStep = signal<'familyInfo' | 'familyMembers'>('familyInfo');
   selectedMemberIndex = signal<number | null>(null);
@@ -113,6 +114,52 @@ export class NominateFamilyComponent {
   get familyPhone() { return this.familyForm.get('phone'); }
   get familyEmail() { return this.familyForm.get('email'); }
 
+  ngOnInit() {
+    this.loadCachedFamilyInfo();
+    this.setupFormAutoSave();
+  }
+
+  private loadCachedFamilyInfo() {
+    try {
+      const cachedData = localStorage.getItem(this.FAMILY_INFO_STORAGE_KEY);
+      if (cachedData) {
+        const parsedData = JSON.parse(cachedData);
+        
+        // Load family info signal
+        if (parsedData.familyInfo) {
+          this.familyInfo.set(parsedData.familyInfo);
+        }
+        
+        // Load form values
+        if (parsedData.formValues) {
+          this.familyForm.patchValue(parsedData.formValues);
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to load cached family info:', error);
+      // Clear corrupted data
+      localStorage.removeItem(this.FAMILY_INFO_STORAGE_KEY);
+    }
+  }
+
+  private setupFormAutoSave() {
+    this.familyForm.valueChanges.subscribe(() => {
+      this.saveFamilyInfoToLocalStorage();
+    });
+  }
+
+  private saveFamilyInfoToLocalStorage() {
+    try {
+      const dataToSave = {
+        familyInfo: this.familyInfo(),
+        formValues: this.familyForm.value
+      };
+      localStorage.setItem(this.FAMILY_INFO_STORAGE_KEY, JSON.stringify(dataToSave));
+    } catch (error) {
+      console.warn('Failed to save family info to local storage:', error);
+    }
+  }
+
   addFamilyMember() {
     const newMember: FamilyMember = {
       id: this.generateMemberId(),
@@ -129,6 +176,7 @@ export class NominateFamilyComponent {
     const family = this.familyInfo();
     family.members.push(newMember);
     this.familyInfo.set({ ...family });
+    this.saveFamilyInfoToLocalStorage();
     
     // Set up for editing the new member
     this.isAddingMember.set(true);
@@ -149,6 +197,7 @@ export class NominateFamilyComponent {
     const family = this.familyInfo();
     family.members.splice(index, 1);
     this.familyInfo.set({ ...family });
+    this.saveFamilyInfoToLocalStorage();
     
     // If we removed the currently selected member, go back to list view
     if (this.selectedMemberIndex() === index) {
@@ -183,6 +232,7 @@ export class NominateFamilyComponent {
 
   addFamilyMembers() {
     this.currentStep.set('familyMembers');
+    this.saveFamilyInfoToLocalStorage();
   }
 
   showFamilyInfo() {
@@ -200,6 +250,7 @@ export class NominateFamilyComponent {
       const family = this.familyInfo();
       family.members[selectedIndex] = { ...member };
       this.familyInfo.set({ ...family });
+      this.saveFamilyInfoToLocalStorage();
     }
   }
 
@@ -214,6 +265,7 @@ export class NominateFamilyComponent {
       const family = this.familyInfo();
       family.members[selectedIndex] = { ...member };
       this.familyInfo.set({ ...family });
+      this.saveFamilyInfoToLocalStorage();
     }
   }
 
@@ -226,6 +278,7 @@ export class NominateFamilyComponent {
       const family = this.familyInfo();
       family.members[selectedIndex] = { ...member };
       this.familyInfo.set({ ...family });
+      this.saveFamilyInfoToLocalStorage();
     }
   }
 
@@ -237,6 +290,9 @@ export class NominateFamilyComponent {
       
       // TODO: Save to backend
       console.log('Saving family:', family);
+      
+      // Clear local storage after successful submission
+      localStorage.removeItem(this.FAMILY_INFO_STORAGE_KEY);
     }
   }
 
