@@ -1,88 +1,108 @@
 <div class="item-form-container">
-  <div class="form-header">
-    <h5>Items for {{ memberName || 'Family Member' }}</h5>
-    <button 
-      class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-1 px-3 rounded text-sm flex items-center gap-1 transition-colors"
-      (click)="addAnotherItemForm()">
-      <i class="pi pi-plus"></i>
-      Add Another Item
-    </button>
-  </div>
-
   <!-- Existing Items -->
   @if (existingItems.length > 0) {
-    <div class="existing-items">
-      <h6>Current Items</h6>
-      @for (item of existingItems; track $index; let itemIndex = $index) {
-        <div class="existing-item">
-          <div class="item-info">
-            <div class="item-category">{{ item.category }}</div>
-            <div class="item-description">{{ item.description }}</div>
-            @if (item.color || item.size) {
-              <div class="item-details">
-                {{ item.color }} {{ item.size }}
-              </div>
-            }
-          </div>
-          <button 
-            class="bg-red-500 hover:bg-red-600 text-white font-medium py-1 px-3 rounded text-sm flex items-center gap-1 transition-colors"
-            (click)="removeExistingItem(itemIndex)">
-            <i class="pi pi-trash"></i>
-          </button>
+  <div class="existing-items">
+    <h6>Current Items</h6>
+    @for (item of existingItems; track $index; let itemIndex = $index) {
+    <div class="existing-item">
+      <div class="item-info">
+        <div class="item-category">{{ item.category }}</div>
+        <div class="item-description">{{ item.description }}</div>
+        @if (item.color || item.size) {
+        <div class="item-details">
+          @if (item.color) {
+          <span class="detail-tag color-tag">{{ item.color }}</span>
+          } @if (item.size) {
+          <span class="detail-tag size-tag">{{ item.size }}</span>
+          }
         </div>
-      }
+        } @if (item.details) {
+        <div class="item-additional-details">
+          <strong>Details:</strong> {{ item.details }}
+        </div>
+        } @if (item.link) {
+        <div class="item-link">
+          <strong>Link:</strong>
+          <a
+            [href]="item.link"
+            target="_blank"
+            class="text-blue-600 hover:text-blue-800 underline"
+          >
+            {{ item.link }}
+          </a>
+        </div>
+        }
+      </div>
+      <button
+        class="bg-red-500 hover:bg-red-600 text-white font-medium py-1 px-3 rounded text-sm flex items-center gap-1 transition-colors"
+        (click)="removeExistingItem(itemIndex)"
+      >
+        <i class="pi pi-trash"></i>
+      </button>
     </div>
+    }
+  </div>
   }
 
-  <!-- New Item Forms -->
-  <div class="new-items-section">
-    <h6>Add New Items</h6>
-    @for (itemForm of itemForms(); track $index; let formIndex = $index) {
-      <div class="item-form-wrapper">
-        <div class="item-form-header">
-          <h6>Item {{ formIndex + 1 }}</h6>
-          @if (itemForms().length > 1) {
-            <button 
-              class="bg-red-500 hover:bg-red-600 text-white font-medium py-1 px-3 rounded text-sm flex items-center gap-1 transition-colors"
-              (click)="removeItemForm(formIndex)">
-              <i class="pi pi-trash"></i>
-            </button>
-          }
-        </div>
-        <form [formGroup]="itemForm" class="form-grid">
-          <div class="form-field">
-            <label [for]="'itemCategory' + formIndex">Category *</label>
-            <p-select 
-              [id]="'itemCategory' + formIndex" 
-              [options]="itemCategoryOptions" 
-              formControlName="category">
-            </p-select>
-          </div>
-          <div class="form-field">
-            <label [for]="'itemDescription' + formIndex">Description *</label>
-            <input pInputText [id]="'itemDescription' + formIndex" formControlName="description" />
-          </div>
-          @if (itemForm.get('category')?.value === 'Clothing') {
-            <div class="form-field">
-              <label [for]="'itemColor' + formIndex">Color</label>
-              <input pInputText [id]="'itemColor' + formIndex" formControlName="color" />
-            </div>
-            <div class="form-field">
-              <label [for]="'itemSize' + formIndex">Size</label>
-              <input pInputText [id]="'itemSize' + formIndex" formControlName="size" />
-            </div>
-          }
-        </form>
+  <!-- Single Item Form -->
+  <div class="new-item-section">
+    <h6>Add New Item</h6>
+    <form [formGroup]="itemForm()" class="form-grid">
+      <div class="form-field">
+        <label for="itemCategory">Category *</label>
+        <p-select
+          id="itemCategory"
+          [options]="itemCategoryOptions"
+          formControlName="category"
+        >
+        </p-select>
       </div>
-    }
-    
+      <div class="form-field">
+        <label for="itemDescription">Description *</label>
+        <input pInputText id="itemDescription" formControlName="description" />
+      </div>
+      <div class="form-field">
+        <label for="itemColor">Color</label>
+        <input pInputText id="itemColor" formControlName="color" />
+      </div>
+      <div class="form-field">
+        <label for="itemSize">Size</label>
+        <input pInputText id="itemSize" formControlName="size" />
+      </div>
+      <div class="form-field">
+        <label for="itemLink">Product Link</label>
+        <input pInputText id="itemLink" formControlName="link" />
+      </div>
+      <div class="form-field">
+        <label for="itemDetails">Details</label>
+        <textarea
+          id="itemDetails"
+          formControlName="details"
+          rows="3"
+          class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        >
+        </textarea>
+      </div>
+    </form>
+
     <div class="form-actions">
-      <button 
-        class="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
-        (click)="saveAllItems()"
-        [disabled]="!isAnyFormValid()">
-        Save All Items
-        <i class="pi pi-save"></i>
+      <button
+        class="add-another-btn"
+        (click)="addAnotherItem()"
+        [disabled]="!isFormValid()"
+      >
+        <i class="pi pi-plus"></i>
+        Add Another Item
+      </button>
+
+      <button class="edit-member-btn" (click)="onEditMemberDetails()">
+        <i class="pi pi-user-edit"></i>
+        Edit Member Details
+      </button>
+
+      <button class="done-btn" (click)="onDoneAddingItems()">
+        <i class="pi pi-check"></i>
+        Done adding wishlist items
       </button>
     </div>
   </div>

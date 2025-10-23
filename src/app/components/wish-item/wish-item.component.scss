@@ -4,11 +4,6 @@
   margin-bottom: 1rem;
   transition: all 0.2s ease;
 
-  &:hover {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    border: 1px solid #e2e8f0;
-  }
-
   &.adopted {
     background: #f8f9fa;
     border-color: #28a745;
@@ -96,6 +91,15 @@
           color: #2d3748;
         }
       }
+    }
+  }
+}
+
+@media (min-width: 769px) {
+  .wish-item {
+    &:hover {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border: 1px solid #e2e8f0;
     }
   }
 }

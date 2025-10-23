@@ -1,5 +1,6 @@
-<div class="w-full bg-white border-2 border-gray-300 rounded-xl"  
-[ngClass]="isMobile() ? 'p-4' : 'p-8'"
+<div
+  class="w-full bg-white border-2 border-gray-300 rounded-xl"
+  [ngClass]="isMobile() ? 'p-4' : 'p-8'"
 >
   @if (loading()) {
   <div class="flex justify-center items-center min-h-[200px] p-8">
@@ -108,68 +109,73 @@
     </button>
   </div>
   } @if (currentStep() === 'familyMembers') {
-  <div class="flex justify-between items-center mb-4 members-container">
-    <div
-      class="flex items-center"
-      [ngClass]="{
-        'flex-wrap flex-direction-column gap-8 w-full': isMobile()
-      }"
-    >
-      <button
-        class="text-black font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
-        (click)="showFamilyInfo()"
-      >
-        <div class="flex items-center gap-4">
-          <i class="pi pi-arrow-left"></i>
-          <span>Back to family info</span>
-        </div>
-      </button>
-
-      <h3
-        class="text-slate-700 text-2xl font-semibold m-0"
-        [ngClass]="{
-          'w-full ml-0 text-center': isMobile(),
-          'ml-24': !isMobile()
-        }"
-      >
-        Family Members
-      </h3>
-    </div>
-
+  <div
+    class="flex items-center justify-between mb-8"
+    [ngClass]="{
+      'flex-wrap flex-direction-column gap-8 w-full': isMobile()
+    }"
+  >
+    @if (showMemberList() || familyInfo().members.length === 0) {
     <button
-      class="border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
-      (click)="addFamilyMember()"
+      class="text-black font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
+      (click)="showFamilyInfo()"
     >
       <div class="flex items-center gap-4">
-        <span>Add Family Member</span>
-        <i class="pi pi-plus"></i>
+        <i class="pi pi-arrow-left"></i>
+        <span>Back to family info</span>
       </div>
     </button>
+    } @if (showMemberList()) {
+    <h3
+      class="text-slate-700 text-2xl font-semibold m-0"
+      [ngClass]="{
+        'w-full ml-0 text-center': isMobile(),
+        'ml-24': !isMobile()
+      }"
+    >
+      Family Members
+    </h3>
+    } @else {
+    <div class="flex flex-1 items-center gap-8">
+      <span class="text-slate-700 text-lg font-medium"> Editing: </span>
+      <p-select
+        [options]="memberDropdownOptions()"
+        [ngModel]="selectedMemberIndex()"
+        (ngModelChange)="selectMemberFromDropdown($event)"
+        placeholder="Select member"
+        style="min-width: 200px"
+        style="max-width: 300px"
+      >
+      </p-select>
+    </div>
+    }
   </div>
 
-  <p-accordion [value]="openAccordionIndex()">
-    <div #familyMembersContainer>
-      @for (member of familyInfo().members; track $index; let i = $index) {
-
-      <p-accordion-panel [value]="i" style="box-shadow: none !important">
-        <app-family-member
-          [member]="member"
-          [isCurrentMember]="member.id === currentMember().id"
-          [isAddingMember]="isAddingMember()"
-          [editingMemberIndex]="editingMemberIndex()"
-          [memberIndex]="i"
-          (memberSelected)="editMember(i)"
-          (memberRemoved)="removeMember(i)"
-          (memberUpdated)="onMemberUpdated($event)"
-          (flipCard)="onFlipCardFromDetails()"
-          (itemsSaved)="onItemsSaved($event)"
-          (itemsUpdated)="onItemsUpdated($event)"
-        >
-        </app-family-member>
-      </p-accordion-panel>
-      }
+  @if (showMemberList()) {
+  <div class="member-list-container">
+    @for (member of familyInfo().members; track $index; let i = $index) {
+    <div class="member-list-item">
+      <div class="member-info">
+        <h4 class="member-name">
+          {{ member.name || "New Member " + (i + 1) }}
+        </h4>
+        @if (!isMobile()) {
+        <div class="member-details">
+          <span>{{ member.age }} years old</span>
+          <span>{{ member.gender }}</span>
+        </div>
+        }
+      </div>
+      <button class="edit-member-btn" (click)="editMember(i)">Edit</button>
     </div>
-  </p-accordion>
+    }
+    <div class="member-list-item">
+      <div class="member-info">
+        <h4 class="member-name">New member</h4>
+      </div>
+      <button class="edit-member-btn" (click)="addFamilyMember()">Add</button>
+    </div>
+  </div>
 
   <div class="flex justify-center mt-16">
     <button
@@ -186,5 +192,16 @@
       </div>
     </button>
   </div>
-  } }
+  } @else {
+  <app-family-member
+    [member]="currentMember()"
+    [isAddingMember]="isAddingMember()"
+    (memberRemoved)="removeMember(selectedMemberIndex() || 0)"
+    (memberUpdated)="onMemberUpdated($event)"
+    (itemsSaved)="onItemsSaved($event)"
+    (itemsUpdated)="onItemsUpdated($event)"
+    (doneEditing)="finishEditingMember()"
+  >
+  </app-family-member>
+  } } }
 </div>

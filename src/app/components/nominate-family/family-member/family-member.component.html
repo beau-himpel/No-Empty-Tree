@@ -1,78 +1,45 @@
-<p-accordion-header (click)="onSelectMember()">
-  <div class="flex gap-8">
-    <div>
-      {{ member.name || "New Member " + (memberIndex + 1) }}
-    </div>
-    @if (!isMobile()) {
-    <div class="flex gap-2 italic text-slate-500">
-      <div>{{ member.age }} years old</div>
-      <div>{{ member.gender }}</div>
-    </div>
-    }
-  </div>
-</p-accordion-header>
-
-<p-accordion-content>
-  <div class="pending-member-container">
+<div class="mb-8">
+  <div class="member-content">
     @if (showMemberDetails()) {
-    <app-member-details
-      [member]="member"
-      (memberUpdated)="onMemberUpdated($event)"
-    >
-    </app-member-details>
-
-    } @else {
-    <!-- Back of card - Items List -->
-    <!-- <div class="card-back">
-          <div class="card-header">
-            <h4>Items for {{ member.name || "Family Member" }}</h4>
-            <button
-              class="bg-gray-500 hover:bg-gray-600 text-white font-medium py-1 px-3 rounded text-sm flex items-center gap-1 transition-colors"
-              (click)="onFlipCardFromDetails()"
-            >
-              <i class="pi pi-arrow-left"></i>
-              Back to Info
-            </button>
-          </div>
-          <div class="items-section">
-            <app-item-form
-              [memberName]="member.name"
-              [existingItems]="member.items"
-              (itemsSaved)="onItemsSaved($event)"
-              (itemsUpdated)="onItemsUpdated($event)"
-            >
-            </app-item-form>
-          </div>
-        </div> -->
-    } @if (isMobile()) {
-    <div class="flex justify-center mb-8">
-      <button
-        class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
-        (click)="addWishListItems()"
+      <app-member-details
+        [member]="member"
+        (memberUpdated)="onMemberUpdated($event)"
       >
-        <div class="flex items-center gap-4">
-          <span>Add wish list items</span>
+      </app-member-details>
+      
+      <div class="member-actions">
+        <button
+          class="add-items-btn"
+          (click)="addWishListItems()"
+        >
           <i class="pi pi-plus"></i>
-        </div>
-      </button>
-    </div>
+          <span>Add wish list items</span>
+        </button>
+      </div>
+    } @else {
+      <app-item-form
+        [memberName]="member.name"
+        [existingItems]="member.items"
+        (itemsSaved)="onItemsSaved($event)"
+        (itemsUpdated)="onItemsUpdated($event)"
+        (doneAddingItems)="onDoneAddingItems()"
+        (editMemberDetails)="onEditMemberDetails()"
+      >
+      </app-item-form>
+    }
 
-    <div class="flex justify-center">
+    <div class="member-footer">
       <button
-        class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
+        class="delete-member-btn"
         (click)="deleteMember()"
       >
-        <div class="flex items-center gap-4">
-          <span>Delete family member</span>
-          <i class="pi pi-trash"></i>
-        </div>
+        <i class="pi pi-trash"></i>
+        <span>Delete family member</span>
       </button>
     </div>
-    }
   </div>
-</p-accordion-content>
+</div>
 
-<!-- Confirmation Modal -->
 <p-dialog
   header="Confirm removing family member"
   [(visible)]="showConfirmationModal"
@@ -101,3 +68,4 @@
     </div>
   </ng-template>
 </p-dialog>
+

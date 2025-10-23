@@ -4,7 +4,6 @@ import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { MemberDetailsComponent, FamilyMember } from '../member-details/member-details.component';
 import { ItemFormComponent, Item } from '../item-form/item-form.component';
-import { AccordionModule } from 'primeng/accordion';
 import { BreakpointService } from '../../../breakpoint.service';
 
 @Component({
@@ -15,8 +14,7 @@ import { BreakpointService } from '../../../breakpoint.service';
     ButtonModule,
     DialogModule,
     MemberDetailsComponent,
-    ItemFormComponent,
-    AccordionModule
+    ItemFormComponent
   ],
   templateUrl: './family-member.component.html',
   styleUrls: ['./family-member.component.scss']
@@ -32,27 +30,29 @@ export class FamilyMemberComponent {
     items: [],
     showItemsView: false
   };
-  @Input() isCurrentMember: boolean = false;
   @Input() isAddingMember: boolean = false;
-  @Input() editingMemberIndex: number | null = null;
-  @Input() memberIndex: number = 0;
 
-  @Output() memberSelected = new EventEmitter<FamilyMember>();
   @Output() memberRemoved = new EventEmitter<FamilyMember>();
   @Output() memberUpdated = new EventEmitter<FamilyMember>();
   @Output() itemsSaved = new EventEmitter<Item[]>();
   @Output() itemsUpdated = new EventEmitter<Item[]>();
+  @Output() doneEditing = new EventEmitter<void>();
 
-  showDeleteDialog = signal(false);
   showConfirmationModal = signal(false);
   showMemberDetails = signal(true);
   
   private readonly breakpointService = inject(BreakpointService);
   readonly isMobile = this.breakpointService.isMobile;
 
-  onSelectMember() {
-    this.memberSelected.emit(this.member);
-  }
+  readonly isMemberBasicInfoValid = computed(() => {
+    const member = this.member;
+    return !!(
+      member.name.trim() &&
+      member.age > 0 &&
+      member.gender &&
+      member.isChild !== undefined
+    );
+  });
 
   deleteMember() {
     this.showConfirmationModal.set(true);
@@ -83,13 +83,12 @@ export class FamilyMemberComponent {
     this.itemsUpdated.emit(items);
   }
 
-  onSaveMemberFromDetails() {
-    // This will be handled by the parent component
-    // The parent should listen to memberUpdated events
+  onDoneAddingItems() {
+    this.doneEditing.emit();
   }
 
-  onCancelMemberFromDetails() {
-    // This will be handled by the parent component
-    // The parent should handle the cancel logic
+  onEditMemberDetails() {
+    this.showMemberDetails.set(true);
   }
+
 }

@@ -18,9 +18,9 @@
 
       <div class="adopt-all-section">
         @if (areAllItemsAdopted(selectedFamily)) {
-        <div class="all-adopted-message">
-          <i class="pi pi-check-circle"></i>
+        <div class="all-adopted-message bg-red-600 text-white">
           All Items Have Been Adopted!
+          <i class="pi pi-check-circle"></i>
         </div>
         } @else if (hasAnyAdoptedItems(selectedFamily)) {
         <button

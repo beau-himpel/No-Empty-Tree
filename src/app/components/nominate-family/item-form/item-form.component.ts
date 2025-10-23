@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, signal, computed, inject, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, signal, computed, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -10,6 +10,8 @@ export interface Item {
   description: string;
   color?: string;
   size?: string;
+  details?: string;
+  link?: string;
 }
 
 @Component({
@@ -25,16 +27,17 @@ export interface Item {
   templateUrl: './item-form.component.html',
   styleUrls: ['./item-form.component.scss']
 })
-export class ItemFormComponent implements OnInit {
+export class ItemFormComponent {
   private readonly fb = inject(FormBuilder);
 
   @Input() memberName: string = '';
   @Input() existingItems: Item[] = [];
   @Output() itemsSaved = new EventEmitter<Item[]>();
   @Output() itemsUpdated = new EventEmitter<Item[]>();
+  @Output() doneAddingItems = new EventEmitter<void>();
+  @Output() editMemberDetails = new EventEmitter<void>();
 
-  readonly itemForms = signal<FormGroup[]>([]);
-  readonly isAddingForm = signal(false);
+  readonly itemForm = signal<FormGroup>(this.createItemForm());
 
   readonly itemCategoryOptions = [
     { label: 'Toy', value: 'Toy' },
@@ -44,56 +47,40 @@ export class ItemFormComponent implements OnInit {
     { label: 'Other', value: 'Other' }
   ];
 
-  ngOnInit() {
-    this.initializeItemForms();
-  }
-
-  initializeItemForms() {
-    const forms = [this.createItemForm()];
-    this.itemForms.set(forms);
-  }
 
   createItemForm(): FormGroup {
     return this.fb.group({
       category: ['', [Validators.required]],
       description: ['', [Validators.required]],
       color: [''],
-      size: ['']
+      size: [''],
+      details: [''],
+      link: ['']
     });
   }
 
-  addAnotherItemForm() {
-    const newForm = this.createItemForm();
-    const currentForms = this.itemForms();
-    this.itemForms.set([...currentForms, newForm]);
-  }
-
-  removeItemForm(index: number) {
-    const currentForms = this.itemForms();
-    if (currentForms.length > 1) {
-      currentForms.splice(index, 1);
-      this.itemForms.set([...currentForms]);
-    }
-  }
-
-  saveAllItems() {
-    const forms = this.itemForms();
-    const validItems: Item[] = [];
-    
-    forms.forEach(form => {
-      if (form.valid) {
-        validItems.push(form.value as Item);
-      }
-    });
-
-    if (validItems.length > 0) {
-      const allItems = [...this.existingItems, ...validItems];
+  addAnotherItem() {
+    const form = this.itemForm();
+    if (form.valid) {
+      const newItem = form.value as Item;
+      const allItems = [...this.existingItems, newItem];
       this.itemsSaved.emit(allItems);
       
-      // Reset forms
-      this.itemForms.set([]);
-      this.initializeItemForms();
+      // Reset the form for the next item
+      this.itemForm.set(this.createItemForm());
     }
+  }
+
+  onDoneAddingItems() {
+    const form = this.itemForm();
+    if (form.valid) {
+      const newItem = form.value as Item;
+      const allItems = [...this.existingItems, newItem];
+      this.itemsSaved.emit(allItems);
+    }
+    
+    // Emit the done event to return to member list
+    this.doneAddingItems.emit();
   }
 
   removeExistingItem(index: number) {
@@ -102,11 +89,11 @@ export class ItemFormComponent implements OnInit {
     this.itemsUpdated.emit(updatedItems);
   }
 
-  isFormValid(form: FormGroup): boolean {
-    return form.valid;
+  isFormValid(): boolean {
+    return this.itemForm().valid;
   }
 
-  isAnyFormValid(): boolean {
-    return this.itemForms().some(form => form.valid);
+  onEditMemberDetails() {
+    this.editMemberDetails.emit();
   }
 }

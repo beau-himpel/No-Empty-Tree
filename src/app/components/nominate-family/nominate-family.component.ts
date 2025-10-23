@@ -1,8 +1,7 @@
-import { Component, computed, inject, signal, ViewChild, ElementRef, QueryList } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, computed, inject, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { NgClass } from '@angular/common';
 import { Router } from '@angular/router';
-import { AccordionModule } from 'primeng/accordion';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
@@ -27,14 +26,14 @@ interface FamilyInfo {
   standalone: true,
   imports: [
     ReactiveFormsModule,
+    FormsModule,
     NgClass,
     CardModule, 
     ButtonModule, 
     InputTextModule, 
     TextareaModule,
     SelectModule,
-    FamilyMemberComponent,
-    AccordionModule
+    FamilyMemberComponent
   ],
   templateUrl: './nominate-family.component.html',
   styleUrls: ['./nominate-family.component.scss']
@@ -42,10 +41,9 @@ interface FamilyInfo {
 export class NominateFamilyComponent {
   private readonly fb = inject(FormBuilder);
   
-  currentStep = signal<'familyInfo' | 'familyMembers' | 'wishItems'>('familyInfo');
-  openAccordionIndex = signal<number | null>(null);
-  
-  @ViewChild('familyMembersContainer', { static: false }) familyMembersContainer!: ElementRef;
+  currentStep = signal<'familyInfo' | 'familyMembers'>('familyInfo');
+  selectedMemberIndex = signal<number | null>(null);
+  showMemberList = signal(true);
   private readonly router = inject(Router);
   private readonly breakpointService = inject(BreakpointService);
   private readonly nominationSettingsService = inject(NominationSettingsService);
@@ -70,8 +68,6 @@ export class NominateFamilyComponent {
   });
 
   readonly isAddingMember = signal(false);
-  readonly editingMemberIndex = signal<number | null>(null);
-  readonly showMemberDetails = signal(false);
   readonly isMobile = this.breakpointService.isMobile;
 
   readonly nominationsEnabled = this.nominationSettingsService.nominationsEnabled;
@@ -95,6 +91,13 @@ export class NominateFamilyComponent {
       member.gender &&
       member.isChild !== undefined
     );
+  });
+
+  readonly memberDropdownOptions = computed(() => {
+    return this.familyInfo().members.map((member, index) => ({
+      label: member.name || `New Member ${index + 1}`,
+      value: index
+    }));
   });
 
   readonly familyForm = this.fb.group({
@@ -129,66 +132,52 @@ export class NominateFamilyComponent {
     
     // Set up for editing the new member
     this.isAddingMember.set(true);
-    this.editingMemberIndex.set(family.members.length - 1);
+    this.selectedMemberIndex.set(family.members.length - 1);
     this.currentMember.set(newMember);
-    this.showMemberDetails.set(false);
-    
-    // Open the accordion for the newly added member
-    this.openAccordionIndex.set(family.members.length - 1);
-    if (this.isMobile()) {
-      this.scrollMemberToView(family.members.length - 1);
-    }
-  }
-
-  scrollMemberToView(index: number) {
-    console.log('scrollMemberToView', index);
-    setTimeout(() => {
-      if (this.familyMembersContainer) {
-        const accordionPanels = this.familyMembersContainer.nativeElement.querySelectorAll('p-accordion-panel');
-        console.log(accordionPanels);
-        console.log(index);
-        if (accordionPanels[index]) {
-          accordionPanels[index].scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'start' 
-          });
-        }
-      }
-    }, 100);
+    this.showMemberList.set(false);
   }
 
   editMember(index: number) {
-    this.editingMemberIndex.set(index);
+    this.selectedMemberIndex.set(index);
     this.isAddingMember.set(false);
     const member = this.familyInfo().members[index];
     this.currentMember.set({ ...member });
-    this.showMemberDetails.set(false);
+    this.showMemberList.set(false);
   }
 
   removeMember(index: number) {
     const family = this.familyInfo();
     family.members.splice(index, 1);
     this.familyInfo.set({ ...family });
-  }
-
-  flipCard() {
-    const member = this.currentMember();
-    member.showItemsView = !member.showItemsView;
-    this.currentMember.set({ ...member });
     
-    // Update the family member
-    const editingIndex = this.editingMemberIndex();
-    if (editingIndex !== null) {
-      const family = this.familyInfo();
-      family.members[editingIndex] = { ...member };
-      this.familyInfo.set({ ...family });
+    // If we removed the currently selected member, go back to list view
+    if (this.selectedMemberIndex() === index) {
+      this.showMemberList.set(true);
+      this.selectedMemberIndex.set(null);
+    } else if (this.selectedMemberIndex() !== null && this.selectedMemberIndex()! > index) {
+      // Adjust selected index if we removed a member before the current one
+      this.selectedMemberIndex.set(this.selectedMemberIndex()! - 1);
     }
   }
 
+  selectMemberFromDropdown(index: number) {
+    this.selectedMemberIndex.set(index);
+    const member = this.familyInfo().members[index];
+    this.currentMember.set({ ...member });
+    this.showMemberList.set(false);
+  }
+
+  finishEditingMember() {
+    this.showMemberList.set(true);
+    this.selectedMemberIndex.set(null);
+    this.isAddingMember.set(false);
+  }
+
+
   cancelAddMember() {
     this.isAddingMember.set(false);
-    this.editingMemberIndex.set(null);
-    this.showMemberDetails.set(false);
+    this.selectedMemberIndex.set(null);
+    this.showMemberList.set(true);
     this.resetCurrentMember();
   }
 
@@ -206,10 +195,10 @@ export class NominateFamilyComponent {
     this.currentMember.set({ ...member });
     
     // Update the family member
-    const editingIndex = this.editingMemberIndex();
-    if (editingIndex !== null) {
+    const selectedIndex = this.selectedMemberIndex();
+    if (selectedIndex !== null) {
       const family = this.familyInfo();
-      family.members[editingIndex] = { ...member };
+      family.members[selectedIndex] = { ...member };
       this.familyInfo.set({ ...family });
     }
   }
@@ -220,10 +209,10 @@ export class NominateFamilyComponent {
     this.currentMember.set({ ...member });
     
     // Update the family member
-    const editingIndex = this.editingMemberIndex();
-    if (editingIndex !== null) {
+    const selectedIndex = this.selectedMemberIndex();
+    if (selectedIndex !== null) {
       const family = this.familyInfo();
-      family.members[editingIndex] = { ...member };
+      family.members[selectedIndex] = { ...member };
       this.familyInfo.set({ ...family });
     }
   }
@@ -232,42 +221,14 @@ export class NominateFamilyComponent {
     this.currentMember.set(member);
     
     // Update the family member
-    const editingIndex = this.editingMemberIndex();
-    if (editingIndex !== null) {
+    const selectedIndex = this.selectedMemberIndex();
+    if (selectedIndex !== null) {
       const family = this.familyInfo();
-      family.members[editingIndex] = { ...member };
+      family.members[selectedIndex] = { ...member };
       this.familyInfo.set({ ...family });
     }
   }
 
-  onFlipCardFromDetails() {
-    this.flipCard();
-  }
-
-  onSaveMemberFromDetails() {
-    this.saveMember();
-  }
-
-  onCancelMemberFromDetails() {
-    this.cancelAddMember();
-  }
-
-  saveMember() {
-    const member = this.currentMember();
-    
-    if (this.isMemberValid()) {
-      const family = this.familyInfo();
-      const editingIndex = this.editingMemberIndex();
-      
-      if (editingIndex !== null) {
-        // Update existing member
-        family.members[editingIndex] = { ...member };
-        this.familyInfo.set({ ...family });
-      }
-      
-      this.cancelAddMember();
-    }
-  }
 
   saveFamily() {
     if (this.familyForm.valid && this.familyForm.value) {
@@ -296,15 +257,4 @@ export class NominateFamilyComponent {
     });
   }
   
-  getEmailErrorMessage(): string {
-    const emailControl = this.familyForm.get('email');
-    if (!emailControl?.errors || !emailControl.touched) return '';
-    
-    if (emailControl.errors['required']) {
-      return 'Email is required';
-    } else if (emailControl.errors['email'] || emailControl.errors['pattern']) {
-      return 'Please enter a valid email address';
-    }
-    return '';
-  }
 } 

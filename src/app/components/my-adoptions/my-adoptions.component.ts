@@ -1,6 +1,7 @@
 import { Component, inject, signal, computed } from '@angular/core';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
+import { Router } from '@angular/router';
 import { AuthService } from '../../auth.service';
 import { Family, FamilyMember, WishItem } from '../../shared/types';
 
@@ -14,6 +15,7 @@ import { Family, FamilyMember, WishItem } from '../../shared/types';
 export class MyAdoptionsComponent {
   readonly availableFamilies = signal<Family[]>([]);
   private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
   // Computed signal to get all items adopted by current user
   readonly myAdoptedItems = computed(() => {
@@ -62,5 +64,9 @@ export class MyAdoptionsComponent {
     item.is_adopted = false;
     item.adopted_by = undefined;
     console.log(`Unadopted item: ${item.description} for ${family.last_name}`);
+  }
+
+  navigateToAdoptFamily() {
+    this.router.navigate(['adopt-family']);
   }
 } 
