@@ -136,19 +136,29 @@
       Family Members
     </h3>
     } @else {
-    <div class="flex flex-1 items-center gap-8">
-      <span class="text-slate-700 text-lg font-medium"> Editing: </span>
-      <p-select
-        [options]="memberDropdownOptions()"
-        [ngModel]="selectedMemberIndex()"
-        (ngModelChange)="selectMemberFromDropdown($event)"
-        placeholder="Select member"
-        style="min-width: 200px"
-        style="max-width: 300px"
-      >
-      </p-select>
+    <div class="flex flex-1 items-center justify-between gap-8">
+      <div class="flex flex-1 items-center gap-8">
+        <span class="text-slate-700 text-lg font-medium"> Editing - </span>
+        <p-select
+          [options]="memberDropdownOptions()"
+          [ngModel]="selectedMemberIndex()"
+          (ngModelChange)="selectMemberFromDropdown($event)"
+          placeholder="Select member"
+          style="min-width: 200px"
+          style="max-width: 300px"
+        >
+        </p-select>
+      </div>
+
+      @if (!isMobile()) {
+      <ng-container [ngTemplateOutlet]="editButtonsTemplate"></ng-container>
+      }
     </div>
-    }
+    @if (isMobile()) {
+    <div class="flex justify-center w-full">
+      <ng-container [ngTemplateOutlet]="editButtonsTemplate"></ng-container>
+    </div>
+    } }
   </div>
 
   @if (showMemberList()) {
@@ -175,14 +185,18 @@
 
       <div class="flex items-center gap-2">
         @if (getMemberValidationErrors(member).length > 0) {
+
         <button
-          pButton
-          icon="pi pi-question-circle"
-          class="p-button-text !text-orange-500"
+          class="!text-orange-500 text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
           (click)="showValidationErrors(i)"
-          pTooltip="View missing information"
-          tooltipPosition="top"
-        ></button>
+        >
+          <div class="flex items-center gap-4">
+            @if (!isMobile()) {
+            <span>View missing information</span>
+            }
+            <i class="pi pi-question-circle"></i>
+          </div>
+        </button>
         }
         <button
           pButton
@@ -199,7 +213,7 @@
       </div>
     </div>
     }
-    <div class="member-list-item">
+    <div class="member-list-item mt-16">
       <div class="member-info">
         <h4 class="member-name">New member</h4>
       </div>
@@ -227,26 +241,36 @@
     >
       <div class="flex items-center gap-4">
         @if (isSaving()) {
-          <span> Saving... </span>
-          <i class="pi pi-spin pi-spinner"></i>
+        <span> Saving... </span>
+        <i class="pi pi-spin pi-spinner"></i>
         } @else {
-          <span> Submit Family </span>
-          <i class="pi pi-plus"></i>
+        <span> Submit Family </span>
+        <i class="pi pi-plus"></i>
         }
       </div>
     </button>
   </div>
   } @else {
-  <app-family-member
-    [member]="currentMember()"
-    [isAddingMember]="isAddingMember()"
-    (memberRemoved)="removeMember(selectedMemberIndex() || 0)"
-    (memberUpdated)="onMemberUpdated($event)"
-    (itemsSaved)="onItemsSaved($event)"
-    (itemsUpdated)="onItemsUpdated($event)"
-    (doneEditing)="finishEditingMember()"
-  >
-  </app-family-member>
+  <div class="mb-8">
+    <div class="member-content">
+      @if (showMemberDetails()) {
+      <app-member-details
+        [member]="currentMember()"
+        (memberUpdated)="onMemberUpdated($event)"
+      >
+      </app-member-details>
+      } @else {
+      <app-item-form
+        [memberName]="currentMember().name"
+        [existingItems]="currentMember().items"
+        (itemsSaved)="onItemsSaved($event)"
+        (itemsUpdated)="onItemsUpdated($event)"
+        (doneAddingItems)="finishEditingMember()"
+      >
+      </app-item-form>
+      }
+    </div>
+  </div>
   } } }
 
   <app-confirm-delete-modal
@@ -291,7 +315,28 @@
       </div>
     </div>
   </p-dialog>
-  
-  <!-- Toast for notifications -->
-  <p-toast></p-toast>
+
+  <ng-template #editButtonsTemplate>
+    @if (showMemberDetails()) {
+    <button
+      class="border border-red-500 text-red-500 hover:bg-red-600 hover:text-white font-medium py-2 px-4 rounded-lg flex items-center"
+      (click)="showWishlistItemsView()"
+    >
+      <div class="flex items-center gap-4">
+        <span> Edit Wishlist Items </span>
+        <i class="pi pi-gift"></i>
+      </div>
+    </button>
+    } @else {
+    <button
+      class="border border-blue-500 text-blue-500 hover:bg-blue-600 hover:text-white font-medium py-2 px-4 rounded-lg flex items-center"
+      (click)="showMemberDetailsView()"
+    >
+      <div class="flex items-center gap-4">
+        <span> Edit Member Details </span>
+        <i class="pi pi-user-edit"></i>
+      </div>
+    </button>
+    }
+  </ng-template>
 </div>

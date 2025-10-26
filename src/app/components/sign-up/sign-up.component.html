@@ -32,6 +32,7 @@
               >
               <input
                 id="name"
+                autocomplete="given-name"
                 type="text"
                 pInputText
                 [ngModel]="name()"
@@ -49,6 +50,7 @@
               <input
                 id="email"
                 type="email"
+                autocomplete="email"
                 pInputText
                 [ngModel]="email()"
                 (ngModelChange)="email.set($event)"

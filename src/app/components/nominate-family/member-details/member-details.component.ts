@@ -13,7 +13,6 @@ export interface FamilyMember {
   ethnicity: string;
   isChild: boolean;
   items: any[];
-  showItemsView?: boolean;
 }
 
 @Component({
@@ -39,8 +38,7 @@ export class MemberDetailsComponent {
     gender: '',
     ethnicity: '',
     isChild: false,
-    items: [],
-    showItemsView: false
+    items: []
   };
   @Output() memberUpdated = new EventEmitter<FamilyMember>();
 

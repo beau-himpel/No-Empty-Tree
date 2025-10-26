@@ -1,29 +1,28 @@
-import { Component, computed, inject, signal, OnInit } from '@angular/core';
+import { CommonModule, NgClass } from '@angular/common';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import {
   FormBuilder,
+  FormsModule,
   ReactiveFormsModule,
   Validators,
-  FormsModule,
 } from '@angular/forms';
-import { NgClass } from '@angular/common';
 import { Router } from '@angular/router';
+import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
-import { TooltipModule } from 'primeng/tooltip';
-import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
-import { NominationSettingsService } from '../../nomination-settings.service';
-import { FamilyMemberComponent } from './family-member/family-member.component';
-import { ConfirmDeleteModalComponent } from '../confirm-delete-modal/confirm-delete-modal.component';
-import { Item } from './item-form/item-form.component';
-import { FamilyMember } from './member-details/member-details.component';
-import { BreakpointService } from '../../breakpoint.service';
-import { SupabaseService } from '../../supabase.service';
+import { TooltipModule } from 'primeng/tooltip';
 import { AuthService } from '../../auth.service';
+import { BreakpointService } from '../../breakpoint.service';
+import { NominationSettingsService } from '../../nomination-settings.service';
+import { SupabaseService } from '../../supabase.service';
+import { ConfirmDeleteModalComponent } from '../confirm-delete-modal/confirm-delete-modal.component';
+import { Item, ItemFormComponent } from './item-form/item-form.component';
+import { FamilyMember, MemberDetailsComponent } from './member-details/member-details.component';
 
 interface FamilyInfo {
   name: string;
@@ -37,6 +36,7 @@ interface FamilyInfo {
   selector: 'app-nominate-family',
   standalone: true,
   imports: [
+    CommonModule,
     ReactiveFormsModule,
     FormsModule,
     NgClass,
@@ -48,10 +48,10 @@ interface FamilyInfo {
     SelectModule,
     TooltipModule,
     ToastModule,
-    FamilyMemberComponent,
+    MemberDetailsComponent,
+    ItemFormComponent,
     ConfirmDeleteModalComponent,
   ],
-  providers: [MessageService],
   templateUrl: './nominate-family.component.html',
   styleUrls: ['./nominate-family.component.scss'],
 })
@@ -62,6 +62,7 @@ export class NominateFamilyComponent implements OnInit {
   currentStep = signal<'familyInfo' | 'familyMembers'>('familyInfo');
   selectedMemberIndex = signal<number | null>(null);
   showMemberList = signal(true);
+  showMemberDetails = signal(true);
   showDeleteModal = signal(false);
   memberToDelete = signal<number | null>(null);
   showValidationModal = signal(false);
@@ -96,7 +97,6 @@ export class NominateFamilyComponent implements OnInit {
     ethnicity: '',
     isChild: false,
     items: [],
-    showItemsView: false,
   });
 
   readonly isAddingMember = signal(false);
@@ -222,7 +222,6 @@ export class NominateFamilyComponent implements OnInit {
       ethnicity: '',
       isChild: false,
       items: [],
-      showItemsView: false,
     };
 
     // Add directly to family members
@@ -236,6 +235,7 @@ export class NominateFamilyComponent implements OnInit {
     this.selectedMemberIndex.set(family.members.length - 1);
     this.currentMember.set(newMember);
     this.showMemberList.set(false);
+    this.showMemberDetails.set(true);
   }
 
   editMember(index: number) {
@@ -244,6 +244,7 @@ export class NominateFamilyComponent implements OnInit {
     const member = this.familyInfo().members[index];
     this.currentMember.set({ ...member });
     this.showMemberList.set(false);
+    this.showMemberDetails.set(true);
   }
 
   removeMember(index: number) {
@@ -270,6 +271,7 @@ export class NominateFamilyComponent implements OnInit {
     const member = this.familyInfo().members[index];
     this.currentMember.set({ ...member });
     this.showMemberList.set(false);
+    this.showMemberDetails.set(true);
   }
 
   finishEditingMember() {
@@ -458,7 +460,6 @@ export class NominateFamilyComponent implements OnInit {
       ethnicity: '',
       isChild: false,
       items: [],
-      showItemsView: false,
     });
   }
 
@@ -538,5 +539,13 @@ export class NominateFamilyComponent implements OnInit {
       return member.name || `New Member ${memberIndex + 1}`;
     }
     return '';
+  }
+
+  showMemberDetailsView() {
+    this.showMemberDetails.set(true);
+  }
+
+  showWishlistItemsView() {
+    this.showMemberDetails.set(false);
   }
 }

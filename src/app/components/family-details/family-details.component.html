@@ -75,25 +75,15 @@
             }}
           </span>
 
-          <button
-            class="py-1 px-3"
-            (click)="toggleWishlist(member.first_name, $event)"
-          >
-            <div class="flex items-center gap-2">
-              <span class="text-sm">{{
-                isWishlistCollapsed(member.first_name)
-                  ? "Show Wishlist"
-                  : "Hide Wishlist"
-              }}</span>
-              <i
-                [class]="
-                  isWishlistCollapsed(member.first_name)
-                    ? 'pi pi-chevron-down'
-                    : 'pi pi-chevron-up'
-                "
-              ></i>
-            </div>
-          </button>
+          @if (!isMobile()) {
+            <ng-container [ngTemplateOutlet]="toggleWishlistTemplate" [ngTemplateOutletContext]="{member: member}"></ng-container>
+            }
+        </div>
+
+        <div class="flex justify-center w-full">
+          @if (isMobile()) {
+            <ng-container [ngTemplateOutlet]="toggleWishlistTemplate" [ngTemplateOutletContext]="{member: member}"></ng-container>
+            }
         </div>
 
         <div
@@ -162,3 +152,25 @@
     </div>
   </ng-template>
 </p-dialog>
+
+<ng-template #toggleWishlistTemplate let-member="member">
+  <button
+    class="border border-black text-black hover:bg-black hover:text-white font-medium py-2 px-4 rounded-lg flex items-center"
+    (click)="toggleWishlist(member.first_name, $event)"
+  >
+    <div class="flex items-center gap-2">
+      <span class="text-sm">{{
+        isWishlistCollapsed(member.first_name)
+          ? "Show Wishlist"
+          : "Hide Wishlist"
+      }}</span>
+      <i
+        [class]="
+          isWishlistCollapsed(member.first_name)
+            ? 'pi pi-chevron-down'
+            : 'pi pi-chevron-up'
+        "
+      ></i>
+    </div>
+  </button>
+</ng-template>

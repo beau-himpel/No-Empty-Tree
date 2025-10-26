@@ -17,6 +17,7 @@ import { WishItemComponent } from '../wish-item/wish-item.component';
 import { SupabaseService } from '../../supabase.service';
 import { AuthService } from '../../auth.service';
 import { MessageService } from 'primeng/api';
+import { BreakpointService } from '../../breakpoint.service';
 
 @Component({
   selector: 'app-family-details',
@@ -42,18 +43,17 @@ import { MessageService } from 'primeng/api';
 export class FamilyDetailsComponent {
   private supabaseService = inject(SupabaseService);
   private messageService = inject(MessageService);
+  private readonly authService = inject(AuthService);
+  private readonly breakpointService = inject(BreakpointService);
 
   family = input<Family | null>(null);
-
-  private readonly authService = inject(AuthService);
-
   currentUser = this.authService.currentUser;
   expandedMembers = signal<Set<string>>(new Set());
   collapsedMembers = signal<Set<string>>(new Set());
   closeRequested = output<void>();
   dataRefreshRequested = output<void>();
+  readonly isMobile = this.breakpointService.isMobile;
 
-  // Initialize all members as collapsed when family changes
   private initializeCollapsedMembers() {
     const selectedFamily = this.family();
     if (selectedFamily) {
@@ -63,7 +63,6 @@ export class FamilyDetailsComponent {
   }
 
   constructor() {
-    // Watch for family changes and initialize collapsed state
     effect(() => {
       const selectedFamily = this.family();
       if (selectedFamily) {

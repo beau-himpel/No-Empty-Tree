@@ -1,9 +1,9 @@
-import { Component, Input, Output, EventEmitter, signal, computed, inject } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { Component, EventEmitter, inject, Input, Output, signal } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
-import { CommonModule } from '@angular/common';
 import { ItemInfoComponent } from '../../item-info/item-info.component';
 
 export interface Item {
@@ -37,7 +37,6 @@ export class ItemFormComponent {
   @Output() itemsSaved = new EventEmitter<Item[]>();
   @Output() itemsUpdated = new EventEmitter<Item[]>();
   @Output() doneAddingItems = new EventEmitter<void>();
-  @Output() editMemberDetails = new EventEmitter<void>();
 
   readonly itemForm = signal<FormGroup>(this.createItemForm());
 
@@ -93,9 +92,5 @@ export class ItemFormComponent {
 
   isFormValid(): boolean {
     return this.itemForm().valid;
-  }
-
-  onEditMemberDetails() {
-    this.editMemberDetails.emit();
   }
 }
