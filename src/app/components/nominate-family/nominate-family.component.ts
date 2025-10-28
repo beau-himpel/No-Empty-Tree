@@ -19,6 +19,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { AuthService } from '../../auth.service';
 import { BreakpointService } from '../../breakpoint.service';
 import { NominationSettingsService } from '../../nomination-settings.service';
+import { PhoneMaskDirective } from '../../shared/phone-mask.directive';
 import { SupabaseService } from '../../supabase.service';
 import { ConfirmDeleteModalComponent } from '../confirm-delete-modal/confirm-delete-modal.component';
 import { Item, ItemFormComponent } from './item-form/item-form.component';
@@ -51,6 +52,7 @@ interface FamilyInfo {
     MemberDetailsComponent,
     ItemFormComponent,
     ConfirmDeleteModalComponent,
+    PhoneMaskDirective,
   ],
   templateUrl: './nominate-family.component.html',
   styleUrls: ['./nominate-family.component.scss'],

@@ -14,7 +14,7 @@
   </div>
   } @else if (!nominationsEnabled()) {
   <div class="flex justify-center items-center min-h-[200px] p-8">
-    <p-card
+    <div
       class="shadow-lg rounded-xl border-2 border-yellow-400 bg-gradient-to-br from-yellow-100 to-yellow-200"
     >
       <div class="text-center text-yellow-800 p-8">
@@ -28,7 +28,7 @@
           Please check back later or contact us for more information.
         </p>
       </div>
-    </p-card>
+    </div>
   </div>
   } @else { @if (currentStep() === 'familyInfo') {
   <div class="flex justify-between items-center mb-10 submit-container">
@@ -71,10 +71,12 @@
           >Phone Number</label
         >
         <input
-          pInputMask
+          pInputText
           id="phone"
           formControlName="phone"
-          type="text"
+          type="tel"
+          [appPhoneMask]="true"
+          maxlength="14"
           class="w-full"
         />
       </div>

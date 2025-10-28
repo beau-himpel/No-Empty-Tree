@@ -43,25 +43,6 @@
   margin-top: 1rem;
 }
 
-.nomination-card {
-  ::ng-deep .p-card {
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    border-radius: 12px;
-  }
-
-  ::ng-deep .p-card-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border-radius: 12px 12px 0 0;
-    padding: 1.5rem;
-
-    h2 {
-      margin: 0;
-      font-size: 1.5rem;
-      font-weight: 600;
-    }
-  }
-}
 
 // Legacy styles for backward compatibility with child components
 .members-list {
