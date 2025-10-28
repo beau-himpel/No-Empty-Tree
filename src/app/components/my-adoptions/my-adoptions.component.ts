@@ -2,6 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { AuthService } from '../../auth.service';
 import { Family, FamilyMember, WishItem } from '../../shared/types';
 import { SupabaseService } from '../../supabase.service';
@@ -17,13 +18,14 @@ interface AdoptedFamily {
 @Component({
   selector: 'app-my-adoptions',
   standalone: true,
-  imports: [ButtonModule],
+  imports: [ButtonModule, ProgressSpinnerModule],
   providers: [MessageService],
   templateUrl: './my-adoptions.component.html',
   styleUrls: ['./my-adoptions.component.scss']
 })
 export class MyAdoptionsComponent implements OnInit {
   readonly adoptedFamilies = signal<AdoptedFamily[]>([]);
+  readonly isLoading = signal<boolean>(true);
   private readonly authService = inject(AuthService);
   private readonly supabaseService = inject(SupabaseService);
   private readonly messageService = inject(MessageService);
@@ -34,6 +36,7 @@ export class MyAdoptionsComponent implements OnInit {
   }
 
   private async loadAdoptedItems() {
+    this.isLoading.set(true);
     const user = this.authService.getCurrentUser();
     if (!user?.id) {
       this.adoptedFamilies.set([]);
@@ -139,6 +142,8 @@ export class MyAdoptionsComponent implements OnInit {
         detail: 'Failed to load adopted items' 
       });
       this.adoptedFamilies.set([]);
+    } finally {
+      this.isLoading.set(false);
     }
   }
 

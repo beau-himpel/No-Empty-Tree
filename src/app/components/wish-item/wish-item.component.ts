@@ -1,4 +1,5 @@
 import { Component, inject, input, output } from '@angular/core';
+import { TitleCasePipe } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { WishItem, Family } from '../../shared/types';
 import { AuthService } from '../../auth.service';
@@ -7,7 +8,7 @@ import { ItemInfoComponent } from '../item-info/item-info.component';
 @Component({
   selector: 'app-wish-item',
   standalone: true,
-  imports: [ButtonModule, ItemInfoComponent],
+  imports: [ButtonModule, ItemInfoComponent, TitleCasePipe],
   templateUrl: './wish-item.component.html',
   styleUrls: ['./wish-item.component.scss']
 })

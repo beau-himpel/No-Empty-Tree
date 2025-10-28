@@ -5,14 +5,14 @@
     <div class="adopted-info">
       <div class="adopted-by">
         Adopted by
-        {{ item().adopted_by_name?.full_name || item().adopted_by }}
+        {{ (item().adopted_by_name?.full_name || item().adopted_by) | titlecase }}
       </div>
       @if (isAdoptedByCurrentUser()) {
       <button
         class="bg-white hover:bg-red-50 text-red-500 border border-red-500 font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
         (click)="onUnadoptItem()"
       >
-        <div class="flex items-center gap-4">
+        <div class="flex items-center justify-center w-full gap-4">
           <span>Unadopt</span>
           <i class="pi pi-undo"></i>
         </div>

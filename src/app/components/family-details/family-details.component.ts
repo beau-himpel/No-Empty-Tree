@@ -74,6 +74,9 @@ export class FamilyDetailsComponent {
   showConfirmationModal = signal<boolean>(false);
   pendingFamily = signal<Family | null>(null);
   modalType = signal<'all' | 'remaining'>('all');
+  
+  showUnadoptConfirmationModal = signal<boolean>(false);
+  pendingUnadoptItem = signal<{ item: WishItem; family: Family } | null>(null);
 
   readonly familyCounts = computed(() => {
     const selectedFamily = this.family();
@@ -122,7 +125,17 @@ export class FamilyDetailsComponent {
     this.dataRefreshRequested.emit();
   }
 
-  async unadoptItem(item: WishItem, family: Family) {
+  showUnadoptConfirmation(item: WishItem, family: Family) {
+    this.pendingUnadoptItem.set({ item, family });
+    this.showUnadoptConfirmationModal.set(true);
+  }
+
+  async confirmUnadopt() {
+    const pendingData = this.pendingUnadoptItem();
+    if (!pendingData) return;
+
+    const { item, family } = pendingData;
+
     try {
       await this.supabaseService.unadoptWishlistItem(item.id);
 
@@ -140,7 +153,15 @@ export class FamilyDetailsComponent {
       }
     } catch (error) {
       this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error unadopting item' });
+    } finally {
+      this.showUnadoptConfirmationModal.set(false);
+      this.pendingUnadoptItem.set(null);
     }
+  }
+
+  cancelUnadopt() {
+    this.showUnadoptConfirmationModal.set(false);
+    this.pendingUnadoptItem.set(null);
   }
 
   isAdoptedByCurrentUser(item: WishItem): boolean {
