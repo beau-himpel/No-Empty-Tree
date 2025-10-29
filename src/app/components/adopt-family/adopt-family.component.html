@@ -1,6 +1,6 @@
-<div>
+<div class="w-full bg-white border-2 border-gray-300 rounded-xl p-8">
   <h2
-    class="text-center bg-white border border-gray-300 rounded-xl p-4 text-2xl font-bold text-slate-800 mb-6"
+    class="text-center text-2xl font-bold text-slate-800 mb-6"
   >
     Adopt a Family
   </h2>
@@ -13,7 +13,7 @@
   </div>
   } @if (isLoading()) {
   <div
-    class="flex justify-center items-center bg-white border-2 border-gray-300 rounded-xl py-20"
+    class="flex justify-center items-center py-20"
   >
     <p-progressSpinner />
   </div>
@@ -74,7 +74,7 @@
       </div>
     </div>
     } @empty {
-    <div class="col-span-full text-center py-12">
+    <div class="flex justify-center items-center flex-col gap-8 text-center py-12">
       <p class="text-slate-500 text-lg mb-6">
         No families available for adoption at this time.
       </p>
