@@ -20,16 +20,16 @@ export const routes: Routes = [
       { 
         path: 'my-adoptions', 
         loadComponent: () => import('./components/my-adoptions/my-adoptions.component').then(m => m.MyAdoptionsComponent) 
+      },
+      { 
+        path: 'sign-in', 
+        loadComponent: () => import('./components/sign-in/sign-in.component').then(m => m.SignInComponent) 
+      },
+      { 
+        path: 'sign-up', 
+        loadComponent: () => import('./components/sign-up/sign-up.component').then(m => m.SignUpComponent) 
       }
     ]
-  },
-  { 
-    path: 'sign-in', 
-    loadComponent: () => import('./components/sign-in/sign-in.component').then(m => m.SignInComponent) 
-  },
-  { 
-    path: 'sign-up', 
-    loadComponent: () => import('./components/sign-up/sign-up.component').then(m => m.SignUpComponent) 
   },
   { 
     path: 'auth/callback', 

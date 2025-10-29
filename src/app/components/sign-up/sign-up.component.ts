@@ -31,6 +31,8 @@ export class SignUpComponent {
   password = signal('');
   isLoading = signal(false);
   errorMessage = signal('');
+  hasSignedUp = signal(false);
+
   
   async signUpWithEmail(): Promise<void> {
     try {
@@ -75,7 +77,7 @@ export class SignUpComponent {
       if (result.user) {
         if (result.needsConfirmation) {
           // Email confirmation is required
-          this.errorMessage.set('Check your email for a confirmation link!');
+          this.hasSignedUp.set(true);
         } else if (result.session) {
           // User was created and logged in immediately (email confirmation disabled)
           this.router.navigate(['/']);
@@ -106,6 +108,10 @@ export class SignUpComponent {
     } finally {
       this.isLoading.set(false);
     }
+  }
+
+  navigateToSignIn() {
+    this.router.navigate(['/sign-in']);
   }
 
   async signUpWithGoogle(): Promise<void> {
