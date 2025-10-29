@@ -1,16 +1,16 @@
 import { Component, inject, signal, computed, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
-import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { Router } from '@angular/router';
 import { SupabaseService } from '../../supabase.service';
 import { BreakpointService } from '../../breakpoint.service';
 import { FamilyDetailsComponent } from '../family-details/family-details.component';
 import { Family } from '../../shared/types';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 @Component({
   selector: 'app-adopt-family',
   standalone: true,
-  imports: [CardModule, ButtonModule, FamilyDetailsComponent],
+  imports: [ProgressSpinnerModule, ButtonModule, FamilyDetailsComponent],
   templateUrl: './adopt-family.component.html',
   styleUrls: ['./adopt-family.component.scss']
 })
