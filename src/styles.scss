@@ -57,10 +57,3 @@ input, select, textarea {
   color: #000!important;
   border: 1px solid #ccc!important;
 }
-
-input:not([type="button"]):not([type="submit"]):not([type="reset"]),
-select {
-    background-color: #ffffff !important; 
-    color: #000000 !important;
-    border: 1px solid #cccccc !important;
-}

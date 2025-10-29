@@ -9,7 +9,6 @@ import {
 } from '@angular/core';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { CommonModule } from '@angular/common';
-import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { Family, FamilyMember, WishItem } from '../../shared/types';
@@ -24,7 +23,6 @@ import { BreakpointService } from '../../breakpoint.service';
   standalone: true,
   imports: [
     CommonModule,
-    CardModule,
     ButtonModule,
     DialogModule,
     WishItemComponent,

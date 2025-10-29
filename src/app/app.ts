@@ -11,5 +11,4 @@ import { ToastModule } from 'primeng/toast';
   styleUrl: './app.scss'
 })
 export class App {
-  protected title = 'No-Empty-Tree';
 }

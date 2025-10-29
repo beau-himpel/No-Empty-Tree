@@ -2,9 +2,6 @@ import { Component, inject, signal, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { PasswordModule } from 'primeng/password';
-import { CardModule } from 'primeng/card';
-import { MessageModule } from 'primeng/message';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../auth.service';
 
@@ -14,9 +11,6 @@ import { AuthService } from '../../auth.service';
   imports: [
     ButtonModule,
     InputTextModule,
-    PasswordModule,
-    CardModule,
-    MessageModule,
     ReactiveFormsModule
   ],
   templateUrl: './sign-in.component.html',

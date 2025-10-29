@@ -3,7 +3,6 @@ import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
-import { CardModule } from 'primeng/card';
 import { MessageModule } from 'primeng/message';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../auth.service';
@@ -15,7 +14,6 @@ import { AuthService } from '../../auth.service';
     ButtonModule,
     InputTextModule,
     PasswordModule,
-    CardModule,
     MessageModule,
     FormsModule
   ],
