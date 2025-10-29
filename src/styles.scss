@@ -11,6 +11,7 @@
 
 :root {
   color-scheme: light;
+  --p-accordion-panel-border-width: 3px;
 }
 
 /* Global Styles */
@@ -51,6 +52,8 @@ input[type="number"] {
   }
 }
 
-:root {
-  --p-accordion-panel-border-width: 3px;
+input, select, textarea {
+  background-color: #fff;
+  color: #000;
+  border: 1px solid #ccc;
 }
