@@ -1,6 +1,7 @@
 import { Injectable, signal, computed } from '@angular/core'; 
 import { Router } from '@angular/router';
 import { SupabaseService } from './supabase.service';
+import { environment } from '../environments/environment';
 import type { User, Session } from '@supabase/supabase-js';
  
 @Injectable({ 
@@ -67,16 +68,38 @@ export class AuthService {
     }
   }
 
-  async signUpWithEmail(email: string, password: string, metadata?: any): Promise<void> {
+  async signUpWithEmail(email: string, password: string, metadata?: any): Promise<{ user: User | null; session: Session | null; needsConfirmation: boolean }> {
     try {
-      const { error } = await this.supabaseService.client.auth.signUp({ 
+      const { data, error } = await this.supabaseService.client.auth.signUp({ 
         email, 
         password,
         options: {
-          data: metadata
+          data: metadata,
+          emailRedirectTo: `${environment.appUrl}/auth/callback`
         }
       });
-      if (error) throw error;
+      
+      if (error) {
+        console.error('Supabase signup error:', error);
+        throw error;
+      }
+      
+      // Log response for debugging
+      console.log('Signup response:', {
+        user: data?.user?.id,
+        session: data?.session ? 'exists' : 'null',
+        email: data?.user?.email,
+        emailConfirmed: data?.user?.email_confirmed_at ? 'yes' : 'no'
+      });
+      
+      // When email confirmation is required, user will be null until email is confirmed
+      const needsConfirmation = !data?.session && !!data?.user;
+      
+      return {
+        user: data?.user ?? null,
+        session: data?.session ?? null,
+        needsConfirmation
+      };
     } catch (error) {
       console.error('Error signing up with email:', error);
       throw error;

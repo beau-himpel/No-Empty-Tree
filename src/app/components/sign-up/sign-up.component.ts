@@ -67,13 +67,42 @@ export class SignUpComponent {
       }
       
       // Sign up with user metadata including the name
-      await this.authService.signUpWithEmail(this.email(), this.password(), {
+      const result = await this.authService.signUpWithEmail(this.email(), this.password(), {
         full_name: this.name().trim()
       });
-      this.errorMessage.set('Check your email for a confirmation link!');
+      
+      // Check if signup was successful
+      if (result.user) {
+        if (result.needsConfirmation) {
+          // Email confirmation is required
+          this.errorMessage.set('Check your email for a confirmation link!');
+        } else if (result.session) {
+          // User was created and logged in immediately (email confirmation disabled)
+          this.router.navigate(['/']);
+        } else {
+          // User created but no session (unlikely but handle it)
+          this.errorMessage.set('Account created! Please check your email for a confirmation link.');
+        }
+      } else {
+        // No user was created - this shouldn't happen if there's no error
+        this.errorMessage.set('Failed to create account. Please try again.');
+      }
     } catch (error: any) {
       console.error('Sign up failed:', error);
-      this.errorMessage.set(error?.message || 'Failed to create account. Please try again.');
+      // Provide more specific error messages
+      let errorMsg = 'Failed to create account. Please try again.';
+      if (error?.message) {
+        if (error.message.includes('User already registered') || error.message.includes('already been registered')) {
+          errorMsg = 'An account with this email already exists. Please sign in instead.';
+        } else if (error.message.includes('Password')) {
+          errorMsg = error.message;
+        } else if (error.message.includes('Invalid email')) {
+          errorMsg = 'Please enter a valid email address.';
+        } else {
+          errorMsg = error.message;
+        }
+      }
+      this.errorMessage.set(errorMsg);
     } finally {
       this.isLoading.set(false);
     }
