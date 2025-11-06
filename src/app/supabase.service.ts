@@ -137,6 +137,15 @@ export class SupabaseService {
       .order('last_name');
 
     if (error) throw error;
+    
+    if (data) {
+      data.forEach(family => {
+        if (family.family_members) {
+          family.family_members.sort((a, b) => b.age - a.age);
+        }
+      });
+    }
+    
     return data;
   }
 
@@ -182,6 +191,11 @@ export class SupabaseService {
       .single();
 
     if (error) throw error;
+    
+    if (data && data.family_members) {
+      data.family_members.sort((a, b) => b.age - a.age);
+    }
+    
     return data;
   }
 
