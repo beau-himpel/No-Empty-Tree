@@ -50,7 +50,7 @@
       @for (member of selectedFamily.family_members; track member.first_name) {
       <div class="member-card" [class.all-adopted]="isAllItemsAdopted(member)">
         <div class="member-header">
-          <h4>{{ member.first_name | titlecase  }}</h4>
+          <h4>{{ member.first_name | titlecase }}</h4>
           <span class="member-info">{{ member.age }} years old</span>
 
           <span
@@ -76,14 +76,20 @@
           </span>
 
           @if (!isMobile()) {
-            <ng-container [ngTemplateOutlet]="toggleWishlistTemplate" [ngTemplateOutletContext]="{member: member}"></ng-container>
-            }
+          <ng-container
+            [ngTemplateOutlet]="toggleWishlistTemplate"
+            [ngTemplateOutletContext]="{ member: member }"
+          ></ng-container>
+          }
         </div>
 
         <div class="flex justify-center w-full">
           @if (isMobile()) {
-            <ng-container [ngTemplateOutlet]="toggleWishlistTemplate" [ngTemplateOutletContext]="{member: member}"></ng-container>
-            }
+          <ng-container
+            [ngTemplateOutlet]="toggleWishlistTemplate"
+            [ngTemplateOutletContext]="{ member: member }"
+          ></ng-container>
+          }
         </div>
 
         <div
@@ -101,7 +107,11 @@
             (unadoptItem)="showUnadoptConfirmation($event.item, $event.family)"
           >
           </app-wish-item>
-          }
+          @if (!$last) {
+          <div class="flex justify-center">
+            <div class="h-px w-[50%] bg-[#cbd5e0]"></div>
+          </div>
+          } }
         </div>
       </div>
       }
@@ -164,9 +174,7 @@
   [resizable]="false"
 >
   <div class="confirmation-content">
-    <p>
-      Are you sure you want to unadopt this wish list item?
-    </p>
+    <p>Are you sure you want to unadopt this wish list item?</p>
   </div>
 
   <ng-template pTemplate="footer">
@@ -184,7 +192,8 @@
 
 <ng-template #toggleWishlistTemplate let-member="member">
   <button
-    class="border border-black text-black hover:bg-black hover:text-white font-medium py-2 px-4 rounded-lg flex items-center mb-4"
+    class="border border-black text-black font-medium py-2 px-4 rounded-lg flex items-center"
+    [ngClass]="{ 'mb-4': isMobile() }"
     (click)="toggleWishlist(member.first_name, $event)"
   >
     <div class="flex items-center gap-2">

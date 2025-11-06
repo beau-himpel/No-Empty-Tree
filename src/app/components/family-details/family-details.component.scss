@@ -76,28 +76,10 @@
     font-weight: 600;
   }
   
-  // Single column layout - one member card per row
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-/* Style the adopt all button to have white text and white heart */
-:host ::ng-deep .adopt-all-section .p-button {
-  background: transparent !important;
-  border: none !important;
-  color: white !important;
-  
-  &:hover {
-    background: transparent !important;
-    border: none !important;
-    color: white !important;
-  }
-  
-  .pi-heart-fill {
-    color: white !important;
-    margin-left: 0.75rem !important;
-  }
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(40rem, 1fr));
+  justify-items: center;
 }
 
 .member-card {
@@ -110,6 +92,8 @@
   display: flex;
   flex-direction: column;
   height: fit-content;
+  width: 100%;
+  max-width: 44rem;
   
   &.all-adopted {
     
@@ -133,8 +117,8 @@
   display: flex;
   align-items: center;
   gap: 2.5rem;
-  flex-wrap: wrap;
   margin-bottom: 1rem;
+  justify-content: space-between;
   
   h4 {
     margin: 0;
@@ -169,35 +153,6 @@
   border: 1px solid #ec4899;
 }
 
-/* Custom styling for unadopt button */
-:host ::ng-deep .p-button.p-button-secondary {
-  background: #f8fafc;
-  border: 1px solid #cbd5e0;
-  color: #4a5568;
-  font-size: 0.75rem;
-  padding: 0.375rem 0.75rem;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    background: #edf2f7;
-    border-color: #a0aec0;
-    color: #2d3748;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  &:active {
-    transform: translateY(0);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  }
-}
-
-/* Make heart icons red */
-:host ::ng-deep .p-button .pi-heart-fill {
-  color: #e53e3e !important;
-}
-
 .no-wishes {
   color: #a0aec0;
   font-style: italic;
@@ -220,22 +175,7 @@
   }
   
   .members-section {
-    grid-template-columns: 1fr;
     gap: 1rem;
-  }
-}
-
-@media (min-width: 1200px) and (max-width: 1399px) {
-  .members-section {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
-  }
-}
-
-@media (min-width: 1400px) {
-  .members-section {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 2rem;
   }
 }
 
@@ -407,7 +347,12 @@
   .family-details {
     padding: .5rem;
   }
+  .members-section {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 44rem), 1fr));
+  }
   .member-header {
+    gap: .5rem;
+    flex-wrap: wrap;
     justify-content: space-around;
   }
 
