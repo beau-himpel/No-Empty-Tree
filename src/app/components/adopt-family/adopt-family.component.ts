@@ -1,11 +1,11 @@
-import { Component, inject, signal, computed, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
-import { ButtonModule } from 'primeng/button';
+import { Component, computed, ElementRef, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { SupabaseService } from '../../supabase.service';
-import { BreakpointService } from '../../breakpoint.service';
-import { FamilyDetailsComponent } from '../family-details/family-details.component';
-import { Family } from '../../shared/types';
+import { ButtonModule } from 'primeng/button';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { BreakpointService } from '../../breakpoint.service';
+import { Family } from '../../shared/types';
+import { SupabaseService } from '../../supabase.service';
+import { FamilyDetailsComponent } from '../family-details/family-details.component';
 
 @Component({
   selector: 'app-adopt-family',
@@ -14,7 +14,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
   templateUrl: './adopt-family.component.html',
   styleUrls: ['./adopt-family.component.scss']
 })
-export class AdoptFamilyComponent implements OnInit, AfterViewInit {
+export class AdoptFamilyComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly supabaseService = inject(SupabaseService);
   private readonly breakpointService = inject(BreakpointService);
@@ -23,7 +23,6 @@ export class AdoptFamilyComponent implements OnInit, AfterViewInit {
   isLoading = signal<boolean>(false);
   error = signal<string | null>(null);
 
-  // Real data from backend
   readonly availableFamilies = signal<Family[]>([]);
 
   @ViewChild('familyDetails', { static: false }) familyDetailsRef!: ElementRef;
@@ -34,19 +33,15 @@ export class AdoptFamilyComponent implements OnInit, AfterViewInit {
   // Computed signals for family counts
   readonly familyCounts = computed(() => 
     this.availableFamilies().map(family => ({
-      id: family.id,
-      adultCount: family.family_members.filter(member => !member.is_parent).length,
-      boysCount: family.family_members.filter(member => member.is_parent && member.sex === 'male').length,
-      girlsCount: family.family_members.filter(member => member.is_parent && member.sex === 'female').length
+      info: family,
+      adultCount: family.family_members.filter(member => member.is_parent).length,
+      boysCount: family.family_members.filter(member => !member.is_parent && member.sex === 'male').length,
+      girlsCount: family.family_members.filter(member => !member.is_parent && member.sex === 'female').length
     }))
   );
 
   ngOnInit() {
     this.loadFamilies();
-  }
-
-  ngAfterViewInit() {
-    // This lifecycle hook is required for AfterViewInit interface
   }
 
   async loadFamilies() {
@@ -63,17 +58,6 @@ export class AdoptFamilyComponent implements OnInit, AfterViewInit {
     }
   }
 
-
-  getFamilyCounts(familyId: string): { adultCount: number; boysCount: number; girlsCount: number } {
-    const family = this.availableFamilies().find(f => f.id === familyId);
-    if (!family) return { adultCount: 0, boysCount: 0, girlsCount: 0 };
-    
-    return {
-      adultCount: family.family_members.filter(member => !member.is_parent).length,
-      boysCount: family.family_members.filter(member => member.is_parent && member.sex === 'male').length,
-      girlsCount: family.family_members.filter(member => member.is_parent && member.sex === 'female').length
-    };
-  }
 
   viewFamilyDetails(family: Family) {
     if (this.selectedFamily()?.id === family.id) {
