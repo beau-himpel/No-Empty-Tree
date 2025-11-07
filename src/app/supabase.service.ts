@@ -441,49 +441,4 @@ export class SupabaseService {
     if (error) throw error;
     return data;
   }
-
-  async getAdoptedItemsWithDetails(userId: string) {
-    const { data, error } = await this.supabase
-      .from('wishlist_items')
-      .select(`
-        id,
-        family_member_id,
-        category,
-        description,
-        color,
-        size,
-        is_adopted,
-        adopted_by,
-        adopted_by_name:profiles!wishlist_items_adopted_by_fkey(full_name),
-        link,
-        details,
-        created_at,
-        updated_at,
-        family_members!inner (
-          id,
-          family_id,
-          first_name,
-          age,
-          sex,
-          is_parent,
-          created_at,
-          updated_at,
-          families!inner (
-            id,
-            last_name,
-            address,
-            phone,
-            email,
-            nominated_by,
-            created_at,
-            updated_at
-          )
-        )
-      `)
-      .eq('adopted_by', userId)
-      .order('created_at', { ascending: false });
-
-    if (error) throw error;
-    return data;
-  }
 } 

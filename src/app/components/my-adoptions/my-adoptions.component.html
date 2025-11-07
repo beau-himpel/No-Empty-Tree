@@ -1,39 +1,37 @@
 <div class="w-full bg-white border-2 border-gray-300 rounded-xl p-8">
   @if (!isLoading()) {
-    <h2 class="text-center text-2xl font-bold text-slate-800 mb-6">
-      My Adopted Items
-    </h2>
-    @if (adoptedFamilies().length > 0) {
-      @for (family of adoptedFamilies(); track family.family.id) {
-        <div class="bg-white border-2 border-gray-300 rounded-xl p-8">
-          <h3>{{ family.family.last_name }}</h3>
-          @for (member of family.familyMembers; track member.member.id) {
-            <div class="bg-white border-2 border-gray-300 rounded-xl p-8">
-              <h4>{{ member.member.first_name }}</h4>
-            </div>
-          }
-        </div>
-      }
-
-    } @else {
-    <div class="flex flex-col items-center py-10 px-4 gap-8">
-      <p class="text-slate-500 text-lg mb-6">
-        You haven't adopted any items yet.
-      </p>
-      <button
-        class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
-        (click)="navigateToAdoptFamily()"
-      >
-        <div class="flex items-center gap-4">
-          <span> Browse families</span>
-          <i class="pi pi-heart-fill"></i>
-        </div>
-      </button>
-    </div>
+  <h2 class="text-center text-2xl font-bold text-slate-800 mb-6">
+    My Adopted Items
+  </h2>
+  @if (adoptedFamilies().length > 0) { @for (family of adoptedFamilies(); track
+  family.id) {
+  <div class="bg-white border-2 border-gray-300 rounded-xl p-8">
+    <h3>{{ family.last_name }}</h3>
+    @for (member of family.family_members; track member.id) {
+    <!-- <app-member-details
+            [member]="member.member"
+            (unadoptItem)="unadoptItem($event)"
+          ></app-member-details> -->
     }
-  } @else {
-    <div class="flex justify-center items-center py-20">
-      <p-progressSpinner />
-    </div>
+  </div>
+  } } @else {
+  <div class="flex flex-col items-center py-10 px-4 gap-8">
+    <p class="text-slate-500 text-lg mb-6">
+      You haven't adopted any items yet.
+    </p>
+    <button
+      class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
+      (click)="navigateToAdoptFamily()"
+    >
+      <div class="flex items-center gap-4">
+        <span> Browse families</span>
+        <i class="pi pi-heart-fill"></i>
+      </div>
+    </button>
+  </div>
+  } } @else {
+  <div class="flex justify-center items-center py-20">
+    <p-progressSpinner />
+  </div>
   }
 </div>
