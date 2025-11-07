@@ -1,4 +1,4 @@
-<div class="member-card" [class.all-adopted]="isAllItemsAdopted(member())">
+<div class="member-card" [class.all-adopted]="showAllAdoptedMessage() && isAllItemsAdopted(member())">
   <div class="member-header">
     <h4>{{ member().first_name | titlecase }}</h4>
     <span class="member-info">{{ member().age }} years old</span>

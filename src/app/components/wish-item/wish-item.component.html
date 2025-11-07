@@ -41,11 +41,12 @@
   [style]="{ width: '450px' }"
   [draggable]="false"
   [resizable]="false"
+  [appendTo]="'body'"
 >
   <p>Are you sure you want to unadopt this wish list item?</p>
 
   <ng-template pTemplate="footer">
-    <div class="dialog-actions">
+    <div class="flex justify-end gap-8">
       <button
         class="cancel-btn"
         (click)="showUnadoptConfirmationModal.set(false)"

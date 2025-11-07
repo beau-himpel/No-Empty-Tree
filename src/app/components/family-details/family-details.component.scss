@@ -88,12 +88,6 @@
   margin: 0;
 }
 
-.dialog-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-}
-
 /* Responsive Design */
 @media (max-width: 1199px) {
   
@@ -165,65 +159,6 @@
 :host ::ng-deep .p-dialog {
   z-index: 1001;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-}
-
-/* Custom button styling in modals */
-.dialog-actions {
-  .cancel-btn, .confirm-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 0.875rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border: none;
-    min-width: 120px;
-    justify-content: center;
-    
-    i {
-      font-size: 0.875rem;
-    }
-  }
-  
-  .cancel-btn {
-    background: #f8fafc;
-    color: #4a5568;
-    border: 1px solid #cbd5e0;
-    
-    &:hover {
-      background: #edf2f7;
-      color: #2d3748;
-      border-color: #a0aec0;
-      transform: translateY(-1px);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-    
-    &:active {
-      transform: translateY(0);
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-    }
-  }
-  
-  .confirm-btn {
-    background: #e53e3e;
-    color: white;
-    border: 1px solid #e53e3e;
-    
-    &:hover {
-      background: #c53030;
-      border-color: #c53030;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 8px rgba(229, 62, 62, 0.3);
-    }
-    
-    &:active {
-      transform: translateY(0);
-      box-shadow: 0 2px 4px rgba(229, 62, 62, 0.3);
-    }
-  }
 }
 
 @media (max-width: 768px) {

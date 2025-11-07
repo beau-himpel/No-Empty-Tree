@@ -57,20 +57,18 @@ export class MyAdoptionsComponent implements OnInit {
                   ) || [],
               })),
           }))
-          .filter((family) => family.family_members.length > 0);
-          // if (filteredAdoptedFamilies.length > 0) {
-          //   this.adoptedFamilies.set(filteredAdoptedFamilies);
-          // }
-          console.log('filteredAdoptedFamilies', filteredAdoptedFamilies);
+          .filter(
+            (family) => family.family_members.length > 0
+          ) as unknown as Family[];
+
+        this.adoptedFamilies.set(filteredAdoptedFamilies);
       }
-
-
     } catch (error) {
       console.error('Error loading adopted items:', error);
       this.messageService.add({
         severity: 'error',
         summary: 'Error',
-        detail: 'Failed to load adopted items'
+        detail: 'Failed to load adopted items',
       });
       this.adoptedFamilies.set([]);
     } finally {
@@ -81,7 +79,6 @@ export class MyAdoptionsComponent implements OnInit {
   async unadoptItem(item: WishItem) {
     try {
       await this.supabaseService.unadoptWishlistItem(item.id);
-      // Reload the data to reflect the changes
       await this.loadAdoptedItems();
     } catch (error) {
       this.messageService.add({

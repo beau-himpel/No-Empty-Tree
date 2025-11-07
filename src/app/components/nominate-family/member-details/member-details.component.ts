@@ -30,7 +30,8 @@ import { BreakpointService } from '../../../breakpoint.service';
 })
 export class MemberDetailsComponent {
   member = input.required<FamilyMember>();
-  
+  showAllAdoptedMessage = input<boolean>(true);
+
   adoptItem = output<WishItem>();
   unadoptItem = output<WishItem>();
 
