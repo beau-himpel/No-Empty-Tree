@@ -1,7 +1,5 @@
 <div class="w-full bg-white border-2 border-gray-300 rounded-xl p-8">
-  <h2
-    class="text-center text-2xl font-bold text-slate-800 mb-6"
-  >
+  <h2 class="text-center text-2xl font-bold text-slate-800 mb-6">
     Adopt a Family
   </h2>
   @if (error()) {
@@ -12,9 +10,7 @@
     </div>
   </div>
   } @if (isLoading()) {
-  <div
-    class="flex justify-center items-center py-20"
-  >
+  <div class="flex justify-center items-center py-20">
     <p-progressSpinner />
   </div>
   } @else {
@@ -36,30 +32,18 @@
         <div class="flex gap-4 text-sm justify-center">
           <span
             class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-3 py-1 rounded-full font-medium"
-            ><span style="padding-right: 8px">{{
-              family.adultCount
-            }}</span
-            >{{
-              family.adultCount === 1 ? "Adult" : "Adults"
-            }}</span
+            ><span style="padding-right: 8px">{{ family.adultCount }}</span
+            >{{ family.adultCount === 1 ? "Adult" : "Adults" }}</span
           >
           <span
             class="bg-gradient-to-r from-blue-500 to-cyan-600 text-white px-3 py-1 rounded-full font-medium"
-            ><span style="padding-right: 8px">{{
-              family.boysCount
-            }}</span
-            >{{
-              family.boysCount === 1 ? "Boy" : "Boys"
-            }}</span
+            ><span style="padding-right: 8px">{{ family.boysCount }}</span
+            >{{ family.boysCount === 1 ? "Boy" : "Boys" }}</span
           >
           <span
             class="bg-gradient-to-r from-pink-500 to-rose-600 text-white px-3 py-1 rounded-full font-medium"
-            ><span style="padding-right: 8px">{{
-              family.girlsCount
-            }}</span
-            >{{
-              family.girlsCount === 1 ? "Girl" : "Girls"
-            }}</span
+            ><span style="padding-right: 8px">{{ family.girlsCount }}</span
+            >{{ family.girlsCount === 1 ? "Girl" : "Girls" }}</span
           >
         </div>
       </div>
@@ -74,7 +58,9 @@
       </div>
     </div>
     } @empty {
-    <div class="flex justify-center items-center flex-col gap-8 text-center py-12">
+    <div
+      class="flex justify-center items-center flex-col gap-8 text-center py-12"
+    >
       <p class="text-slate-500 text-lg mb-6">
         No families available for adoption at this time.
       </p>

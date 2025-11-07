@@ -4,7 +4,7 @@ import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { AuthService } from '../../auth.service';
-import { Family, FamilyMember, WishItem } from '../../shared/types';
+import { Family, WishItem } from '../../shared/types';
 import { SupabaseService } from '../../supabase.service';
 import { MemberDetailsComponent } from '../nominate-family/member-details/member-details.component';
 

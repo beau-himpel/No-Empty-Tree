@@ -38,12 +38,12 @@ export class FamilyDetailsComponent {
   private readonly authService = inject(AuthService);
   private readonly breakpointService = inject(BreakpointService);
 
-  family = input.required<Family>();
+  // family = input.required<Family>();
+  family = input<Family | null>(null);
   currentUser = this.authService.currentUser;
   readonly isMobile = this.breakpointService.isMobile;
 
   showConfirmationModal = signal<boolean>(false);
-  pendingFamily = signal<Family | null>(null);
   modalType = signal<'all' | 'remaining'>('all');
   
   readonly familyCounts = computed(() => {
@@ -101,13 +101,12 @@ export class FamilyDetailsComponent {
     const selectedFamily = this.family();
     if (!selectedFamily) return;
     
-    this.pendingFamily.set(selectedFamily);
     this.modalType.set('all');
     this.showConfirmationModal.set(true);
   }
 
   async confirmAdoption() {
-    const family = this.pendingFamily();
+    const family = this.family();
     if (!family) return;
 
     const user = this.currentUser();
@@ -159,13 +158,11 @@ export class FamilyDetailsComponent {
       // You might want to show a user-friendly error message here
     } finally {
       this.showConfirmationModal.set(false);
-      this.pendingFamily.set(null);
     }
   }
 
   cancelAdoption() {
     this.showConfirmationModal.set(false);
-    this.pendingFamily.set(null);
   }
 
   hasAnyAdoptedItems(): boolean {
@@ -195,7 +192,6 @@ export class FamilyDetailsComponent {
     const selectedFamily = this.family();
     if (!selectedFamily) return;
     
-    this.pendingFamily.set(selectedFamily);
     this.modalType.set('remaining');
     this.showConfirmationModal.set(true);
   }
