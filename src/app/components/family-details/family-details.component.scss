@@ -120,47 +120,6 @@
 }
 
 
-
-/* Override PrimeNG Dialog styling */
-:host ::ng-deep .p-dialog {
-  background: white !important;
-  
-  .p-dialog-header {
-    display: flex;
-    justify-content: center;
-    padding: 1.5rem;
-    
-    .p-dialog-title {
-      color: #2d3748;
-      font-weight: 600;
-      font-size: 1.125rem;
-    }
-  }
-  
-  .p-dialog-content {
-    background: white !important;
-    padding: 0 1.5rem 1.5rem 1.5rem;
-    text-align: center;
-  }
-  
-  .p-dialog-footer {
-    background: white !important;
-    padding: 1rem 1.5rem 1.5rem 1.5rem;
-  }
-}
-
-/* Modal backdrop styling */
-:host ::ng-deep .p-dialog-mask {
-  background-color: rgba(0, 0, 0, 0.4) !important;
-  backdrop-filter: blur(2px);
-  z-index: 1000;
-}
-
-:host ::ng-deep .p-dialog {
-  z-index: 1001;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-}
-
 @media (max-width: 768px) {
   .family-details {
     padding: .5rem;

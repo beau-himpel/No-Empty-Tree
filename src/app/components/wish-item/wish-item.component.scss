@@ -12,7 +12,6 @@
     opacity: 0.8;
   }
 
-
   .item-actions {
     display: flex;
     flex-direction: column;
@@ -32,24 +31,6 @@
         font-size: 0.75rem;
         font-weight: 600;
         margin-bottom: 0.5rem;
-      }
-
-      .debug-btn {
-        background: #e2e8f0;
-        border: 1px solid #cbd5e0;
-        color: #4a5568;
-        font-size: 0.7rem;
-        padding: 0.25rem 0.5rem;
-        border-radius: 4px;
-        cursor: pointer;
-        margin-top: 0.25rem;
-        transition: all 0.2s ease;
-
-        &:hover {
-          background: #cbd5e0;
-          border-color: #a0aec0;
-          color: #2d3748;
-        }
       }
     }
   }
