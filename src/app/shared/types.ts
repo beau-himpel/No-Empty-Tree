@@ -31,9 +31,7 @@ export interface WishItem {
   size?: string;
   is_adopted: boolean;
   adopted_by?: string;
-  adopted_by_name?: {
-    full_name: string;
-  };
+  adopted_by_name?: string;
   link?: string;
   details?: string;
   created_at: string;

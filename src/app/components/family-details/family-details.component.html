@@ -98,7 +98,7 @@
             isWishlistCollapsed(member.first_name) ? 'collapsed' : 'expanded'
           "
         >
-          @for (item of getSortedWishList(member.wishlist_items || []); track
+          @for (item of (member.wishlist_items || []); track
           item.id) {
           <app-wish-item
             [item]="item"

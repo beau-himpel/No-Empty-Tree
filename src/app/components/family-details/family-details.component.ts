@@ -82,22 +82,13 @@ export class FamilyDetailsComponent {
 
     return {
       adultCount: selectedFamily.family_members.filter(
-        (member) => !member.is_parent
+        (member) => member.is_parent
       ).length,
       childCount: selectedFamily.family_members.filter(
-        (member) => member.is_parent
+        (member) => !member.is_parent
       ).length,
     };
   });
-
-  getSortedWishList(wishList: WishItem[]): WishItem[] {
-    return [...wishList].sort((a, b) => {
-      if (!a.is_adopted && b.is_adopted) return -1;
-      if (a.is_adopted && !b.is_adopted) return 1;
-
-      return 0;
-    });
-  }
 
   isMemberExpanded(memberName: string): boolean {
     return this.expandedMembers().has(memberName);
@@ -112,6 +103,7 @@ export class FamilyDetailsComponent {
 
       item.is_adopted = true;
       item.adopted_by = user?.id;
+      item.adopted_by_name = user.user_metadata?.['full_name']
 
       this.refreshFamilyData(family);
     } catch (error) {
