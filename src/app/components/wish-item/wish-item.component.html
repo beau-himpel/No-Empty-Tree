@@ -5,12 +5,12 @@
     <div class="adopted-info">
       <div class="adopted-by">
         Adopted by
-        {{ (item().adopted_by_name || item().adopted_by) | titlecase }}
+        {{ item().adopted_by_name?.full_name | titlecase }}
       </div>
       @if (isAdoptedByCurrentUser()) {
       <button
         class="bg-white hover:bg-red-50 text-red-500 border border-red-500 font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
-        (click)="onUnadoptItem()"
+        (click)="showUnadoptConfirmationModal.set(true)"
       >
         <div class="flex items-center justify-center w-full gap-4">
           <span>Unadopt</span>
@@ -22,7 +22,7 @@
     } @else {
     <button
       class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
-      (click)="onAdoptItem()"
+      (click)="adoptItem.emit()"
     >
       <div class="flex items-center gap-4">
         <span>Adopt</span>
@@ -32,3 +32,32 @@
     }
   </div>
 </div>
+
+<p-dialog
+  header="Confirm Unadoption"
+  [(visible)]="showUnadoptConfirmationModal"
+  [modal]="true"
+  [closable]="false"
+  [style]="{ width: '450px' }"
+  [draggable]="false"
+  [resizable]="false"
+>
+  <p>Are you sure you want to unadopt this wish list item?</p>
+
+  <ng-template pTemplate="footer">
+    <div class="dialog-actions">
+      <button
+        class="cancel-btn"
+        (click)="showUnadoptConfirmationModal.set(false)"
+      >
+        Cancel
+      </button>
+      <button class="confirm-btn" (click)="unadoptItem.emit()">
+        <div class="flex items-center gap-4">
+          <span>Yes, unadopt item</span>
+          <i class="pi pi-undo"></i>
+        </div>
+      </button>
+    </div>
+  </ng-template>
+</p-dialog>

@@ -256,11 +256,11 @@
   <div class="mb-8">
     <div class="member-content">
       @if (showMemberDetails()) {
-      <app-member-details
+      <app-member-info
         [member]="currentMember()"
         (memberUpdated)="onMemberUpdated($event)"
       >
-      </app-member-details>
+      </app-member-info>
       } @else {
       <app-item-form
         [memberName]="currentMember().name"

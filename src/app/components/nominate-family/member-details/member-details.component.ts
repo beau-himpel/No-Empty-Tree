@@ -1,97 +1,54 @@
+import {
+  Component,
+  input,
+  output,
+  signal,
+  inject,
+} from '@angular/core';
+import { trigger, state, style, transition, animate } from '@angular/animations';
 import { CommonModule } from '@angular/common';
-import { Component, computed, EventEmitter, inject, Input, Output } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { SelectModule } from 'primeng/select';
-
-export interface FamilyMember {
-  id: string;
-  name: string;
-  age: number;
-  gender: string;
-  ethnicity: string;
-  isChild: boolean;
-  items: any[];
-}
+import { FamilyMember, WishItem } from '../../../shared/types';
+import { WishItemComponent } from '../../wish-item/wish-item.component';
+import { BreakpointService } from '../../../breakpoint.service';
 
 @Component({
   selector: 'app-member-details',
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule,
-    ButtonModule,
-    InputTextModule,
-    SelectModule
+    WishItemComponent,
   ],
   templateUrl: './member-details.component.html',
-  styleUrls: ['./member-details.component.scss']
+  styleUrls: ['./member-details.component.scss'],
+  animations: [
+    trigger('slideDown', [
+      state('collapsed', style({ height: '0px', opacity: 0, overflow: 'hidden' })),
+      state('expanded', style({ height: '*', opacity: 1, overflow: 'visible' })),
+      transition('collapsed <=> expanded', animate('300ms ease-in-out'))
+    ])
+  ]
 })
 export class MemberDetailsComponent {
-  private readonly fb = inject(FormBuilder);
+  member = input.required<FamilyMember>();
+  
+  adoptItem = output<WishItem>();
+  unadoptItem = output<WishItem>();
 
-  @Input() member: FamilyMember = {
-    id: '',
-    name: '',
-    age: 0,
-    gender: '',
-    ethnicity: '',
-    isChild: false,
-    items: []
-  };
-  @Output() memberUpdated = new EventEmitter<FamilyMember>();
+  private readonly breakpointService = inject(BreakpointService);
+  readonly isMobile = this.breakpointService.isMobile;
+  
+  isCollapsed = signal<boolean>(true);
 
-  readonly memberForm = this.fb.group({
-    name: ['', [Validators.required]],
-    age: [0, [Validators.required, Validators.min(1)]],
-    gender: ['', [Validators.required]],
-    ethnicity: [''],
-    isChild: [false, [Validators.required]]
-  });
-
-  readonly genderOptions = [
-    { label: 'Male', value: 'Male' },
-    { label: 'Female', value: 'Female' },
-  ];
-
-  readonly memberTypeOptions = [
-    { label: 'Child', value: true },
-    { label: 'Adult', value: false }
-  ];
-
-  readonly isMemberBasicInfoValid = computed(() => {
-    const member = this.member;
-    return !!(
-      member.name.trim() &&
-      member.age > 0 &&
-      member.gender &&
-      member.isChild !== undefined
+  isAllItemsAdopted(member: FamilyMember): boolean {
+    return (
+      (member.wishlist_items?.length || 0) > 0 &&
+      (member.wishlist_items?.every((item) => item.is_adopted) || false)
     );
-  });
-
-  ngOnInit() {
-    this.memberForm.patchValue(this.member);
-    
-    // Subscribe to form changes
-    this.memberForm.valueChanges.subscribe(formValue => {
-      const updatedMember = {
-        ...this.member,
-        id: this.member.id, // Preserve the ID
-        name: formValue.name || '',
-        age: formValue.age || 0,
-        gender: formValue.gender || '',
-        ethnicity: formValue.ethnicity || '',
-        isChild: formValue.isChild || false
-      };
-      this.memberUpdated.emit(updatedMember);
-    });
   }
 
-  // Form getters for template
-  get memberName() { return this.memberForm.get('name'); }
-  get memberAge() { return this.memberForm.get('age'); }
-  get memberGender() { return this.memberForm.get('gender'); }
-  get memberEthnicity() { return this.memberForm.get('ethnicity'); }
-  get memberType() { return this.memberForm.get('isChild'); }
+  toggleWishlist(event: Event) {
+    event.stopPropagation();
+    this.isCollapsed.update(value => !value);
+  }
 }
+

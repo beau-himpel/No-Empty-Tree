@@ -7,20 +7,27 @@
   [draggable]="false"
   [resizable]="false"
 >
-  <div class="confirmation-content">
-    <p>
-      Are you sure you want to delete {{ memberName || 'this family member' }} and all associated wish
-      list items?
-    </p>
-  </div>
+  <p>
+    Are you sure you want to delete {{ memberName || "this family member" }} and
+    all associated wish list items?
+  </p>
 
   <ng-template pTemplate="footer">
     <div class="flex justify-end gap-8">
-      <button class="cancel-btn" (click)="onCancel()">Cancel</button>
-      <button class="confirm-btn" (click)="onConfirm()">
-        <div class="flex items-center gap-4">
+      <button
+        class="border border-black font-medium py-2 px-4 rounded-lg flex items-center gap-2"
+        (click)="cancelled.emit()"
+      >
+        <span>Cancel</span>
+      </button>
+
+      <button
+        class="bg-red-500 hover:bg-red-600 text-white border font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
+        (click)="confirmed.emit()"
+      >
+        <div class="flex items-center justify-center w-full gap-4">
           <span>Delete</span>
-          <i class="pi pi-heart-fill"></i>
+          <i class="pi pi-trash"></i>
         </div>
       </button>
     </div>

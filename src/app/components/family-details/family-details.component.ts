@@ -1,22 +1,20 @@
+import { CommonModule } from '@angular/common';
 import {
   Component,
-  input,
-  signal,
   computed,
-  output,
   inject,
-  effect,
+  input,
+  output,
+  signal,
 } from '@angular/core';
-import { trigger, state, style, transition, animate } from '@angular/animations';
-import { CommonModule } from '@angular/common';
+import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
-import { Family, FamilyMember, WishItem } from '../../shared/types';
-import { WishItemComponent } from '../wish-item/wish-item.component';
-import { SupabaseService } from '../../supabase.service';
 import { AuthService } from '../../auth.service';
-import { MessageService } from 'primeng/api';
 import { BreakpointService } from '../../breakpoint.service';
+import { Family, WishItem } from '../../shared/types';
+import { SupabaseService } from '../../supabase.service';
+import { MemberDetailsComponent } from '../nominate-family/member-details/member-details.component';
 
 @Component({
   selector: 'app-family-details',
@@ -25,57 +23,29 @@ import { BreakpointService } from '../../breakpoint.service';
     CommonModule,
     ButtonModule,
     DialogModule,
-    WishItemComponent,
+    MemberDetailsComponent,
   ],
   providers: [MessageService],
   templateUrl: './family-details.component.html',
   styleUrls: ['./family-details.component.scss'],
-  animations: [
-    trigger('slideDown', [
-      state('collapsed', style({ height: '0px', opacity: 0, overflow: 'hidden' })),
-      state('expanded', style({ height: '*', opacity: 1, overflow: 'visible' })),
-      transition('collapsed <=> expanded', animate('300ms ease-in-out'))
-    ])
-  ]
 })
 export class FamilyDetailsComponent {
+  closeRequested = output<void>();
+  dataRefreshRequested = output<void>();
+
   private supabaseService = inject(SupabaseService);
   private messageService = inject(MessageService);
   private readonly authService = inject(AuthService);
   private readonly breakpointService = inject(BreakpointService);
 
-  family = input<Family | null>(null);
+  family = input.required<Family>();
   currentUser = this.authService.currentUser;
-  expandedMembers = signal<Set<string>>(new Set());
-  collapsedMembers = signal<Set<string>>(new Set());
-  closeRequested = output<void>();
-  dataRefreshRequested = output<void>();
   readonly isMobile = this.breakpointService.isMobile;
-
-  private initializeCollapsedMembers() {
-    const selectedFamily = this.family();
-    if (selectedFamily) {
-      const memberNames = new Set(selectedFamily.family_members.map(member => member.first_name));
-      this.collapsedMembers.set(memberNames);
-    }
-  }
-
-  constructor() {
-    effect(() => {
-      const selectedFamily = this.family();
-      if (selectedFamily) {
-        this.initializeCollapsedMembers();
-      }
-    });
-  }
 
   showConfirmationModal = signal<boolean>(false);
   pendingFamily = signal<Family | null>(null);
   modalType = signal<'all' | 'remaining'>('all');
   
-  showUnadoptConfirmationModal = signal<boolean>(false);
-  pendingUnadoptItem = signal<{ item: WishItem; family: Family } | null>(null);
-
   readonly familyCounts = computed(() => {
     const selectedFamily = this.family();
     if (!selectedFamily) return { adultCount: 0, childCount: 0 };
@@ -90,68 +60,35 @@ export class FamilyDetailsComponent {
     };
   });
 
-  isMemberExpanded(memberName: string): boolean {
-    return this.expandedMembers().has(memberName);
-  }
-
-  async adoptItem(item: WishItem, family: Family) {
+  async adoptItem(item: WishItem) {
     const user = this.currentUser();
     if (!user) return;
+
+    const selectedFamily = this.family();
+    if (!selectedFamily) return;
 
     try {
       await this.supabaseService.adoptWishlistItem(item.id, user?.id);
 
       item.is_adopted = true;
       item.adopted_by = user?.id;
-      item.adopted_by_name = user.user_metadata?.['full_name']
+      item.adopted_by_name = {full_name: user.user_metadata?.['full_name']}
 
-      this.refreshFamilyData(family);
+      this.dataRefreshRequested.emit();
     } catch (error) {
       this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error adopting item' });
     }
   }
 
-  private refreshFamilyData(family: Family) {
-    this.dataRefreshRequested.emit();
-  }
-
-  showUnadoptConfirmation(item: WishItem, family: Family) {
-    this.pendingUnadoptItem.set({ item, family });
-    this.showUnadoptConfirmationModal.set(true);
-  }
-
-  async confirmUnadopt() {
-    const pendingData = this.pendingUnadoptItem();
-    if (!pendingData) return;
-
-    const { item, family } = pendingData;
-
+  async unadoptItem(item: WishItem) {
     try {
       await this.supabaseService.unadoptWishlistItem(item.id);
 
       item.is_adopted = false;
       item.adopted_by = undefined;
-
-      const member = family.family_members.find((m) =>
-        m.wishlist_items?.includes(item)
-      );
-      if (member) {
-        const current = this.expandedMembers();
-        const newSet = new Set(current);
-        newSet.add(member.first_name);
-        this.expandedMembers.set(newSet);
-      }
     } catch (error) {
       this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error unadopting item' });
-    } finally {
-      this.showUnadoptConfirmationModal.set(false);
-      this.pendingUnadoptItem.set(null);
     }
-  }
-
-  cancelUnadopt() {
-    this.showUnadoptConfirmationModal.set(false);
-    this.pendingUnadoptItem.set(null);
   }
 
   isAdoptedByCurrentUser(item: WishItem): boolean {
@@ -159,9 +96,12 @@ export class FamilyDetailsComponent {
     return item.is_adopted && item.adopted_by === user?.id;
   }
 
-  showAdoptAllConfirmation(family: Family, event: Event) {
+  showAdoptAllConfirmation(event: Event) {
     event.stopPropagation();
-    this.pendingFamily.set(family);
+    const selectedFamily = this.family();
+    if (!selectedFamily) return;
+    
+    this.pendingFamily.set(selectedFamily);
     this.modalType.set('all');
     this.showConfirmationModal.set(true);
   }
@@ -214,7 +154,7 @@ export class FamilyDetailsComponent {
         });
       }
 
-      this.refreshFamilyData(family);
+      this.dataRefreshRequested.emit();
     } catch (error) {
       // You might want to show a user-friendly error message here
     } finally {
@@ -228,22 +168,21 @@ export class FamilyDetailsComponent {
     this.pendingFamily.set(null);
   }
 
-  isAllItemsAdopted(member: FamilyMember): boolean {
-    return (
-      (member.wishlist_items?.length || 0) > 0 &&
-      (member.wishlist_items?.every((item) => item.is_adopted) || false)
-    );
-  }
-
-  hasAnyAdoptedItems(family: Family): boolean {
-    return family.family_members.some(
+  hasAnyAdoptedItems(): boolean {
+    const selectedFamily = this.family();
+    if (!selectedFamily) return false;
+    
+    return selectedFamily.family_members.some(
       (member) =>
         member.wishlist_items?.some((item) => item.is_adopted) || false
     );
   }
 
-  areAllItemsAdopted(family: Family): boolean {
-    return family.family_members.every(
+  areAllItemsAdopted(): boolean {
+    const selectedFamily = this.family();
+    if (!selectedFamily) return false;
+    
+    return selectedFamily.family_members.every(
       (member) =>
         (member.wishlist_items?.length || 0) === 0 ||
         member.wishlist_items?.every((item) => item.is_adopted) ||
@@ -251,26 +190,13 @@ export class FamilyDetailsComponent {
     );
   }
 
-  showAdoptRemainingConfirmation(family: Family, event: Event) {
+  showAdoptRemainingConfirmation(event: Event) {
     event.stopPropagation();
-    this.pendingFamily.set(family);
+    const selectedFamily = this.family();
+    if (!selectedFamily) return;
+    
+    this.pendingFamily.set(selectedFamily);
     this.modalType.set('remaining');
     this.showConfirmationModal.set(true);
-  }
-
-  toggleWishlist(memberFirstName: string, event: Event) {
-    event.stopPropagation();
-    const current = this.collapsedMembers();
-    const newSet = new Set(current);
-    if (newSet.has(memberFirstName)) {
-      newSet.delete(memberFirstName);
-    } else {
-      newSet.add(memberFirstName);
-    }
-    this.collapsedMembers.set(newSet);
-  }
-
-  isWishlistCollapsed(memberFirstName: string): boolean {
-    return this.collapsedMembers().has(memberFirstName);
   }
 }

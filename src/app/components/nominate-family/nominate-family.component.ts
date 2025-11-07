@@ -23,7 +23,7 @@ import { PhoneMaskDirective } from '../../shared/phone-mask.directive';
 import { SupabaseService } from '../../supabase.service';
 import { ConfirmDeleteModalComponent } from '../confirm-delete-modal/confirm-delete-modal.component';
 import { Item, ItemFormComponent } from './item-form/item-form.component';
-import { FamilyMember, MemberDetailsComponent } from './member-details/member-details.component';
+import { FamilyMember, MemberInfoComponent } from './member-info/member-info.component';
 
 interface FamilyInfo {
   name: string;
@@ -49,7 +49,7 @@ interface FamilyInfo {
     SelectModule,
     TooltipModule,
     ToastModule,
-    MemberDetailsComponent,
+    MemberInfoComponent,
     ItemFormComponent,
     ConfirmDeleteModalComponent,
     PhoneMaskDirective,

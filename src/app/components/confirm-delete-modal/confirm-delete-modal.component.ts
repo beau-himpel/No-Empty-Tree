@@ -20,12 +20,4 @@ export class ConfirmDeleteModalComponent {
 
   @Output() confirmed = new EventEmitter<void>();
   @Output() cancelled = new EventEmitter<void>();
-
-  onConfirm() {
-    this.confirmed.emit();
-  }
-
-  onCancel() {
-    this.cancelled.emit();
-  }
 }

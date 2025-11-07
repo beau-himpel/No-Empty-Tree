@@ -1,34 +1,80 @@
-<div class="member-details-container">
-  <form [formGroup]="memberForm" class="form-grid">
-    <div class="form-field">
-      <label for="memberName">Name *</label>
-      <input pInputText id="memberName" formControlName="name" />
+<div class="member-card" [class.all-adopted]="isAllItemsAdopted(member())">
+  <div class="member-header">
+    <h4>{{ member().first_name | titlecase }}</h4>
+    <span class="member-info">{{ member().age }} years old</span>
+
+    <span
+      [ngClass]="
+        member().is_parent
+          ? member().sex === 'male'
+            ? 'man-badge'
+            : 'woman-badge'
+          : member().sex === 'male'
+          ? 'boy-badge'
+          : 'girl-badge'
+      "
+    >
+      {{
+        member().is_parent
+          ? member().sex === "male"
+            ? "Man"
+            : "Woman"
+          : member().sex === "male"
+          ? "Boy"
+          : "Girl"
+      }}
+    </span>
+
+    @if (!isMobile()) {
+    <button
+      class="border border-black text-black font-medium py-2 px-4 rounded-lg flex items-center"
+      (click)="toggleWishlist($event)"
+    >
+      <div class="flex items-center gap-2">
+        <span class="text-sm">{{
+          isCollapsed() ? "Show Wishlist" : "Hide Wishlist"
+        }}</span>
+        <i
+          [class]="isCollapsed() ? 'pi pi-chevron-down' : 'pi pi-chevron-up'"
+        ></i>
+      </div>
+    </button>
+    }
+  </div>
+
+  <div class="flex justify-center w-full">
+    @if (isMobile()) {
+    <button
+      class="border border-black text-black font-medium py-2 px-4 rounded-lg flex items-center mb-4"
+      (click)="toggleWishlist($event)"
+    >
+      <div class="flex items-center gap-2">
+        <span class="text-sm">{{
+          isCollapsed() ? "Show Wishlist" : "Hide Wishlist"
+        }}</span>
+        <i
+          [class]="isCollapsed() ? 'pi pi-chevron-down' : 'pi pi-chevron-up'"
+        ></i>
+      </div>
+    </button>
+    }
+  </div>
+
+  <div
+    class="wish-list"
+    [@slideDown]="isCollapsed() ? 'collapsed' : 'expanded'"
+  >
+    @for (item of (member().wishlist_items || []); track item.id) {
+    <app-wish-item
+      [item]="item"
+      (adoptItem)="adoptItem.emit(item)"
+      (unadoptItem)="unadoptItem.emit(item)"
+    >
+    </app-wish-item>
+    @if (!$last) {
+    <div class="flex justify-center">
+      <div class="h-px w-[50%] bg-[#cbd5e0]"></div>
     </div>
-    <div class="form-field">
-      <label for="memberGender">Gender *</label>
-      <p-select
-        id="memberGender"
-        [options]="genderOptions"
-        formControlName="gender"
-      >
-      </p-select>
-    </div>
-    <div class="form-field">
-      <label for="memberAge">Age</label>
-      <input pInputText id="memberAge" type="number" formControlName="age" />
-    </div>
-    <div class="form-field">
-      <label for="memberEthnicity">Ethnicity</label>
-      <input pInputText id="memberEthnicity" formControlName="ethnicity" />
-    </div>
-    <div class="form-field">
-      <label for="memberType">Adult or Child</label>
-      <p-select
-        id="memberType"
-        [options]="memberTypeOptions"
-        formControlName="isChild"
-      >
-      </p-select>
-    </div>
-  </form>
+    } }
+  </div>
 </div>
