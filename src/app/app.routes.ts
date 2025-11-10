@@ -13,10 +13,10 @@ export const routes: Routes = [
         path: 'adopt-family', 
         loadComponent: () => import('./components/adopt-family/adopt-family.component').then(m => m.AdoptFamilyComponent) 
       },
-      { 
-        path: 'nominate-family', 
-        loadComponent: () => import('./components/nominate-family/nominate-family.component').then(m => m.NominateFamilyComponent) 
-      },
+      // { 
+      //   path: 'nominate-family', 
+      //   loadComponent: () => import('./components/nominate-family/nominate-family.component').then(m => m.NominateFamilyComponent) 
+      // },
       { 
         path: 'my-adoptions', 
         loadComponent: () => import('./components/my-adoptions/my-adoptions.component').then(m => m.MyAdoptionsComponent) 
