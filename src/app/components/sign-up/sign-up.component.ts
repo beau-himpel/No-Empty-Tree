@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, EventEmitter, inject, Output, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -21,9 +21,10 @@ import { AuthService } from '../../auth.service';
   styleUrls: ['./sign-up.component.scss']
 })
 export class SignUpComponent {
+  @Output() showSignIn = new EventEmitter<void>();
+
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
-  
   name = signal('');
   email = signal('');
   password = signal('');
@@ -31,7 +32,6 @@ export class SignUpComponent {
   errorMessage = signal('');
   hasSignedUp = signal(false);
 
-  
   async signUpWithEmail(): Promise<void> {
     try {
       this.isLoading.set(true);
@@ -112,20 +112,7 @@ export class SignUpComponent {
     this.router.navigate(['/sign-in']);
   }
 
-  async signUpWithGoogle(): Promise<void> {
-    try {
-      this.isLoading.set(true);
-      this.errorMessage.set('');
-      await this.authService.signInWithGoogle();
-    } catch (error) {
-      console.error('Sign up failed:', error);
-      this.errorMessage.set('Failed to sign up with Google. Please try again.');
-    } finally {
-      this.isLoading.set(false);
-    }
-  }
-
   goToSignIn() {
-    this.router.navigate(['/sign-in']);
+    this.showSignIn.emit();
   }
 }

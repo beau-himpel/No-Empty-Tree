@@ -40,7 +40,8 @@
         Adopt Families
       </div>
 
-      <div
+      @if (nominationsEnabled()) {
+        <div
         class="nav-item"
         [class]="
           isActiveRoute('/nominate-family')
@@ -51,6 +52,7 @@
       >
         Nominate Family
       </div>
+      }
 
       <div
         class="nav-item"

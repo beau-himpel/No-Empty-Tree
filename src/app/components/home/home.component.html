@@ -1,4 +1,4 @@
-  @if (isLoggedIn()) {
+  @if (authService.isLoggedIn()) {
     <div class="flex flex-col min-h-screen">
       <app-header></app-header>
 
@@ -19,7 +19,7 @@
       </div>
 
       <div class="w-full max-w-md">
-        <router-outlet></router-outlet>
+        <app-sign-in></app-sign-in>
       </div>
     </div>
   </div>

@@ -70,7 +70,6 @@ export class NominateFamilyComponent implements OnInit {
   showValidationModal = signal(false);
   validationMemberIndex = signal<number | null>(null);
 
-  // New state signals for saving
   isSaving = signal(false);
   saveError = signal<string | null>(null);
 

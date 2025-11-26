@@ -4,6 +4,7 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../auth.service';
+import { SignUpComponent } from '../sign-up/sign-up.component';
 
 @Component({
   selector: 'app-sign-in',
@@ -11,7 +12,8 @@ import { AuthService } from '../../auth.service';
   imports: [
     ButtonModule,
     InputTextModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    SignUpComponent
   ],
   templateUrl: './sign-in.component.html',
   styleUrls: ['./sign-in.component.scss']
@@ -24,8 +26,9 @@ export class SignInComponent implements OnInit {
   
   signInForm: FormGroup;
   isLoading = signal(false);
-  errorMessage = signal('');
   isSignUp = signal(false);
+  showSignUp = signal(false);
+  errorMessage = signal('');
 
   constructor() {
     this.signInForm = this.fb.group({
@@ -35,7 +38,6 @@ export class SignInComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Check for query params from callback or other redirects
     this.route.queryParams.subscribe(params => {
       if (params['error']) {
         this.errorMessage.set(params['error']);
@@ -108,6 +110,6 @@ export class SignInComponent implements OnInit {
   }
 
   goToSignUp() {
-    this.router.navigate(['/sign-up']);
+    this.showSignUp.set(true);
   }
 } 

@@ -40,9 +40,17 @@ export class AuthService {
   }
 
   private updateAuthState(session: Session | null) {
+    console.log('updateAuthState', session);
     this._session.set(session);
+
+    console.log('setting isLoggedIn to', !!session);
     this._isLoggedIn.set(!!session);
     this._currentUser.set(session?.user ?? null);
+
+    if (!!session) {
+      console.log('redirecting to my-adoptions');
+      this.router.navigate(['/my-adoptions']);
+    }
   }
 
   async signInWithGoogle(): Promise<void> {

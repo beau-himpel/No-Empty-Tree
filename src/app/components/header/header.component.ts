@@ -8,6 +8,7 @@ import { MenuModule } from 'primeng/menu';
 import { ButtonModule } from 'primeng/button';
 import { MenuItem } from 'primeng/api';
 import { Menu } from 'primeng/menu';
+import { NominationSettingsService } from '../../nomination-settings.service';
 
 @Component({
   selector: 'app-header',
@@ -17,12 +18,17 @@ import { Menu } from 'primeng/menu';
   styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent {
+  @ViewChild('menu') menu!: Menu;
+
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
   private readonly breakpointService = inject(BreakpointService);
+  private readonly nominationSettingsService = inject(
+    NominationSettingsService
+  );
   
-  @ViewChild('menu') menu!: Menu;
-  
+  readonly nominationsEnabled =
+    this.nominationSettingsService.nominationsEnabled;
   currentRoute: string = '';
   isMobile = this.breakpointService.isMobile;
 
