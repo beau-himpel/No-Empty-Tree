@@ -1,4 +1,6 @@
 :host {
   display: block;
   width: 100%;
+  // Keep each member card whole when the parent lays cards out in CSS columns
+  break-inside: avoid;
 }
