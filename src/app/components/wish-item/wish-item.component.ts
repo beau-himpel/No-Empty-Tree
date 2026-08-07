@@ -1,6 +1,5 @@
 import { TitleCasePipe } from '@angular/common';
 import { Component, inject, input, output, signal } from '@angular/core';
-import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { AuthService } from '../../auth.service';
 import { WishItem } from '../../shared/types';
@@ -9,7 +8,7 @@ import { ItemInfoComponent } from '../item-info/item-info.component';
 @Component({
   selector: 'app-wish-item',
   standalone: true,
-  imports: [ButtonModule, ItemInfoComponent, DialogModule, TitleCasePipe],
+  imports: [ItemInfoComponent, DialogModule, TitleCasePipe],
   templateUrl: './wish-item.component.html',
   styleUrls: ['./wish-item.component.scss']
 })
@@ -23,6 +22,11 @@ export class WishItemComponent {
 
   private readonly authService = inject(AuthService);
   currentUser = this.authService.currentUser;
+
+  confirmUnadopt(): void {
+    this.showUnadoptConfirmationModal.set(false);
+    this.unadoptItem.emit();
+  }
 
   isAdoptedByCurrentUser(): boolean {
     const user = this.currentUser();

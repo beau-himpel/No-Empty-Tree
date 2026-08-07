@@ -1,4 +1,4 @@
-/* You can add global styles to this file, and also import other style files */
+/* Global styles: design tokens live in tailwind.config.js (pine/berry palettes) */
 
 @tailwind base;
 @tailwind components;
@@ -6,15 +6,12 @@
 
 @import 'primeicons/primeicons.css';
 
-/* Modern Font Stack */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 :root {
   color-scheme: light;
-  --p-accordion-panel-border-width: 3px;
 }
 
-/* Global Styles */
 * {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
 }
@@ -22,8 +19,8 @@
 body {
   margin: 0;
   padding: 0;
-  background: #fafafa;
-  color: #1a1a1a;
+  background: #f7f6f3;
+  color: #1c1917;
   font-weight: 400;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
@@ -35,16 +32,99 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: -0.025em;
 }
 
-/* PrimeNG Component Overrides for Modern Look */
+/* Shared component system — keep every button/badge/card in the app on these
+   classes so the visual language stays consistent across pages. */
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl font-semibold text-sm
+      px-4 py-2.5 transition-colors duration-150 cursor-pointer select-none
+      focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2
+      disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap;
+  }
+
+  .btn-primary {
+    @apply btn bg-pine-700 text-white hover:bg-pine-800 focus-visible:outline-pine-700;
+  }
+
+  .btn-adopt {
+    @apply btn bg-berry-600 text-white hover:bg-berry-700 focus-visible:outline-berry-600;
+  }
+
+  .btn-outline {
+    @apply btn bg-white text-stone-700 border border-stone-300 hover:bg-stone-50 hover:border-stone-400 focus-visible:outline-stone-400;
+  }
+
+  .btn-quiet {
+    @apply btn bg-transparent text-stone-500 hover:bg-stone-100 hover:text-stone-700 focus-visible:outline-stone-400;
+  }
+
+  .btn-unadopt {
+    @apply btn bg-white text-berry-700 border border-berry-200 hover:bg-berry-50 hover:border-berry-300 focus-visible:outline-berry-600;
+  }
+
+  .card {
+    @apply bg-white rounded-2xl border border-stone-200/80 shadow-card;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold;
+  }
+
+  .chip-neutral {
+    @apply chip bg-stone-100 text-stone-600;
+  }
+
+  .chip-boy {
+    @apply chip bg-sky-100 text-sky-800;
+  }
+
+  .chip-girl {
+    @apply chip bg-rose-100 text-rose-800;
+  }
+
+  .chip-adult {
+    @apply chip bg-pine-100 text-pine-800;
+  }
+
+  .chip-done {
+    @apply chip bg-pine-700 text-white;
+  }
+}
+
+/* PrimeNG overrides — dialogs, spinner, toast should read as part of the same system */
 .p-component {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
 }
 
+.p-dialog {
+  border-radius: 1rem;
+  border: 1px solid #e7e5e4;
+  box-shadow: 0 20px 25px -5px rgb(16 31 25 / 0.12), 0 8px 10px -6px rgb(16 31 25 / 0.1);
+  overflow: hidden;
+}
+
+.p-dialog .p-dialog-header {
+  padding: 1.25rem 1.25rem 0.5rem;
+  font-weight: 700;
+  color: #1c1917;
+}
+
+.p-dialog .p-dialog-content {
+  padding: 0.5rem 1.25rem 1rem;
+  color: #57534e;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+.p-dialog .p-dialog-footer {
+  padding: 0.75rem 1.25rem 1.25rem;
+}
+
 /* Remove number input spinners globally */
 input[type="number"] {
-  appearance: textfield; /* Standard property */
-  -moz-appearance: textfield; /* Firefox */
-  
+  appearance: textfield;
+  -moz-appearance: textfield;
+
   &::-webkit-outer-spin-button,
   &::-webkit-inner-spin-button {
     -webkit-appearance: none;
@@ -53,7 +133,7 @@ input[type="number"] {
 }
 
 input, select, textarea {
-  background-color: #fff!important;
-  color: #000!important;
-  border: 1px solid #ccc!important;
+  background-color: #fff !important;
+  color: #1c1917 !important;
+  border: 1px solid #d6d3d1 !important;
 }

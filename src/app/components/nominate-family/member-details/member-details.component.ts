@@ -1,15 +1,8 @@
-import {
-  Component,
-  input,
-  output,
-  signal,
-  inject,
-} from '@angular/core';
+import { Component, computed, input, output, signal } from '@angular/core';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { CommonModule } from '@angular/common';
 import { FamilyMember, WishItem } from '../../../shared/types';
 import { WishItemComponent } from '../../wish-item/wish-item.component';
-import { BreakpointService } from '../../../breakpoint.service';
 
 @Component({
   selector: 'app-member-details',
@@ -35,10 +28,31 @@ export class MemberDetailsComponent {
   adoptItem = output<WishItem>();
   unadoptItem = output<WishItem>();
 
-  private readonly breakpointService = inject(BreakpointService);
-  readonly isMobile = this.breakpointService.isMobile;
-  
   isCollapsed = signal<boolean>(true);
+
+  readonly roleLabel = computed(() => {
+    const member = this.member();
+    if (member.is_parent) {
+      return member.sex === 'male' ? 'Man' : member.sex === 'female' ? 'Woman' : 'Adult';
+    }
+    return member.sex === 'male' ? 'Boy' : member.sex === 'female' ? 'Girl' : 'Child';
+  });
+
+  readonly roleChipClass = computed(() => {
+    const member = this.member();
+    if (member.is_parent) return 'chip-adult';
+    if (member.sex === 'male') return 'chip-boy';
+    if (member.sex === 'female') return 'chip-girl';
+    return 'chip-neutral';
+  });
+
+  readonly giftCounts = computed(() => {
+    const items = this.member().wishlist_items || [];
+    return {
+      total: items.length,
+      adopted: items.filter((item) => item.is_adopted).length,
+    };
+  });
 
   isAllItemsAdopted(member: FamilyMember): boolean {
     return (
@@ -52,4 +66,3 @@ export class MemberDetailsComponent {
     this.isCollapsed.update(value => !value);
   }
 }
-

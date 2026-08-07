@@ -23,7 +23,7 @@ export class HomeComponent implements OnInit {
 
   ngOnInit() {
     if (this.authService.isLoggedIn()) {
-      this.router.navigate(['/my-adoptions']);
+      this.router.navigate(['/adopt-family']);
     }
   }
 }

@@ -8,7 +8,6 @@ import {
   signal,
 } from '@angular/core';
 import { MessageService } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { AuthService } from '../../auth.service';
 import { BreakpointService } from '../../breakpoint.service';
@@ -21,7 +20,6 @@ import { MemberDetailsComponent } from '../nominate-family/member-details/member
   standalone: true,
   imports: [
     CommonModule,
-    ButtonModule,
     DialogModule,
     MemberDetailsComponent,
   ],
