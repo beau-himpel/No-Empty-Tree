@@ -38,20 +38,21 @@ export class MemberDetailsComponent {
     return member.sex === 'male' ? 'Boy' : member.sex === 'female' ? 'Girl' : 'Child';
   });
 
-  readonly roleChipClass = computed(() => {
+  readonly metaLine = computed(() => {
     const member = this.member();
-    if (member.is_parent) return 'chip-adult';
-    if (member.sex === 'male') return 'chip-boy';
-    if (member.sex === 'female') return 'chip-girl';
-    return 'chip-neutral';
-  });
+    const items = member.wishlist_items || [];
+    const adopted = items.filter((item) => item.is_adopted).length;
 
-  readonly giftCounts = computed(() => {
-    const items = this.member().wishlist_items || [];
-    return {
-      total: items.length,
-      adopted: items.filter((item) => item.is_adopted).length,
-    };
+    const parts = [`${this.roleLabel()} · Age ${member.age}`];
+    if (items.length === 0) {
+      parts.push('No wish list items');
+    } else {
+      parts.push(`${items.length} ${items.length === 1 ? 'gift' : 'gifts'}`);
+      if (adopted > 0) {
+        parts.push(`${adopted} adopted`);
+      }
+    }
+    return parts.join(' · ');
   });
 
   isAllItemsAdopted(member: FamilyMember): boolean {

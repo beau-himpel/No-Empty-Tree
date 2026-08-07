@@ -19,7 +19,7 @@
 body {
   margin: 0;
   padding: 0;
-  background: #f7f6f3;
+  background: #ffffff;
   color: #1c1917;
   font-weight: 400;
   line-height: 1.6;
@@ -36,8 +36,8 @@ h1, h2, h3, h4, h5, h6 {
    classes so the visual language stays consistent across pages. */
 @layer components {
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl font-semibold text-sm
-      px-4 py-2.5 transition-colors duration-150 cursor-pointer select-none
+    @apply inline-flex items-center justify-center gap-2 rounded-full font-semibold text-sm
+      px-5 py-2.5 transition-colors duration-150 cursor-pointer select-none
       focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2
       disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap;
   }
@@ -60,34 +60,6 @@ h1, h2, h3, h4, h5, h6 {
 
   .btn-unadopt {
     @apply btn bg-white text-berry-700 border border-berry-200 hover:bg-berry-50 hover:border-berry-300 focus-visible:outline-berry-600;
-  }
-
-  .card {
-    @apply bg-white rounded-2xl border border-stone-200/80 shadow-card;
-  }
-
-  .chip {
-    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold;
-  }
-
-  .chip-neutral {
-    @apply chip bg-stone-100 text-stone-600;
-  }
-
-  .chip-boy {
-    @apply chip bg-sky-100 text-sky-800;
-  }
-
-  .chip-girl {
-    @apply chip bg-rose-100 text-rose-800;
-  }
-
-  .chip-adult {
-    @apply chip bg-pine-100 text-pine-800;
-  }
-
-  .chip-done {
-    @apply chip bg-pine-700 text-white;
   }
 }
 

@@ -1,8 +1,7 @@
+import { TitleCasePipe } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { AuthService } from '../../auth.service';
 import { Family, WishItem } from '../../shared/types';
 import { SupabaseService } from '../../supabase.service';
@@ -11,7 +10,7 @@ import { MemberDetailsComponent } from '../nominate-family/member-details/member
 @Component({
   selector: 'app-my-adoptions',
   standalone: true,
-  imports: [ButtonModule, MemberDetailsComponent, ProgressSpinnerModule],
+  imports: [MemberDetailsComponent, TitleCasePipe],
   providers: [MessageService],
   templateUrl: './my-adoptions.component.html',
   styleUrls: ['./my-adoptions.component.scss'],

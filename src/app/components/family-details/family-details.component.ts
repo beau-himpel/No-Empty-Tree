@@ -1,7 +1,5 @@
-import { CommonModule } from '@angular/common';
 import {
   Component,
-  computed,
   inject,
   input,
   output,
@@ -10,7 +8,6 @@ import {
 import { MessageService } from 'primeng/api';
 import { DialogModule } from 'primeng/dialog';
 import { AuthService } from '../../auth.service';
-import { BreakpointService } from '../../breakpoint.service';
 import { Family, WishItem } from '../../shared/types';
 import { SupabaseService } from '../../supabase.service';
 import { MemberDetailsComponent } from '../nominate-family/member-details/member-details.component';
@@ -19,7 +16,6 @@ import { MemberDetailsComponent } from '../nominate-family/member-details/member
   selector: 'app-family-details',
   standalone: true,
   imports: [
-    CommonModule,
     DialogModule,
     MemberDetailsComponent,
   ],
@@ -28,35 +24,17 @@ import { MemberDetailsComponent } from '../nominate-family/member-details/member
   styleUrls: ['./family-details.component.scss'],
 })
 export class FamilyDetailsComponent {
-  closeRequested = output<void>();
   dataRefreshRequested = output<void>();
 
   private supabaseService = inject(SupabaseService);
   private messageService = inject(MessageService);
   private readonly authService = inject(AuthService);
-  private readonly breakpointService = inject(BreakpointService);
 
-  // family = input.required<Family>();
   family = input<Family | null>(null);
   currentUser = this.authService.currentUser;
-  readonly isMobile = this.breakpointService.isMobile;
 
   showConfirmationModal = signal<boolean>(false);
   modalType = signal<'all' | 'remaining'>('all');
-  
-  readonly familyCounts = computed(() => {
-    const selectedFamily = this.family();
-    if (!selectedFamily) return { adultCount: 0, childCount: 0 };
-
-    return {
-      adultCount: selectedFamily.family_members.filter(
-        (member) => member.is_parent
-      ).length,
-      childCount: selectedFamily.family_members.filter(
-        (member) => !member.is_parent
-      ).length,
-    };
-  });
 
   async adoptItem(item: WishItem) {
     const user = this.currentUser();

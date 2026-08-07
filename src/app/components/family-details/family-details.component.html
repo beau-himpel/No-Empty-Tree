@@ -1,72 +1,42 @@
 @if (family(); as selectedFamily) {
-<section class="card mt-6 overflow-hidden">
-  <div class="relative border-b border-stone-100 p-4 md:p-6">
+<div class="pb-6">
+  <div class="pb-4">
+    @if (areAllItemsAdopted()) {
+    <div class="flex items-center gap-2.5 text-sm font-semibold text-pine-700">
+      <i class="pi pi-check-circle" aria-hidden="true"></i>
+      Every gift for this family has been adopted. Thank you!
+    </div>
+    } @else if (hasAnyAdoptedItems()) {
     <button
       type="button"
-      class="btn-quiet absolute right-3 top-3 !p-2"
-      (click)="closeRequested.emit()"
-      aria-label="Close family details"
+      class="btn-adopt w-full sm:w-auto"
+      (click)="showAdoptRemainingConfirmation($event)"
     >
-      <i class="pi pi-times" aria-hidden="true"></i>
+      <i class="pi pi-heart-fill" aria-hidden="true"></i>
+      Adopt all remaining gifts
     </button>
-
-    <div
-      class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between md:gap-6 md:pr-10"
+    } @else {
+    <button
+      type="button"
+      class="btn-adopt w-full sm:w-auto"
+      (click)="showAdoptAllConfirmation($event)"
     >
-      <div>
-        <h2 class="text-xl md:text-2xl font-bold text-stone-900">
-          The {{ selectedFamily.last_name | titlecase }} Family
-        </h2>
-        <p class="mt-0.5 text-sm text-stone-500">
-          {{ familyCounts().adultCount }}
-          {{ familyCounts().adultCount === 1 ? "adult" : "adults" }} ·
-          {{ familyCounts().childCount }}
-          {{ familyCounts().childCount === 1 ? "child" : "children" }}
-        </p>
-      </div>
-
-      <div class="shrink-0">
-        @if (areAllItemsAdopted()) {
-      <div
-        class="flex items-center gap-2.5 rounded-xl bg-pine-50 px-4 py-3 text-sm font-semibold text-pine-800"
-      >
-        <i class="pi pi-check-circle text-pine-600" aria-hidden="true"></i>
-        Every gift for this family has been adopted. Thank you!
-      </div>
-      } @else if (hasAnyAdoptedItems()) {
-      <button
-        type="button"
-        class="btn-adopt w-full sm:w-auto"
-        (click)="showAdoptRemainingConfirmation($event)"
-      >
-        <i class="pi pi-heart-fill" aria-hidden="true"></i>
-        Adopt all remaining gifts
-      </button>
-      } @else {
-      <button
-        type="button"
-        class="btn-adopt w-full sm:w-auto"
-        (click)="showAdoptAllConfirmation($event)"
-      >
-        <i class="pi pi-heart-fill" aria-hidden="true"></i>
-        Adopt all gifts for this family
-      </button>
-      }
-      </div>
-    </div>
+      <i class="pi pi-heart-fill" aria-hidden="true"></i>
+      Adopt all gifts for this family
+    </button>
+    }
   </div>
 
-  <div class="p-4 pb-0 md:p-6 md:pb-2 lg:columns-2 lg:gap-4">
+  <div class="divide-y divide-stone-100 border-t border-stone-100">
     @for (member of selectedFamily.family_members; track member.id) {
     <app-member-details
-      class="mb-4"
       [member]="member"
       (adoptItem)="adoptItem($event)"
       (unadoptItem)="unadoptItem($event)"
     ></app-member-details>
     }
   </div>
-</section>
+</div>
 }
 
 <p-dialog

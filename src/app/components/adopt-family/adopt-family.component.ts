@@ -32,18 +32,32 @@ export class AdoptFamilyComponent implements OnInit {
   // Breakpoint signals
   readonly isMobile = this.breakpointService.isMobile;
 
-  // Card data: member composition + wish-list adoption progress per family
+  // Row data: member composition summary + wish-list adoption progress per family
   readonly familyCounts = computed(() =>
     this.availableFamilies().map(family => {
-      const items = family.family_members.flatMap(member => member.wishlist_items || []);
+      const members = family.family_members;
+      const adults = members.filter(member => member.is_parent).length;
+      const boys = members.filter(member => !member.is_parent && member.sex === 'male').length;
+      const girls = members.filter(member => !member.is_parent && member.sex === 'female').length;
+      const otherChildren = members.filter(
+        member => !member.is_parent && member.sex !== 'male' && member.sex !== 'female'
+      ).length;
+
+      const summaryParts: string[] = [];
+      if (adults > 0) summaryParts.push(`${adults} ${adults === 1 ? 'adult' : 'adults'}`);
+      if (boys > 0) summaryParts.push(`${boys} ${boys === 1 ? 'boy' : 'boys'}`);
+      if (girls > 0) summaryParts.push(`${girls} ${girls === 1 ? 'girl' : 'girls'}`);
+      if (otherChildren > 0) {
+        summaryParts.push(`${otherChildren} ${otherChildren === 1 ? 'child' : 'children'}`);
+      }
+
+      const items = members.flatMap(member => member.wishlist_items || []);
       const adoptedGifts = items.filter(item => item.is_adopted).length;
       const totalGifts = items.length;
 
       return {
         info: family,
-        adultCount: family.family_members.filter(member => member.is_parent).length,
-        boysCount: family.family_members.filter(member => !member.is_parent && member.sex === 'male').length,
-        girlsCount: family.family_members.filter(member => !member.is_parent && member.sex === 'female').length,
+        summary: summaryParts.join(' · '),
         totalGifts,
         adoptedGifts,
         progressPct: totalGifts === 0 ? 0 : Math.round((adoptedGifts / totalGifts) * 100),
@@ -87,10 +101,6 @@ export class AdoptFamilyComponent implements OnInit {
         }, 0);
       }
     }
-  }
-
-  onFamilyDetailsClose() {
-    this.selectedFamily.set(null);
   }
 
   navigateToNominate() {
