@@ -31,29 +31,30 @@ Key facts that shape the design:
    stored in Supabase user metadata / a `profiles` table and later displayed as
    "Adopted by {name}" on items. Email signups may require email confirmation
    (redirects back via `/auth/callback`).
-3. **After sign-in** — The user is redirected to **My Adoptions**. The app shell appears:
-   sticky white header with the gradient brand title, nav tabs ("Adopt Families",
-   "My Adoptions", conditionally "Nominate Family"), and a red "Logout" item.
-4. **Adopt Families page** (`/adopt-family`) — A responsive grid of **family cards**. Each
-   card shows the family's last name and three gradient count pills: Adults
-   (indigo→purple), Boys (blue→cyan), Girls (pink→rose). Clicking a card toggles an
-   inline **family details panel** below the grid (on mobile it auto-scrolls to the
-   panel).
-5. **Family details panel** — Shows "The {LastName} Family" with adult/child counts and a
-   prominent red **"Adopt all items for this family"** button (becomes "Adopt all
-   remaining items" if some are taken; becomes a red "All items have been adopted!"
-   banner when everything is claimed — note: the current template has a typo, "neen").
-   Below, one **member card** per family member (sorted oldest→youngest) with name, age,
-   and a colored role badge (Man/Woman/Boy/Girl), plus a collapsible **wish list**.
-6. **Wish list items** — Each item shows category, description, and optional color, size,
-   free-text details, and an external "View Item" product link. Unadopted items have a
-   red "Adopt" (heart icon) button. Adopted items show "Adopted by {full name}", and —
-   only for the adopter themself — an "Unadopt" button with a confirmation dialog.
-   "Adopt all" also goes through a confirmation dialog (PrimeNG `p-dialog`).
-7. **My Adoptions page** (`/my-adoptions`) — The signed-in user's commitments, grouped by
-   family, reusing the same member-card/wish-list components but filtered to only the
-   items they adopted. Items can be unadopted here too. Empty state offers a red
-   "Browse families" button.
+3. **After sign-in** — The user lands on **Adopt Families**. The app shell appears: a
+   sticky white top bar (tree logo + "No Empty Tree", log out), desktop nav links, and on
+   phones a bottom tab bar (Families / My Adoptions, plus Nominate when enabled). Token
+   refreshes and page reloads keep the user on their current page.
+4. **Adopt Families page** (`/adopt-family`) — A hero number ("N gifts still need a home")
+   with overall progress, then a divided list of families: "Need gifts" first, "Fully
+   adopted" below. Grouping is decided once per page load so rows never move while
+   someone is adopting. Each row shows the family name, a member summary, a mini progress
+   bar, and "N left of M gifts". Tapping a row expands its details inline (animated); the
+   open row's header sticks under the top bar, and switching families keeps the tapped row
+   in place. On mobile the opened row scrolls to the top once it has expanded.
+5. **Family details** — An "Adopt all N gifts" / "Adopt remaining N gifts" button that opens
+   a confirm sheet (bottom sheet on phones, centered card on desktop), or a completion
+   message once everything is claimed. Below, one collapsible **member row** per family
+   member (oldest→youngest) with an initial avatar, "Role, age · gift counts", and an
+   "Adopted" mark when all of that member's gifts are claimed.
+6. **Wish list items** — Description, a "Category · Color · Size" line, optional details and
+   a "View item" link. Open items have a compact "Adopt" pill (spinner while saving).
+   Adopted items read "Adopted by you" or "Adopted by {name}". The adopter can "Remove" an
+   item. Single adopt and remove are instant with an **Undo** toast; only adopt-all asks
+   for confirmation.
+7. **My Adoptions page** (`/my-adoptions`) — A hero count of the user's adopted gifts, then
+   their items grouped by family with member rows open by default. Removing an item
+   animates it out (Undo brings it back). Empty state offers "Browse families".
 
 ## Secondary workflow: nomination (currently disabled)
 
@@ -84,72 +85,79 @@ least not break it.
 ## Technical structure
 
 - **Stack**: Angular 20 (standalone components, signals, new `@if`/`@for` control flow),
-  PrimeNG 20 + PrimeIcons (buttons, dialogs, spinners, mobile popup menu), Tailwind CSS
-  utilities in templates, plus per-component SCSS files for bespoke styling. Deployed on
-  Vercel (`noemptytree.com`); backend is Supabase (project URL/keys in
+  Tailwind CSS with a shared component layer in `src/styles.scss`, Angular CDK (confirm
+  sheet), `@angular/animations` (expand/collapse), and the Geist variable font
+  (self-hosted via `@fontsource-variable/geist`). PrimeNG 20 + PrimeIcons remain: icons
+  everywhere, PrimeNG components only in the nomination wizard and auth screens. Deployed
+  on Vercel (`noemptytree.com`); backend is Supabase (project URL/keys in
   `src/environments/`).
 - **Routing** (`src/app/app.routes.ts`): everything nests under `HomeComponent` at `/`,
   which renders either the landing/sign-in screen (logged out) or the header + routed
-  page (logged in). Routes: `/adopt-family`, `/my-adoptions` (both auth-guarded);
-  unknown paths redirect to `/my-adoptions`.
+  page (logged in). Routes: `/adopt-family`, `/my-adoptions` (both auth-guarded; the guard
+  waits for the stored session to restore). Unknown paths redirect to `/adopt-family`.
+  Route changes cross-fade via the View Transitions API (`withViewTransitions`).
 - **Key files**:
-  - `src/app/components/home/` — app shell + landing page split
+  - `src/app/components/home/` — app shell + landing page split; hosts the toast
   - `src/app/components/sign-in/`, `sign-up/`, `auth-callback/` — auth UI
-  - `src/app/components/header/` — sticky nav; hamburger + PrimeNG popup menu on mobile
-  - `src/app/components/adopt-family/` — family card grid page
-  - `src/app/components/family-details/` — inline details panel + adopt-all dialogs
-  - `src/app/components/nominate-family/member-details/` — member card with collapsible
+  - `src/app/components/header/` — sticky top bar, desktop nav, mobile bottom tab bar
+  - `src/app/components/adopt-family/` — hero + family list page
+  - `src/app/components/family-details/` — inline details + adopt-all
+  - `src/app/components/nominate-family/member-details/` — collapsible member row with
     wish list (reused by both adopt-family and my-adoptions pages)
   - `src/app/components/wish-item/` + `item-info/` — single wish-list item row + its info
+    (`item-info` is also used by the nomination wizard)
   - `src/app/components/my-adoptions/` — user's adopted items page
   - `src/app/components/nominate-family/` (+ `member-info/`, `item-form/`,
     `confirm-delete-modal/`) — dormant nomination wizard
+  - `src/app/adoption.service.ts` — every adopt/unadopt goes through here (pending state,
+    undo toasts, error handling, `version` signal)
+  - `src/app/shared/` — `toast/`, `confirm/` (CDK confirm sheet), `animated-number`,
+    `animations.ts`, `motion.ts` (reduced-motion helpers)
   - `src/app/supabase.service.ts` — all data access; `auth.service.ts` — session state
     (signals); `breakpoint.service.ts` — `isMobile` signal (breakpoint < 768px)
 - **State**: no global store; Angular signals inside services/components. Data is
-  refetched per page load; adopt/unadopt also mutate local objects for instant feedback.
+  refetched per page load; adopt/unadopt mutate local objects for instant feedback, so
+  anything derived from family data must read `AdoptionService.version()` to recompute.
 
 ## Current visual language
 
-- **Brand**: indigo→purple gradient (`from-indigo-500 to-purple-600`) for the title and
-  primary accents; slate grays for text; light gray page background (`bg-gray-100`);
-  white cards with rounded-xl borders.
-- **Action color**: red (`bg-red-500`) with a heart icon for all adopt/unadopt actions —
-  reads as "holiday giving".
-- **Badges**: gradient pills for counts and colored role badges (blue for boys/men, pink
-  for girls/women) defined in component SCSS.
-- **Buttons**: mostly hand-styled Tailwind `<button>` elements; PrimeNG components are
-  used for dialogs, spinners, and the mobile menu, so two visual systems coexist.
+Modeled on Robinhood: one flat white surface, structure from type and hairline dividers,
+color used sparingly.
+
+- **Type**: Geist. Page titles 32/40px semibold with tight tracking (`type-page-title`);
+  a large tabular "hero number" per page (`type-hero-number`); 13px muted section labels.
+  Numbers use tabular figures.
+- **Color**: pine (evergreen) for brand, progress and success; berry (cranberry) only for
+  adopt actions and "Adopted by you"; stone grays for text. Tokens live in
+  `tailwind.config.js`.
+- **Components**: pill buttons (`btn-adopt`, `btn-primary`, `btn-dark`, `btn-outline`,
+  `btn-quiet`, sizes `btn-sm`/`btn-lg`) with press-scale feedback; divided lists rather
+  than cards; dark single-line toasts with an optional action; a confirm sheet that is a
+  bottom sheet on phones.
+- **Motion**: rows expand/collapse with height + fade; hero numbers count to their value;
+  lists fade up with a short stagger on load; chevrons rotate; adopt confirmations pop.
+  Everything respects `prefers-reduced-motion`.
 
 ## Known UI debt / quirks (useful targets for refinement)
 
-- Typo: "All items have **neen** adopted!" in `family-details.component.html`.
-- `text-10xl` in the landing hero is not a standard Tailwind class (may silently not
-  apply).
-- Mixed styling approaches: Tailwind utility classes, per-component SCSS classes
-  (`cancel-btn`, `confirm-btn`, `member-card`, badge classes), and PrimeNG theming all
-  coexist; visual consistency between them is fragile (e.g., dialog footer buttons vs.
-  in-page buttons).
-- The empty state on Adopt Families offers "Nominate a family" and navigates to the
-  disabled `/nominate-family` route (falls through to the wildcard redirect).
-- `@for` loops track members by `first_name` in `family-details` (duplicate first names
-  in a family would collide); other loops track by `id`.
+- The landing/sign-in screen still uses the old indigo→purple look (phase 3), including
+  the non-standard `text-10xl` class.
 - My Adoptions loads **all** families and filters client-side (a dedicated
   `getWishlistItemsByUser` query exists in `supabase.service.ts` but is unused there).
 - No user-facing display of family address/contact info anywhere — adopters currently
   have no in-app guidance on gift drop-off/delivery logistics.
-- The header brand title is `h1` on every page; page titles are `h2`s inside cards.
-- No favicon/meta/social tags customization beyond Angular defaults (check `index.html`).
-- Auth redirect after sign-in always lands on `/my-adoptions`, even for a first-time
-  user whose natural next step is browsing families to adopt.
+- The header brand title is `h1` on every page; page titles are `h2`s.
+- The favicon is still the Angular default (title, description and theme color are set).
+- Unadopt isn't guarded server-side to the adopter (the UI only offers it to them).
+  Adopt is guarded: it only succeeds while the item is still unadopted.
 
 ## Constraints for UI work
 
 - Keep `SupabaseService` method signatures and data flow intact unless intentionally
   refactoring data access; RLS policies on the Supabase side assume the current tables.
 - Preserve the auth gate: nothing except the landing screen should be visible logged out.
-- Preserve mobile behavior: `isMobile` signal drives the hamburger menu, button
-  placement in member cards, and scroll-into-view on family selection.
+- Preserve mobile behavior: `isMobile` signal drives the bottom-sheet confirm and
+  scroll-into-view on family selection.
 - The nomination wizard should keep working when its feature flag is re-enabled.
 - Deployment is a static Vercel build; environment values are baked in at build time
   from `src/environments/environment.prod.ts`.

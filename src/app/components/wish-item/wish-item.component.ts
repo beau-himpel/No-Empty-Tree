@@ -1,35 +1,41 @@
 import { TitleCasePipe } from '@angular/common';
-import { Component, inject, input, output, signal } from '@angular/core';
-import { DialogModule } from 'primeng/dialog';
-import { AuthService } from '../../auth.service';
+import { Component, computed, inject, input, signal } from '@angular/core';
+import { AdoptionService } from '../../adoption.service';
 import { WishItem } from '../../shared/types';
 import { ItemInfoComponent } from '../item-info/item-info.component';
 
 @Component({
   selector: 'app-wish-item',
   standalone: true,
-  imports: [ItemInfoComponent, DialogModule, TitleCasePipe],
+  imports: [ItemInfoComponent, TitleCasePipe],
   templateUrl: './wish-item.component.html',
   styleUrls: ['./wish-item.component.scss']
 })
 export class WishItemComponent {
   item = input.required<WishItem>();
-  showAdoptedInfo = input<boolean>(false);
-  showUnadoptConfirmationModal = signal<boolean>(false);
+  showAdoptionStatus = input<boolean>(true);
 
-  adoptItem = output();
-  unadoptItem = output();
+  private readonly adoptionService = inject(AdoptionService);
 
-  private readonly authService = inject(AuthService);
-  currentUser = this.authService.currentUser;
+  /** Set only when the current user adopts during this visit, so the confirmation animates once. */
+  readonly justAdopted = signal(false);
 
-  confirmUnadopt(): void {
-    this.showUnadoptConfirmationModal.set(false);
-    this.unadoptItem.emit();
+  readonly status = computed<'open' | 'mine' | 'taken'>(() => {
+    this.adoptionService.version();
+    const item = this.item();
+    if (!item.is_adopted) return 'open';
+    return this.adoptionService.isAdoptedByCurrentUser(item) ? 'mine' : 'taken';
+  });
+
+  readonly pending = computed(() => this.adoptionService.isPending(this.item().id));
+
+  async adopt(): Promise<void> {
+    const adopted = await this.adoptionService.adopt([this.item()]);
+    this.justAdopted.set(adopted > 0);
   }
 
-  isAdoptedByCurrentUser(): boolean {
-    const user = this.currentUser();
-    return this.item().is_adopted && this.item().adopted_by === user?.id;
+  remove(): void {
+    this.justAdopted.set(false);
+    this.adoptionService.unadopt(this.item());
   }
 }

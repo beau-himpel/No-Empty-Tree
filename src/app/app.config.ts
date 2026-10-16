@@ -1,12 +1,12 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZoneChangeDetection } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withViewTransitions } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
 import { definePreset } from '@primeuix/themes';
 import Aura from '@primeuix/themes/aura';
 import { routes } from './app.routes';
 
-// Brand PrimeNG (dialogs, spinner, toast) with the same pine palette used in Tailwind
+// Brand PrimeNG (still used by the nomination flow) with the same pine palette used in Tailwind
 const NoEmptyTreePreset = definePreset(Aura, {
   semantic: {
     primary: {
@@ -29,7 +29,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes),
+    provideRouter(routes, withViewTransitions({ skipInitialTransition: true })),
     provideAnimationsAsync(),
     providePrimeNG({
       theme: { preset: NoEmptyTreePreset }

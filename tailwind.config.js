@@ -37,17 +37,45 @@ module.exports = {
       },
       fontFamily: {
         sans: [
-          'Inter',
+          '"Geist Variable"',
           '-apple-system',
           'BlinkMacSystemFont',
-          'Segoe UI',
+          '"Segoe UI"',
           'Roboto',
           'sans-serif',
         ],
       },
-      boxShadow: {
-        card: '0 1px 2px 0 rgb(16 31 25 / 0.04), 0 1px 3px 0 rgb(16 31 25 / 0.06)',
-        'card-hover': '0 4px 6px -1px rgb(16 31 25 / 0.07), 0 10px 15px -3px rgb(16 31 25 / 0.08)',
+      letterSpacing: {
+        // Robinhood-style tight display tracking
+        display: '-0.035em',
+        title: '-0.025em',
+        snug: '-0.01em',
+      },
+      transitionTimingFunction: {
+        // Fast start, gentle settle: used for everything that enters or expands
+        out: 'cubic-bezier(0.2, 0, 0, 1)',
+        // iOS sheet curve
+        sheet: 'cubic-bezier(0.32, 0.72, 0, 1)',
+      },
+      keyframes: {
+        'fade-up': {
+          from: { opacity: '0', transform: 'translateY(8px)' },
+          to: { opacity: '1', transform: 'none' },
+        },
+        'fade-in': {
+          from: { opacity: '0' },
+          to: { opacity: '1' },
+        },
+        pop: {
+          '0%': { transform: 'scale(0.6)', opacity: '0' },
+          '60%': { transform: 'scale(1.15)', opacity: '1' },
+          '100%': { transform: 'scale(1)' },
+        },
+      },
+      animation: {
+        'fade-up': 'fade-up 360ms cubic-bezier(0.2, 0, 0, 1) both',
+        'fade-in': 'fade-in 240ms ease-out both',
+        pop: 'pop 420ms cubic-bezier(0.2, 0, 0, 1) both',
       },
     },
   },

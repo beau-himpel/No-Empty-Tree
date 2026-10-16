@@ -1,174 +1,76 @@
-import {
-  Component,
-  inject,
-  input,
-  output,
-  signal,
-} from '@angular/core';
-import { MessageService } from 'primeng/api';
-import { DialogModule } from 'primeng/dialog';
-import { AuthService } from '../../auth.service';
+import { TitleCasePipe } from '@angular/common';
+import { Component, computed, inject, input, signal } from '@angular/core';
+import { AdoptionService } from '../../adoption.service';
+import { ConfirmService } from '../../shared/confirm/confirm.service';
 import { Family, WishItem } from '../../shared/types';
-import { SupabaseService } from '../../supabase.service';
 import { MemberDetailsComponent } from '../nominate-family/member-details/member-details.component';
 
 @Component({
   selector: 'app-family-details',
   standalone: true,
-  imports: [
-    DialogModule,
-    MemberDetailsComponent,
-  ],
-  providers: [MessageService],
+  imports: [MemberDetailsComponent],
+  providers: [TitleCasePipe],
   templateUrl: './family-details.component.html',
   styleUrls: ['./family-details.component.scss'],
 })
 export class FamilyDetailsComponent {
-  dataRefreshRequested = output<void>();
-
-  private supabaseService = inject(SupabaseService);
-  private messageService = inject(MessageService);
-  private readonly authService = inject(AuthService);
-
   family = input<Family | null>(null);
-  currentUser = this.authService.currentUser;
 
-  showConfirmationModal = signal<boolean>(false);
-  modalType = signal<'all' | 'remaining'>('all');
+  private readonly adoptionService = inject(AdoptionService);
+  private readonly confirmService = inject(ConfirmService);
+  private readonly titleCase = inject(TitleCasePipe);
 
-  async adoptItem(item: WishItem) {
-    const user = this.currentUser();
-    if (!user) return;
+  readonly adoptingAll = signal(false);
 
-    const selectedFamily = this.family();
-    if (!selectedFamily) return;
+  readonly gifts = computed(() => {
+    this.adoptionService.version();
+    const items: WishItem[] =
+      this.family()?.family_members.flatMap((member) => member.wishlist_items || []) ?? [];
+    const remaining = items.filter((item) => !item.is_adopted);
+    return {
+      total: items.length,
+      remaining,
+      someAdopted: remaining.length < items.length,
+      allAdopted: items.length > 0 && remaining.length === 0,
+    };
+  });
 
-    try {
-      await this.supabaseService.adoptWishlistItem(item.id, user?.id);
+  readonly adoptAllLabel = computed(() => {
+    const { remaining, someAdopted } = this.gifts();
+    const count = remaining.length;
+    if (count === 1) return someAdopted ? 'Adopt the last gift' : 'Adopt this gift';
+    return someAdopted ? `Adopt remaining ${count} gifts` : `Adopt all ${count} gifts`;
+  });
 
-      item.is_adopted = true;
-      item.adopted_by = user?.id;
-      item.adopted_by_name = {full_name: user.user_metadata?.['full_name']}
-
-      this.dataRefreshRequested.emit();
-    } catch (error) {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error adopting item' });
-    }
-  }
-
-  async unadoptItem(item: WishItem) {
-    try {
-      await this.supabaseService.unadoptWishlistItem(item.id);
-
-      item.is_adopted = false;
-      item.adopted_by = undefined;
-    } catch (error) {
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error unadopting item' });
-    }
-  }
-
-  isAdoptedByCurrentUser(item: WishItem): boolean {
-    const user = this.currentUser();
-    return item.is_adopted && item.adopted_by === user?.id;
-  }
-
-  showAdoptAllConfirmation(event: Event) {
-    event.stopPropagation();
-    const selectedFamily = this.family();
-    if (!selectedFamily) return;
-    
-    this.modalType.set('all');
-    this.showConfirmationModal.set(true);
-  }
-
-  async confirmAdoption() {
+  async adoptAll(): Promise<void> {
     const family = this.family();
-    if (!family) return;
+    if (!family || this.adoptingAll()) return;
 
-    const user = this.currentUser();
-    if (!user) return;
+    const { remaining, someAdopted } = this.gifts();
+    const count = remaining.length;
+    if (count === 0) return;
 
+    const familyName = this.titleCase.transform(family.last_name);
+    const confirmed = await this.confirmService.open({
+      icon: 'pi-heart-fill',
+      title:
+        count === 1
+          ? `Adopt the ${someAdopted ? 'last' : 'only'} gift?`
+          : `Adopt ${someAdopted ? 'the remaining' : 'all'} ${count} gifts?`,
+      message: `You're committing to buy ${
+        count === 1 ? 'this gift' : `these ${count} gifts`
+      } for the ${familyName} family. You'll find ${
+        count === 1 ? 'it' : 'them'
+      } in My Adoptions.`,
+      confirmLabel: count === 1 ? 'Adopt gift' : `Adopt ${count} gifts`,
+    });
+    if (!confirmed) return;
+
+    this.adoptingAll.set(true);
     try {
-      const isAllItems = this.modalType() === 'all';
-
-      if (isAllItems) {
-        const adoptPromises = family.family_members.flatMap(
-          (member) =>
-            member.wishlist_items?.map((item) =>
-              this.supabaseService.adoptWishlistItem(item.id, user?.id)
-            ) || []
-        );
-
-        await Promise.all(adoptPromises);
-
-        family.family_members.forEach((member) => {
-          member.wishlist_items?.forEach((item) => {
-            item.is_adopted = true;
-            item.adopted_by = user?.id;
-          });
-        });
-      } else {
-        const adoptPromises = family.family_members.flatMap(
-          (member) =>
-            member.wishlist_items
-              ?.filter((item) => !item.is_adopted)
-              .map((item) =>
-                this.supabaseService.adoptWishlistItem(item.id, user?.id)
-              ) || []
-        );
-
-        await Promise.all(adoptPromises);
-
-        family.family_members.forEach((member) => {
-          member.wishlist_items?.forEach((item) => {
-            if (!item.is_adopted) {
-              item.is_adopted = true;
-              item.adopted_by = user?.id;
-            }
-          });
-        });
-      }
-
-      this.dataRefreshRequested.emit();
-    } catch (error) {
-      // You might want to show a user-friendly error message here
+      await this.adoptionService.adopt(remaining);
     } finally {
-      this.showConfirmationModal.set(false);
+      this.adoptingAll.set(false);
     }
-  }
-
-  cancelAdoption() {
-    this.showConfirmationModal.set(false);
-  }
-
-  hasAnyAdoptedItems(): boolean {
-    const selectedFamily = this.family();
-    if (!selectedFamily) return false;
-    
-    return selectedFamily.family_members.some(
-      (member) =>
-        member.wishlist_items?.some((item) => item.is_adopted) || false
-    );
-  }
-
-  areAllItemsAdopted(): boolean {
-    const selectedFamily = this.family();
-    if (!selectedFamily) return false;
-    
-    return selectedFamily.family_members.every(
-      (member) =>
-        (member.wishlist_items?.length || 0) === 0 ||
-        member.wishlist_items?.every((item) => item.is_adopted) ||
-        false
-    );
-  }
-
-  showAdoptRemainingConfirmation(event: Event) {
-    event.stopPropagation();
-    const selectedFamily = this.family();
-    if (!selectedFamily) return;
-    
-    this.modalType.set('remaining');
-    this.showConfirmationModal.set(true);
   }
 }

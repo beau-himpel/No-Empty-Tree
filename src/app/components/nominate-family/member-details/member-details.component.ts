@@ -1,7 +1,9 @@
-import { Component, computed, input, output, signal } from '@angular/core';
+import { Component, computed, inject, input, linkedSignal } from '@angular/core';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { CommonModule } from '@angular/common';
-import { FamilyMember, WishItem } from '../../../shared/types';
+import { AdoptionService } from '../../../adoption.service';
+import { expandCollapse } from '../../../shared/animations';
+import { FamilyMember } from '../../../shared/types';
 import { WishItemComponent } from '../../wish-item/wish-item.component';
 
 @Component({
@@ -17,18 +19,21 @@ import { WishItemComponent } from '../../wish-item/wish-item.component';
     trigger('slideDown', [
       state('collapsed', style({ height: '0px', opacity: 0, overflow: 'hidden' })),
       state('expanded', style({ height: '*', opacity: 1, overflow: 'visible' })),
-      transition('collapsed <=> expanded', animate('300ms ease-in-out'))
-    ])
+      transition('collapsed => expanded', animate('300ms cubic-bezier(0.2, 0, 0, 1)')),
+      transition('expanded => collapsed', animate('220ms cubic-bezier(0.4, 0, 1, 1)'))
+    ]),
+    expandCollapse,
   ]
 })
 export class MemberDetailsComponent {
   member = input.required<FamilyMember>();
-  showAllAdoptedMessage = input<boolean>(true);
+  /** Off where every item shown is already the viewer's own, e.g. My Adoptions. */
+  showAdoptionStatus = input<boolean>(true);
+  startExpanded = input<boolean>(false);
 
-  adoptItem = output<WishItem>();
-  unadoptItem = output<WishItem>();
+  private readonly adoptionService = inject(AdoptionService);
 
-  isCollapsed = signal<boolean>(true);
+  readonly isCollapsed = linkedSignal(() => !this.startExpanded());
 
   readonly roleLabel = computed(() => {
     const member = this.member();
@@ -38,29 +43,34 @@ export class MemberDetailsComponent {
     return member.sex === 'male' ? 'Boy' : member.sex === 'female' ? 'Girl' : 'Child';
   });
 
-  readonly metaLine = computed(() => {
-    const member = this.member();
-    const items = member.wishlist_items || [];
-    const adopted = items.filter((item) => item.is_adopted).length;
+  private readonly giftCounts = computed(() => {
+    this.adoptionService.version();
+    const items = this.member().wishlist_items || [];
+    return {
+      total: items.length,
+      adopted: items.filter((item) => item.is_adopted).length,
+    };
+  });
 
-    const parts = [`${this.roleLabel()} · Age ${member.age}`];
-    if (items.length === 0) {
-      parts.push('No wish list items');
+  readonly allAdopted = computed(() => {
+    const { total, adopted } = this.giftCounts();
+    return total > 0 && adopted === total;
+  });
+
+  readonly metaLine = computed(() => {
+    const { total, adopted } = this.giftCounts();
+    const parts = [`${this.roleLabel()}, ${this.member().age}`];
+    if (total === 0) {
+      parts.push('No wish list yet');
+    } else if (adopted === 0) {
+      parts.push(`${total} ${total === 1 ? 'gift' : 'gifts'}`);
+    } else if (adopted < total) {
+      parts.push(`${total - adopted} of ${total} gifts left`);
     } else {
-      parts.push(`${items.length} ${items.length === 1 ? 'gift' : 'gifts'}`);
-      if (adopted > 0) {
-        parts.push(`${adopted} adopted`);
-      }
+      parts.push(`${total} ${total === 1 ? 'gift' : 'gifts'}`);
     }
     return parts.join(' · ');
   });
-
-  isAllItemsAdopted(member: FamilyMember): boolean {
-    return (
-      (member.wishlist_items?.length || 0) > 0 &&
-      (member.wishlist_items?.every((item) => item.is_adopted) || false)
-    );
-  }
 
   toggleWishlist(event: Event) {
     event.stopPropagation();

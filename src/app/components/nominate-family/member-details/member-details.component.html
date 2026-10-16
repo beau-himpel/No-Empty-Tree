@@ -1,12 +1,12 @@
 <div>
   <button
     type="button"
-    class="flex w-full items-center gap-3 py-4 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pine-600"
+    class="group flex w-full items-center gap-3 py-4 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pine-600"
     (click)="toggleWishlist($event)"
     [attr.aria-expanded]="!isCollapsed()"
   >
     <span
-      class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold"
+      class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[0.9375rem] font-semibold transition-transform duration-150 group-active:scale-95"
       [ngClass]="
         member().is_parent
           ? 'bg-pine-100 text-pine-800'
@@ -22,43 +22,39 @@
     </span>
 
     <span class="min-w-0 flex-1">
-      <span class="flex items-center justify-between gap-3">
-        <span class="truncate font-semibold text-stone-900">
-          {{ member().first_name | titlecase }}
-        </span>
-        @if (showAllAdoptedMessage() && isAllItemsAdopted(member())) {
-        <span
-          class="flex shrink-0 items-center gap-1.5 text-xs font-semibold text-pine-700"
-        >
-          <i class="pi pi-check-circle" aria-hidden="true"></i>
-          All gifts adopted
-        </span>
-        }
+      <span class="block truncate text-base font-semibold tracking-snug text-stone-900">
+        {{ member().first_name | titlecase }}
       </span>
-      <span class="mt-0.5 block text-sm text-stone-500">{{ metaLine() }}</span>
+      <span class="block text-sm text-stone-500">{{ metaLine() }}</span>
     </span>
 
+    @if (showAdoptionStatus() && allAdopted()) {
+    <span
+      class="flex shrink-0 items-center gap-1 text-sm font-semibold text-pine-700"
+    >
+      <i class="pi pi-check-circle text-[0.8125rem]" aria-hidden="true"></i>
+      Adopted
+    </span>
+    }
+
     <i
-      class="pi shrink-0 text-stone-400"
-      [class.pi-chevron-down]="isCollapsed()"
-      [class.pi-chevron-up]="!isCollapsed()"
+      class="pi pi-chevron-down shrink-0 text-sm text-stone-400 transition-transform duration-300 ease-out"
+      [class.rotate-180]="!isCollapsed()"
       aria-hidden="true"
     ></i>
   </button>
 
-  <div [@slideDown]="isCollapsed() ? 'collapsed' : 'expanded'">
+  <div
+    [@slideDown]="isCollapsed() ? 'collapsed' : 'expanded'"
+    [attr.inert]="isCollapsed() ? '' : null"
+  >
     <div class="pb-2 pl-[3.25rem]">
       <div class="divide-y divide-stone-100">
         @for (item of (member().wishlist_items || []); track item.id) {
-        <app-wish-item
-          [item]="item"
-          (adoptItem)="adoptItem.emit(item)"
-          (unadoptItem)="unadoptItem.emit(item)"
-        >
-        </app-wish-item>
+        <app-wish-item [item]="item" [showAdoptionStatus]="showAdoptionStatus()" @expandCollapse />
         } @empty {
-        <p class="py-3 text-sm italic text-stone-400">
-          No wish list items for this family member.
+        <p class="py-3 text-sm text-stone-400">
+          No wish list items for this family member yet.
         </p>
         }
       </div>

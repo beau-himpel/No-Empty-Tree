@@ -1,61 +1,57 @@
-<div
-  class="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6"
->
-  <app-item-info [item]="item()" [class.opacity-60]="item().is_adopted" />
+<div class="flex items-start gap-4 py-4">
+  <div class="min-w-0 flex-1">
+    <app-item-info [item]="item()" [muted]="status() === 'taken'" />
 
-  <div class="flex shrink-0 flex-col items-stretch gap-2 sm:items-end">
-    @if (item().is_adopted) {
-    <span
-      class="inline-flex items-center justify-center gap-1.5 text-xs font-semibold text-pine-700"
+    @if (status() === 'mine' && showAdoptionStatus()) {
+    <p
+      class="mt-2 flex items-center gap-1.5 text-sm font-semibold text-berry-700"
+      [class.animate-fade-up]="justAdopted()"
     >
-      <i class="pi pi-check-circle" aria-hidden="true"></i>
-      Adopted by {{ item().adopted_by_name?.full_name | titlecase }}
-    </span>
-    @if (isAdoptedByCurrentUser()) {
+      <i
+        class="pi pi-heart-fill text-[0.75rem]"
+        [class.animate-pop]="justAdopted()"
+        aria-hidden="true"
+      ></i>
+      Adopted by you
+    </p>
+    } @else if (status() === 'taken') {
+    <p class="mt-2 flex items-center gap-1.5 text-sm font-medium text-stone-400">
+      <i class="pi pi-check text-[0.75rem]" aria-hidden="true"></i>
+      Adopted by
+      {{ (item().adopted_by_name?.full_name | titlecase) || "another donor" }}
+    </p>
+    }
+  </div>
+
+  <div class="flex shrink-0 justify-end pt-0.5">
+    @if (status() === 'open') {
     <button
       type="button"
-      class="btn-unadopt"
-      (click)="showUnadoptConfirmationModal.set(true)"
+      class="btn-adopt btn-sm min-w-[5.75rem]"
+      [disabled]="pending()"
+      (click)="adopt()"
+      [attr.aria-label]="'Adopt ' + item().description"
     >
-      <i class="pi pi-undo" aria-hidden="true"></i>
-      Unadopt
-    </button>
-    } } @else {
-    <button type="button" class="btn-adopt" (click)="adoptItem.emit()">
-      <i class="pi pi-heart-fill" aria-hidden="true"></i>
+      @if (pending()) {
+      <i class="pi pi-spin pi-spinner text-sm" aria-hidden="true"></i>
+      } @else {
+      <i class="pi pi-heart-fill text-xs" aria-hidden="true"></i>
       Adopt
+      }
+    </button>
+    } @else if (status() === 'mine') {
+    <button
+      type="button"
+      class="btn-quiet btn-sm min-w-[5.75rem]"
+      [class.animate-fade-in]="justAdopted()"
+      [disabled]="pending()"
+      (click)="remove()"
+      [attr.aria-label]="'Remove ' + item().description + ' from my adoptions'"
+    >
+      @if (pending()) {
+      <i class="pi pi-spin pi-spinner text-sm" aria-hidden="true"></i>
+      } @else { Remove }
     </button>
     }
   </div>
 </div>
-
-<p-dialog
-  header="Unadopt this gift?"
-  [(visible)]="showUnadoptConfirmationModal"
-  [modal]="true"
-  [closable]="false"
-  [style]="{ width: '92vw', maxWidth: '26rem' }"
-  [draggable]="false"
-  [resizable]="false"
-  [appendTo]="'body'"
->
-  <p>
-    This wish list item will become available for someone else to adopt.
-  </p>
-
-  <ng-template pTemplate="footer">
-    <div class="flex w-full flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-      <button
-        type="button"
-        class="btn-outline"
-        (click)="showUnadoptConfirmationModal.set(false)"
-      >
-        Cancel
-      </button>
-      <button type="button" class="btn-unadopt" (click)="confirmUnadopt()">
-        <i class="pi pi-undo" aria-hidden="true"></i>
-        Yes, unadopt
-      </button>
-    </div>
-  </ng-template>
-</p-dialog>

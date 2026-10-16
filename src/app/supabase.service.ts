@@ -383,10 +383,12 @@ export class SupabaseService {
     const { data, error } = await this.supabase
       .from('wishlist_items')
       .update({ 
-        is_adopted: true, 
-        adopted_by: adoptedBy 
+        is_adopted: true,
+        adopted_by: adoptedBy
       })
       .eq('id', itemId)
+      // Never take over an item someone else adopted after this page loaded
+      .eq('is_adopted', false)
       .select()
       .single();
 

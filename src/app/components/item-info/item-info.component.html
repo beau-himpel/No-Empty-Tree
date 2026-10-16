@@ -1,29 +1,21 @@
-<div class="min-w-0">
-  <span
-    class="text-[11px] font-bold uppercase tracking-wide text-pine-700"
-  >
-    {{ item().category }}
-  </span>
-  <p class="mt-0.5 font-semibold text-stone-800">
-    {{ item().description }}
-  </p>
-
-  @if (item().color || item().size) {
-  <p class="mt-1 text-sm text-stone-500">
-    @if (item().color) { Color: {{ item().color }} } @if (item().color &&
-    item().size) { · } @if (item().size) { Size: {{ item().size }} }
-  </p>
-  } @if (item().details) {
-  <p class="mt-1 text-sm text-stone-500">{{ item().details }}</p>
-  } @if (item().link) {
-  <a
-    [href]="item().link"
-    target="_blank"
-    rel="noopener noreferrer"
-    class="mt-1.5 inline-flex items-center gap-1.5 text-sm font-semibold text-pine-700 hover:text-pine-800 hover:underline"
-  >
-    View item
-    <i class="pi pi-external-link text-xs" aria-hidden="true"></i>
-  </a>
-  }
-</div>
+<p
+  class="text-[0.9375rem] font-semibold leading-snug tracking-snug transition-colors"
+  [class.text-stone-900]="!muted()"
+  [class.text-stone-400]="muted()"
+>
+  {{ item().description }}
+</p>
+<p class="mt-0.5 text-sm text-stone-500">{{ metaLine() }}</p>
+@if (item().details) {
+<p class="mt-1 text-sm leading-relaxed text-stone-500">{{ item().details }}</p>
+} @if (item().link) {
+<a
+  [href]="item().link"
+  target="_blank"
+  rel="noopener noreferrer"
+  class="mt-1.5 inline-flex items-center gap-1 text-sm font-semibold text-pine-700 hover:text-pine-800 hover:underline"
+>
+  View item
+  <i class="pi pi-arrow-up-right text-[0.6875rem]" aria-hidden="true"></i>
+</a>
+}

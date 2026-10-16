@@ -1,1 +1,3 @@
-/* Styling is handled by the shared Tailwind component system (see styles.scss). */
+:host {
+  display: block;
+}
