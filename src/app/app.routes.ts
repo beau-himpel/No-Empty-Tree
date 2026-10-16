@@ -23,5 +23,5 @@ export const routes: Routes = [
       },
     ]
   },
-  { path: '**', redirectTo: 'my-adoptions' }
+  { path: '**', redirectTo: 'adopt-family' }
 ];

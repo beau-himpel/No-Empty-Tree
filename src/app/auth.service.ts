@@ -16,9 +16,16 @@ export class AuthService {
   readonly currentUser = this._currentUser.asReadonly(); 
   readonly session = this._session.asReadonly();
   readonly userEmail = computed(() => this._currentUser()?.email ?? null);
- 
+
+  private readonly ready: Promise<void>;
+
   constructor(private readonly supabaseService: SupabaseService, private readonly router: Router) {
-    this.initializeAuth();
+    this.ready = this.initializeAuth();
+  }
+
+  /** Resolves once the persisted session (if any) has been restored. */
+  whenReady(): Promise<void> {
+    return this.ready;
   }
 
   private async initializeAuth(): Promise<void> {
@@ -40,17 +47,22 @@ export class AuthService {
   }
 
   private updateAuthState(session: Session | null) {
-    console.log('updateAuthState', session);
-    this._session.set(session);
+    const wasLoggedIn = this._isLoggedIn();
 
-    console.log('setting isLoggedIn to', !!session);
+    this._session.set(session);
     this._isLoggedIn.set(!!session);
     this._currentUser.set(session?.user ?? null);
 
-    if (!!session) {
-      console.log('redirecting to my-adoptions');
-      this.router.navigate(['/my-adoptions']);
+    // Route only on an actual sign-in from the landing screen. Token refreshes and
+    // page reloads fire auth events too, and must leave the user where they are.
+    if (session && !wasLoggedIn && this.isOnLandingRoute()) {
+      this.router.navigate(['/adopt-family']);
     }
+  }
+
+  private isOnLandingRoute(): boolean {
+    const path = window.location.pathname;
+    return path === '/' || path === '/landing';
   }
 
   async signInWithGoogle(): Promise<void> {
