@@ -239,6 +239,8 @@ export class NominateFamilyComponent implements OnInit {
             age: member.age ?? 0,
             sex: member.gender === 'Female' ? 'female' : 'male',
             is_parent: member.isChild === false,
+            // Omitted when blank, so saving works even before the column migration runs
+            ethnicity: member.ethnicity.trim() || undefined,
           });
 
           for (const item of member.items) {

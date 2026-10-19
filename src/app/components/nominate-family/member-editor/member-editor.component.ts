@@ -21,7 +21,7 @@ import { scrollBehavior } from '../../../shared/motion';
 import { ItemInfoComponent } from '../../item-info/item-info.component';
 import { ItemFormComponent } from '../item-form/item-form.component';
 import { NominationDraftService } from '../nomination-draft.service';
-import { Gender, Item, MAX_AGE, memberProblems } from '../nomination.model';
+import { Gender, Item, MAX_AGE, MAX_ETHNICITY_LENGTH, memberProblems } from '../nomination.model';
 
 const ADULT_AGE = 18;
 
@@ -75,7 +75,10 @@ export class MemberEditorComponent implements OnInit {
     ]),
     isChild: this.fb.control<boolean | null>(null, [Validators.required]),
     gender: this.fb.nonNullable.control<Gender>('', [Validators.required]),
+    ethnicity: this.fb.nonNullable.control('', [Validators.maxLength(MAX_ETHNICITY_LENGTH)]),
   });
+
+  readonly maxEthnicityLength = MAX_ETHNICITY_LENGTH;
 
   private readonly isChild = signal<boolean | null>(null);
 
@@ -101,7 +104,13 @@ export class MemberEditorComponent implements OnInit {
     if (!member) return;
 
     this.form.setValue(
-      { name: member.name, age: member.age, isChild: member.isChild, gender: member.gender },
+      {
+        name: member.name,
+        age: member.age,
+        isChild: member.isChild,
+        gender: member.gender,
+        ethnicity: member.ethnicity,
+      },
       { emitEvent: false }
     );
     this.isChild.set(member.isChild);
@@ -127,6 +136,7 @@ export class MemberEditorComponent implements OnInit {
         age: value.age,
         isChild: value.isChild,
         gender: value.gender,
+        ethnicity: value.ethnicity,
       });
     });
   }

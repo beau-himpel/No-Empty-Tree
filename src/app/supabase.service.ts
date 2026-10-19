@@ -222,6 +222,7 @@ export class SupabaseService {
     age: number;
     sex: 'male' | 'female' | 'other';
     is_parent: boolean;
+    ethnicity?: string;
   }) {
     const { data, error } = await this.supabase
       .from('family_members')

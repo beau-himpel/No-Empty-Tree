@@ -72,6 +72,20 @@
     <p class="field-error"><i class="pi pi-exclamation-circle text-xs" aria-hidden="true"></i>Choose a gender</p>
     }
   </div>
+
+  <div>
+    <label class="field-label" for="member-ethnicity">Ethnicity <span class="field-optional">optional</span></label>
+    <input
+      class="field-input"
+      id="member-ethnicity"
+      formControlName="ethnicity"
+      autocomplete="off"
+      autocapitalize="words"
+      [maxlength]="maxEthnicityLength"
+      aria-describedby="member-ethnicity-hint"
+    />
+    <p class="field-hint" id="member-ethnicity-hint">Not shown to adopters.</p>
+  </div>
 </div>
 
 <section class="mt-12 scroll-mt-20" #giftSection>

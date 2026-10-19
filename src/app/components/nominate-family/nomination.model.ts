@@ -15,8 +15,12 @@ export interface DraftMember {
   age: number | null;
   gender: Gender;
   isChild: boolean | null;
+  /** Optional free text; matches the 100-character limit on family_members.ethnicity. */
+  ethnicity: string;
   items: Item[];
 }
+
+export const MAX_ETHNICITY_LENGTH = 100;
 
 export interface FamilyDetails {
   name: string;
@@ -50,6 +54,7 @@ export function newMember(): DraftMember {
     age: null,
     gender: '',
     isChild: null,
+    ethnicity: '',
     items: [],
   };
 }
@@ -71,6 +76,7 @@ export function isBlankMember(member: DraftMember): boolean {
     member.age === null &&
     member.isChild === null &&
     !member.gender &&
+    !member.ethnicity.trim() &&
     member.items.length === 0
   );
 }
@@ -101,7 +107,15 @@ export function parseStoredDraft(raw: string | null): NominationDraft | null {
   const parsed = JSON.parse(raw);
 
   if (parsed?.family && Array.isArray(parsed.members)) {
-    return { ...emptyDraft(), ...parsed };
+    return {
+      ...emptyDraft(),
+      ...parsed,
+      // Drafts saved before ethnicity was stored don't have the field
+      members: parsed.members.map((member: DraftMember) => ({
+        ...member,
+        ethnicity: member.ethnicity ?? '',
+      })),
+    };
   }
 
   if (parsed?.familyInfo) {
@@ -120,6 +134,7 @@ export function parseStoredDraft(raw: string | null): NominationDraft | null {
         age: typeof member.age === 'number' && member.age > 0 ? member.age : null,
         gender: member.gender === 'Male' || member.gender === 'Female' ? member.gender : '',
         isChild: typeof member.isChild === 'boolean' ? member.isChild : null,
+        ethnicity: typeof member.ethnicity === 'string' ? member.ethnicity : '',
         items: member.items ?? [],
       })),
       step: 'family',

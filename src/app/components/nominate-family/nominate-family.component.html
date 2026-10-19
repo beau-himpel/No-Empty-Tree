@@ -308,6 +308,9 @@
         <div class="py-4">
           <p class="font-semibold tracking-snug text-stone-900">{{ row.member.name.trim() | titlecase }}</p>
           <p class="text-sm text-stone-500">{{ row.summary }}</p>
+          @if (row.member.ethnicity.trim()) {
+          <p class="text-sm text-stone-500">Ethnicity: {{ row.member.ethnicity.trim() }}</p>
+          }
           <ul class="mt-2 space-y-1">
             @for (item of row.member.items; track item) {
             <li class="flex gap-2 text-sm text-stone-700">

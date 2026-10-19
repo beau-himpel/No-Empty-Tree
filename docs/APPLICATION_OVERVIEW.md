@@ -69,7 +69,8 @@ The flow (`/nominate-family`) is a three-step wizard with a step progress bar:
 2. **Members** — a list of household members; incomplete ones say what they still need
    ("Needs age and a wish list item") and block review. Tapping a member opens a full
    editor: first name, age (0 allowed for babies), Adult/Child (suggested from age until
-   chosen), gender (labels follow: Boy/Girl, Man/Woman), and the wish list with an inline
+   chosen), gender (labels follow: Boy/Girl, Man/Woman), optional ethnicity (free text,
+   noted as not shown to adopters), and the wish list with an inline
    "add a gift" form (category chips, description, size, color, link, notes). A complete
    gift that wasn't added yet is added on save; a half-filled one blocks leaving rather
    than being dropped. Removing a member or gift shows an Undo toast; a member opened via
@@ -82,14 +83,17 @@ The flow (`/nominate-family`) is a three-step wizard with a step progress bar:
 The draft (including which step you're on) autosaves to localStorage under
 `nominateFamilyInfo` and resumes with a "Picking up where you left off · Start over"
 notice. Drafts from the earlier wizard format are migrated on load. Product links without
-a scheme are saved with `https://`. Ethnicity is no longer collected (it was never saved).
+a scheme are saved with `https://`. Ethnicity is sent only when entered, so a blank value
+never touches the column.
 
 ## Domain model (Supabase/Postgres)
 
 - **families** — `last_name`, `address`, `phone`, `email`, `nominated_by` (user id).
   Address/phone/email are collected but **not displayed** in the adopt UI.
 - **family_members** — `first_name`, `age`, `sex` ('male' | 'female' | 'other'),
-  `is_parent`; belongs to a family. Displayed sorted by age, descending.
+  `is_parent`, optional `ethnicity` (text, max 100 characters; added by
+  `supabase/migrations/20261019000000_add_family_members_ethnicity.sql`, not selected or
+  displayed by the adopt UI); belongs to a family. Displayed sorted by age, descending.
 - **wishlist_items** — `category`, `description`, optional `color`, `size`, `link`,
   `details`; `is_adopted` + `adopted_by` (user id) track adoption. Adoption is **per
   item**, not per family — "adopt family" is just a bulk item adoption.
