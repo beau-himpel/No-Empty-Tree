@@ -7,7 +7,7 @@
   Family members
 </button>
 
-<h2 class="type-page-title mt-3 truncate">{{ title() }}</h2>
+<h1 class="type-page-title mt-3 truncate">{{ title() }}</h1>
 
 <div [formGroup]="form" class="mt-8 space-y-6">
   <div>
@@ -90,7 +90,7 @@
 
 <section class="mt-12 scroll-mt-20" #giftSection>
   <div class="flex items-baseline justify-between border-b border-stone-200 pb-2">
-    <h3 class="type-section-label">Wish list</h3>
+    <h2 class="type-section-label">Wish list</h2>
     @if (items().length > 0) {
     <span class="text-[0.8125rem] font-medium tabular-nums text-stone-500">
       {{ items().length }} {{ items().length === 1 ? "gift" : "gifts" }}

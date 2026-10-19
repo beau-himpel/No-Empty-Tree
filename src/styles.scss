@@ -150,35 +150,6 @@ h1, h2, h3, h4, h5, h6 {
   from { opacity: 0; transform: translateY(8px); }
 }
 
-/* PrimeNG overrides — still used by the nomination flow; keep it on the same type */
-.p-component {
-  font-family: inherit;
-}
-
-.p-dialog {
-  border-radius: 1rem;
-  border: 1px solid #e7e5e4;
-  box-shadow: 0 20px 25px -5px rgb(16 31 25 / 0.12), 0 8px 10px -6px rgb(16 31 25 / 0.1);
-  overflow: hidden;
-}
-
-.p-dialog .p-dialog-header {
-  padding: 1.25rem 1.25rem 0.5rem;
-  font-weight: 700;
-  color: #1c1917;
-}
-
-.p-dialog .p-dialog-content {
-  padding: 0.5rem 1.25rem 1rem;
-  color: #57534e;
-  font-size: 0.9375rem;
-  line-height: 1.6;
-}
-
-.p-dialog .p-dialog-footer {
-  padding: 0.75rem 1.25rem 1.25rem;
-}
-
 /* Remove number input spinners globally */
 input[type="number"] {
   appearance: textfield;
@@ -189,14 +160,6 @@ input[type="number"] {
     -webkit-appearance: none;
     margin: 0;
   }
-}
-
-// Legacy fix for the PrimeNG inputs on the auth screens; the shared .field-input
-// classes style themselves and need their own focus/error borders.
-input:not(.field-input), select:not(.field-input), textarea:not(.field-input) {
-  background-color: #fff !important;
-  color: #1c1917 !important;
-  border: 1px solid #d6d3d1 !important;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -19,7 +19,7 @@
       <i class="pi pi-lock text-xl text-stone-500" aria-hidden="true"></i>
     </div>
     <div>
-      <h2 class="text-xl font-semibold tracking-title text-stone-900">Nominations are closed</h2>
+      <h1 class="text-xl font-semibold tracking-title text-stone-900">Nominations are closed</h1>
       <p class="mt-1 text-[0.9375rem] text-stone-500">
         We aren't accepting new family nominations right now. You can still adopt gifts for families already on the list.
       </p>
@@ -63,7 +63,7 @@
   @switch (step()) {
   @case ('family') {
   <div class="animate-fade-up">
-    <h2 class="type-page-title">Nominate a family</h2>
+    <h1 class="type-page-title">Nominate a family</h1>
     <p class="mt-3 text-[0.9375rem] leading-relaxed text-stone-500">
       Tell us about a family who could use some help this season. Their address and contact
       details aren't shown on the adoption pages.
@@ -158,9 +158,9 @@
       <i class="pi pi-chevron-left text-xs" aria-hidden="true"></i>
       Family details
     </button>
-    <h2 class="type-page-title mt-3">
+    <h1 class="type-page-title mt-3">
       Who's in the {{ familyName() || "family" }} family?
-    </h2>
+    </h1>
     <p class="mt-3 text-[0.9375rem] leading-relaxed text-stone-500">
       Add everyone in the household. Each person needs at least one gift on their wish list.
     </p>
@@ -262,14 +262,14 @@
       <i class="pi pi-chevron-left text-xs" aria-hidden="true"></i>
       Family members
     </button>
-    <h2 class="type-page-title mt-3">Review and submit</h2>
+    <h1 class="type-page-title mt-3">Review and submit</h1>
     <p class="mt-3 text-[0.9375rem] leading-relaxed text-stone-500">
       Once submitted, the family appears on Adopt Families right away.
     </p>
 
     <section class="mt-10">
       <div class="flex items-baseline justify-between border-b border-stone-200 pb-2">
-        <h3 class="type-section-label">Family</h3>
+        <h2 class="type-section-label">Family</h2>
         <button type="button" class="text-sm font-semibold text-pine-700 hover:text-pine-800" (click)="goTo('family')">Edit</button>
       </div>
       <dl class="divide-y divide-stone-100 text-[0.9375rem]">
@@ -297,10 +297,10 @@
 
     <section class="mt-10">
       <div class="flex items-baseline justify-between border-b border-stone-200 pb-2">
-        <h3 class="type-section-label tabular-nums">
+        <h2 class="type-section-label tabular-nums">
           {{ memberRows().length }} {{ memberRows().length === 1 ? "person" : "people" }} ·
           {{ giftCount() }} {{ giftCount() === 1 ? "gift" : "gifts" }}
-        </h3>
+        </h2>
         <button type="button" class="text-sm font-semibold text-pine-700 hover:text-pine-800" (click)="goTo('members')">Edit</button>
       </div>
       <div class="divide-y divide-stone-100">
@@ -361,7 +361,7 @@
     >
       <i class="pi pi-check text-2xl"></i>
     </span>
-    <h2 class="type-page-title mt-6">Nomination received</h2>
+    <h1 class="type-page-title mt-6">Nomination received</h1>
     <p class="mt-3 max-w-sm text-[0.9375rem] leading-relaxed text-stone-500" role="status">
       The {{ submitted()?.familyName }} family and their {{ submitted()?.gifts }}
       {{ submitted()?.gifts === 1 ? "gift is" : "gifts are" }} now on Adopt Families.

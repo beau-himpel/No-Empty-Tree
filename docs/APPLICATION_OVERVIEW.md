@@ -23,14 +23,20 @@ Key facts that shape the design:
 
 ## User workflow (happy path)
 
-1. **Landing / sign-in** — An unauthenticated visitor sees a hero landing page: the
-   "No Empty Tree" title (indigo→purple gradient text), the tagline *"Helping those in
-   need experience the holiday magic"*, and a sign-in card with email/password fields, a
-   toggle to a sign-up form, and a "Continue with Google" button.
-2. **Sign-up (first-time users)** — Collects name, email, password (min 6 chars). Name is
-   stored in Supabase user metadata / a `profiles` table and later displayed as
-   "Adopted by {name}" on items. Email signups may require email confirmation
-   (redirects back via `/auth/callback`).
+1. **Landing / sign-in** — An unauthenticated visitor sees the headline "Give a family a
+   Christmas to remember.", a short pitch, a three-step "How it works", and the auth
+   panel (split layout on desktop, stacked on phones). The panel's segmented control
+   switches between **Sign in** and **Create account**; both offer "Continue with Google".
+   Errors appear inline and in a message above the form (e.g. wrong password, unconfirmed
+   email with a "send it again" action). On page load a brief splash shows until the
+   stored session is restored, so signed-in users never see the sign-in screen flash.
+2. **Sign-up (first-time users)** — Collects name (labeled as shown next to adopted
+   gifts), email, password (min 6 chars). Name is stored in Supabase user metadata / a
+   `profiles` table and displayed as "Adopted by {name}". When email confirmation is on,
+   a "Confirm your email" screen names the address and can resend the link; the link
+   returns to this site's root, where the session is picked up.
+   **Forgot password** sends a reset email; its link signs the user in with a recovery
+   session and `AuthService` routes them to `/reset-password` to choose a new one.
 3. **After sign-in** — The user lands on **Adopt Families**. The app shell appears: a
    sticky white top bar (tree logo + "No Empty Tree", log out), desktop nav links, and on
    phones a bottom tab bar (Families / My Adoptions, plus Nominate when enabled). Token
@@ -108,19 +114,21 @@ never touches the column.
 - **Stack**: Angular 20 (standalone components, signals, new `@if`/`@for` control flow),
   Tailwind CSS with a shared component layer in `src/styles.scss`, Angular CDK (confirm
   sheet), `@angular/animations` (expand/collapse), and the Geist variable font
-  (self-hosted via `@fontsource-variable/geist`). PrimeNG 20 + PrimeIcons remain: icons
-  everywhere, PrimeNG components only on the sign-in/sign-up screens. Deployed
+  (self-hosted via `@fontsource-variable/geist`). PrimeIcons for icons; PrimeNG has been
+  removed. Deployed
   on Vercel (`noemptytree.com`); backend is Supabase (project URL/keys in
   `src/environments/`).
 - **Routing** (`src/app/app.routes.ts`): everything nests under `HomeComponent` at `/`,
   which renders either the landing/sign-in screen (logged out) or the header + routed
-  page (logged in). Routes: `/adopt-family`, `/nominate-family`, `/my-adoptions` (all
-  auth-guarded; the guard waits for the stored session to restore). Unknown paths
-  redirect to `/adopt-family`.
+  page (logged in). Routes: `/adopt-family`, `/nominate-family`, `/my-adoptions`,
+  `/reset-password` (all auth-guarded; the guard waits for the stored session to
+  restore). Unknown paths redirect to `/adopt-family`. Each route sets the tab title
+  ("My adoptions · No Empty Tree") via `title.strategy.ts`.
   Route changes cross-fade via the View Transitions API (`withViewTransitions`).
 - **Key files**:
   - `src/app/components/home/` — app shell + landing page split; hosts the toast
-  - `src/app/components/sign-in/`, `sign-up/`, `auth-callback/` — auth UI
+  - `src/app/components/auth/` — `auth-panel` (sign in, create account, forgot password,
+    check-email states) and `reset-password` (new password after a reset link)
   - `src/app/components/header/` — sticky top bar, desktop nav, mobile bottom tab bar
   - `src/app/components/adopt-family/` — hero + family list page
   - `src/app/components/family-details/` — inline details + adopt-all
@@ -139,6 +147,9 @@ never touches the column.
   - `src/app/shared/` — `toast/`, `confirm/` (CDK confirm sheet), `animated-number`,
     `choice-group` (segmented control / chips form control), `phone-mask.directive`,
     `animations.ts`, `motion.ts` (reduced-motion helpers)
+  - `public/` — tree favicon (`favicon.svg`/`.ico`), `apple-touch-icon.png`,
+    `icon-192/512.png` + `manifest.webmanifest` (Add to Home Screen), and `og-image.png`
+    (1200×630 link-preview card referenced by the Open Graph tags in `src/index.html`)
   - `src/app/supabase.service.ts` — all data access; `auth.service.ts` — session state
     (signals); `breakpoint.service.ts` — `isMobile` signal (breakpoint < 768px)
 - **State**: no global store; Angular signals inside services/components. Data is
@@ -166,14 +177,14 @@ color used sparingly.
 
 ## Known UI debt / quirks (useful targets for refinement)
 
-- The landing/sign-in screen still uses the old indigo→purple look (phase 3), including
-  the non-standard `text-10xl` class.
 - My Adoptions loads **all** families and filters client-side (a dedicated
   `getWishlistItemsByUser` query exists in `supabase.service.ts` but is unused there).
 - No user-facing display of family address/contact info anywhere — adopters currently
   have no in-app guidance on gift drop-off/delivery logistics.
-- The header brand title is `h1` on every page; page titles are `h2`s.
-- The favicon is still the Angular default (title, description and theme color are set).
+- The initial bundle (~574 kB raw, ~141 kB transferred) is above Angular's 500 kB
+  warning budget; most of it is the Supabase client and Angular itself.
+- Auth redirect URLs (`/` and `/reset-password` on each deployed origin) must be in
+  Supabase's allowed Redirect URLs, or Supabase falls back to the Site URL.
 - Unadopt isn't guarded server-side to the adopter (the UI only offers it to them).
   Adopt is guarded: it only succeeds while the item is still unadopted.
 

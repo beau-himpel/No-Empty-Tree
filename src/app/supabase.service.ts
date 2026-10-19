@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { environment } from '../environments/environment';
 
@@ -75,21 +75,18 @@ export class SupabaseService {
       }
     );
 
-    // Handle auth state changes with error handling
-    this.supabase.auth.onAuthStateChange((event, session) => {
-      this.handleAuthStateChange(event, session);
+    // Registered synchronously after client creation: this is the only subscriber
+    // guaranteed to receive PASSWORD_RECOVERY, which fires while the client
+    // processes a reset link during startup.
+    this.supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') this.passwordRecovery.set(true);
     });
   }
 
-
-  private handleAuthStateChange(event: string, session: any) {
-    try {
-      // Handle auth state changes
-      console.log('Auth state change:', event, session);
-    } catch (error) {
-      console.warn('Error handling auth state change:', error);
-    }
-  }
+  /** True after arriving from a "reset your password" email link. */
+  readonly passwordRecovery = signal(
+    typeof window !== 'undefined' && /(^|[#&?])type=recovery\b/.test(window.location.hash)
+  );
 
   get client(): SupabaseClient {
     return this.supabase;

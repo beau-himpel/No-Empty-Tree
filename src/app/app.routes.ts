@@ -9,17 +9,26 @@ export const routes: Routes = [
       {
         path: 'adopt-family',
         canActivate: [authGuard],
+        title: 'Adopt families',
         loadComponent: () => import('./components/adopt-family/adopt-family.component').then(m => m.AdoptFamilyComponent)
       },
       {
         // Always routed; the page itself shows "closed" unless nomination_settings enables it
         path: 'nominate-family',
         canActivate: [authGuard],
+        title: 'Nominate a family',
         loadComponent: () => import('./components/nominate-family/nominate-family.component').then(m => m.NominateFamilyComponent)
+      },
+      {
+        path: 'reset-password',
+        canActivate: [authGuard],
+        title: 'Reset password',
+        loadComponent: () => import('./components/auth/reset-password.component').then(m => m.ResetPasswordComponent)
       },
       {
         path: 'my-adoptions',
         canActivate: [authGuard],
+        title: 'My adoptions',
         loadComponent: () => import('./components/my-adoptions/my-adoptions.component').then(m => m.MyAdoptionsComponent)
       },
     ]

@@ -1,5 +1,5 @@
 <section class="mx-auto w-full max-w-3xl">
-  <h2 class="type-page-title">Adopt a Family</h2>
+  <h1 class="type-page-title">Adopt a Family</h1>
 
   @if (error()) {
   <div class="mt-6 flex flex-col gap-3 rounded-2xl bg-berry-50 p-4 sm:flex-row sm:items-center sm:justify-between animate-fade-up">
@@ -66,7 +66,7 @@
   @if (!isLoading() && !error()) {
   <div class="mt-12" [@.disabled]="suppressAnimations()">
     @if (needsRows().length > 0) {
-    <h3 class="type-section-label border-b border-stone-200 pb-2">Need gifts</h3>
+    <h2 class="type-section-label border-b border-stone-200 pb-2">Need gifts</h2>
     @for (row of needsRows(); track row.info.id; let i = $index) {
     <ng-container
       [ngTemplateOutlet]="familyRow"
@@ -76,12 +76,12 @@
     }
 
     @if (doneRows().length > 0) {
-    <h3
+    <h2
       class="type-section-label border-b border-stone-200 pb-2"
       [class.mt-12]="needsRows().length > 0"
     >
       Fully adopted
-    </h3>
+    </h2>
     @for (row of doneRows(); track row.info.id; let i = $index) {
     <ng-container
       [ngTemplateOutlet]="familyRow"

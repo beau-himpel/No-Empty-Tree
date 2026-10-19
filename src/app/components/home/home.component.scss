@@ -1,1 +1,11 @@
+// Fades in only if restoring the session takes long enough to notice
+.splash-mark {
+  animation: splash-in 400ms ease-out 250ms both;
+}
 
+@keyframes splash-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+}
