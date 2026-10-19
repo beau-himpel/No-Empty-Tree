@@ -56,16 +56,33 @@ Key facts that shape the design:
    their items grouped by family with member rows open by default. Removing an item
    animates it out (Undo brings it back). Empty state offers "Browse families".
 
-## Secondary workflow: nomination (currently disabled)
+## Secondary workflow: nomination (behind a feature flag)
 
-A full **Nominate Family** flow exists in the code but is turned off: its route is
-commented out in `app.routes.ts`, and the header tab only renders when a
-`nomination_settings` table row (`id = 1`, `nominations_enabled`) is true. The flow is a
-two-step wizard: family info (name, address, phone with input mask, email) → family
-members (add/edit/delete members, each with a wish-list item form), with localStorage
-draft persistence and delete-confirmation modals. It writes to the same tables the adopt
-flow reads. Treat it as dormant, not dead — a UI refresh should keep it consistent or at
-least not break it.
+The `nomination_settings` row (`id = 1`, `nominations_enabled`) is the single switch: when
+true, the "Nominate" tab/nav link appears; when false, `/nominate-family` still loads but
+shows "Nominations are closed". No code change is needed to open or close nominations.
+
+The flow (`/nominate-family`) is a three-step wizard with a step progress bar:
+
+1. **Family** — last name and address (required), phone (masked, 10 digits) and email
+   (optional). Inline errors appear on Continue and focus moves to the first problem.
+2. **Members** — a list of household members; incomplete ones say what they still need
+   ("Needs age and a wish list item") and block review. Tapping a member opens a full
+   editor: first name, age (0 allowed for babies), Adult/Child (suggested from age until
+   chosen), gender (labels follow: Boy/Girl, Man/Woman), and the wish list with an inline
+   "add a gift" form (category chips, description, size, color, link, notes). A complete
+   gift that wasn't added yet is added on save; a half-filled one blocks leaving rather
+   than being dropped. Removing a member or gift shows an Undo toast; a member opened via
+   "Add" and left blank is discarded.
+3. **Review** — family details and every member's gifts, each section editable, then
+   **Submit**. Success shows a confirmation with links to Adopt Families or to nominate
+   another family. If saving members fails, the half-created family row is deleted and
+   the draft is kept.
+
+The draft (including which step you're on) autosaves to localStorage under
+`nominateFamilyInfo` and resumes with a "Picking up where you left off · Start over"
+notice. Drafts from the earlier wizard format are migrated on load. Product links without
+a scheme are saved with `https://`. Ethnicity is no longer collected (it was never saved).
 
 ## Domain model (Supabase/Postgres)
 
@@ -88,13 +105,14 @@ least not break it.
   Tailwind CSS with a shared component layer in `src/styles.scss`, Angular CDK (confirm
   sheet), `@angular/animations` (expand/collapse), and the Geist variable font
   (self-hosted via `@fontsource-variable/geist`). PrimeNG 20 + PrimeIcons remain: icons
-  everywhere, PrimeNG components only in the nomination wizard and auth screens. Deployed
+  everywhere, PrimeNG components only on the sign-in/sign-up screens. Deployed
   on Vercel (`noemptytree.com`); backend is Supabase (project URL/keys in
   `src/environments/`).
 - **Routing** (`src/app/app.routes.ts`): everything nests under `HomeComponent` at `/`,
   which renders either the landing/sign-in screen (logged out) or the header + routed
-  page (logged in). Routes: `/adopt-family`, `/my-adoptions` (both auth-guarded; the guard
-  waits for the stored session to restore). Unknown paths redirect to `/adopt-family`.
+  page (logged in). Routes: `/adopt-family`, `/nominate-family`, `/my-adoptions` (all
+  auth-guarded; the guard waits for the stored session to restore). Unknown paths
+  redirect to `/adopt-family`.
   Route changes cross-fade via the View Transitions API (`withViewTransitions`).
 - **Key files**:
   - `src/app/components/home/` — app shell + landing page split; hosts the toast
@@ -107,11 +125,15 @@ least not break it.
   - `src/app/components/wish-item/` + `item-info/` — single wish-list item row + its info
     (`item-info` is also used by the nomination wizard)
   - `src/app/components/my-adoptions/` — user's adopted items page
-  - `src/app/components/nominate-family/` (+ `member-info/`, `item-form/`,
-    `confirm-delete-modal/`) — dormant nomination wizard
+  - `src/app/components/nominate-family/` — nomination wizard container (steps, family
+    form, member list, review, submit); `member-editor/` — one member's details + wish
+    list; `item-form/` — the add-a-gift form; `nomination-draft.service.ts` — draft state,
+    autosave and undo; `nomination.model.ts` — draft types, validation rules, link
+    normalization, legacy-draft migration
   - `src/app/adoption.service.ts` — every adopt/unadopt goes through here (pending state,
     undo toasts, error handling, `version` signal)
   - `src/app/shared/` — `toast/`, `confirm/` (CDK confirm sheet), `animated-number`,
+    `choice-group` (segmented control / chips form control), `phone-mask.directive`,
     `animations.ts`, `motion.ts` (reduced-motion helpers)
   - `src/app/supabase.service.ts` — all data access; `auth.service.ts` — session state
     (signals); `breakpoint.service.ts` — `isMobile` signal (breakpoint < 768px)
@@ -158,6 +180,7 @@ color used sparingly.
 - Preserve the auth gate: nothing except the landing screen should be visible logged out.
 - Preserve mobile behavior: `isMobile` signal drives the bottom-sheet confirm and
   scroll-into-view on family selection.
-- The nomination wizard should keep working when its feature flag is re-enabled.
+- Opening/closing nominations is data-only (`nomination_settings`); keep the route
+  registered so the flag stays the single switch.
 - Deployment is a static Vercel build; environment values are baked in at build time
   from `src/environments/environment.prod.ts`.

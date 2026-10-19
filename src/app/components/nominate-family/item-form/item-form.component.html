@@ -1,78 +1,77 @@
-<div class="item-form-container">
-  <!-- Existing Items -->
-  @if (existingItems.length > 0) {
-  <div class="existing-items">
-    <h6>Current Items</h6>
-    @for (item of existingItems; track $index; let itemIndex = $index) {
-    <div class="existing-item">
-      <app-item-info [item]="item" />
-
-      <button
-        pButton
-        icon="pi pi-trash"
-        class="p-button-text !text-red-500"
-        (click)="removeExistingItem(itemIndex)"
-      ></button>
-    </div>
+<div [formGroup]="form" class="space-y-5">
+  <div>
+    <span class="field-label" [id]="uid + '-category'">Category</span>
+    <app-choice-group
+      variant="chips"
+      formControlName="category"
+      [options]="categoryOptions"
+      [labelledBy]="uid + '-category'"
+      [invalid]="showError('category')"
+    />
+    @if (showError('category')) {
+    <p class="field-error"><i class="pi pi-exclamation-circle text-xs" aria-hidden="true"></i>Choose a category</p>
     }
   </div>
-  }
 
-  <!-- Single Item Form -->
-  <div class="new-item-section">
-    <h6>Add New Item</h6>
-    <form [formGroup]="itemForm()" class="form-grid">
-      <div class="form-field">
-        <label for="itemCategory">Category *</label>
-        <p-select
-          id="itemCategory"
-          [options]="itemCategoryOptions"
-          formControlName="category"
-        >
-        </p-select>
-      </div>
-      <div class="form-field">
-        <label for="itemDescription">Description *</label>
-        <input pInputText id="itemDescription" formControlName="description" />
-      </div>
-      <div class="form-field">
-        <label for="itemColor">Color</label>
-        <input pInputText id="itemColor" formControlName="color" />
-      </div>
-      <div class="form-field">
-        <label for="itemSize">Size</label>
-        <input pInputText id="itemSize" formControlName="size" />
-      </div>
-      <div class="form-field">
-        <label for="itemLink">Product Link</label>
-        <input pInputText id="itemLink" formControlName="link" />
-      </div>
-      <div class="form-field">
-        <label for="itemDetails">Details</label>
-        <textarea
-          id="itemDetails"
-          formControlName="details"
-          rows="3"
-          class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-        >
-        </textarea>
-      </div>
-    </form>
+  <div>
+    <label class="field-label" [for]="uid + '-description'">What's the gift?</label>
+    <input
+      class="field-input"
+      [class.field-input-invalid]="showError('description')"
+      [id]="uid + '-description'"
+      formControlName="description"
+      placeholder="e.g. Warm winter coat"
+      autocomplete="off"
+      (keydown.enter)="submit()"
+    />
+    @if (showError('description')) {
+    <p class="field-error"><i class="pi pi-exclamation-circle text-xs" aria-hidden="true"></i>Describe the gift</p>
+    }
+  </div>
 
-    <div class="form-actions">
-      <button
-        class="add-another-btn"
-        (click)="addAnotherItem()"
-        [disabled]="!isFormValid()"
-      >
-        <i class="pi pi-plus"></i>
-        Add another item
-      </button>
-
-      <button class="done-btn" (click)="onDoneAddingItems()">
-        <i class="pi pi-check"></i>
-        Done adding wishlist items
-      </button>
+  <div class="grid grid-cols-2 gap-3">
+    <div>
+      <label class="field-label" [for]="uid + '-size'">Size <span class="field-optional">optional</span></label>
+      <input class="field-input" [id]="uid + '-size'" formControlName="size" placeholder="e.g. Youth M" autocomplete="off" />
     </div>
+    <div>
+      <label class="field-label" [for]="uid + '-color'">Color <span class="field-optional">optional</span></label>
+      <input class="field-input" [id]="uid + '-color'" formControlName="color" placeholder="e.g. Navy" autocomplete="off" />
+    </div>
+  </div>
+
+  <div>
+    <label class="field-label" [for]="uid + '-link'">Product link <span class="field-optional">optional</span></label>
+    <input
+      class="field-input"
+      [id]="uid + '-link'"
+      formControlName="link"
+      inputmode="url"
+      autocapitalize="off"
+      autocomplete="off"
+      spellcheck="false"
+      placeholder="Paste a link to the exact item"
+    />
+  </div>
+
+  <div>
+    <label class="field-label" [for]="uid + '-details'">Notes for the adopter <span class="field-optional">optional</span></label>
+    <textarea
+      class="field-input min-h-[5.5rem] resize-y"
+      [id]="uid + '-details'"
+      formControlName="details"
+      rows="3"
+      placeholder="Favorite colors, brands, anything that helps"
+    ></textarea>
+  </div>
+
+  <div class="flex flex-col gap-2 sm:flex-row">
+    <button type="button" class="btn-dark w-full sm:w-auto" (click)="submit()">
+      <i class="pi pi-plus text-xs" aria-hidden="true"></i>
+      Add to wish list
+    </button>
+    @if (canCancel()) {
+    <button type="button" class="btn-quiet w-full sm:w-auto" (click)="cancel()">Cancel</button>
+    }
   </div>
 </div>

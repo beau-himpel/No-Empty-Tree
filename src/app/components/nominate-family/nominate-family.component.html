@@ -1,342 +1,379 @@
-<div
-  class="w-full bg-white border-2 border-gray-300 rounded-xl"
-  [ngClass]="isMobile() ? 'p-4' : 'p-8'"
->
-  @if (loading()) {
-  <div class="flex justify-center items-center min-h-[200px] p-8">
-    <p class="text-gray-600 text-lg">Loading nomination settings...</p>
-  </div>
-  } @else if (error()) {
-  <div class="flex justify-center items-center min-h-[200px] p-8">
-    <p class="text-red-600 text-lg text-center">
-      Error loading nomination settings: {{ error() }}
-    </p>
-  </div>
-  } @else if (!nominationsEnabled()) {
-  <div class="flex justify-center items-center min-h-[200px] p-8">
-    <div
-      class="rounded-xl border-2 border-black"
-    >
-      <div class="text-center p-8">
-        <h2 class="text-3xl font-semibold mb-4">
-          Nominations Currently Closed
-        </h2>
-        <p class="text-lg mb-2 leading-relaxed">
-          We are currently not accepting new family nominations at this time.
-        </p>
+<section class="mx-auto w-full max-w-xl">
+  @if (settingsLoading()) {
+  <div class="animate-pulse" aria-hidden="true">
+    <div class="h-10 w-3/4 rounded-lg bg-stone-200"></div>
+    <div class="mt-4 h-4 w-full rounded bg-stone-100"></div>
+    <div class="mt-10 space-y-6">
+      @for (placeholder of [1, 2, 3]; track placeholder) {
+      <div>
+        <div class="h-4 w-24 rounded bg-stone-100"></div>
+        <div class="mt-2 h-12 w-full rounded-xl bg-stone-100"></div>
       </div>
-    </div>
-  </div>
-  } @else { @if (currentStep() === 'familyInfo') {
-  <div class="flex justify-between items-center mb-10 submit-container">
-    <h3 class="text-slate-700 text-2xl font-semibold m-0">
-      Family Information
-    </h3>
-  </div>
-
-  <div class="family-info-section">
-    <form
-      [formGroup]="familyForm"
-      class="grid grid-cols-1 md:grid-cols-2 gap-4"
-    >
-      <div class="flex flex-col gap-2 min-h-[5rem]">
-        <label for="familyName" class="font-medium text-slate-600 text-sm"
-          >Family Name *</label
-        >
-        <input
-          pInputText
-          id="familyName"
-          formControlName="name"
-          type="text"
-          class="w-full"
-        />
-      </div>
-      <div class="flex flex-col gap-2 min-h-[5rem]">
-        <label for="address" class="font-medium text-slate-600 text-sm"
-          >Address *</label
-        >
-        <input
-          pInputText
-          id="address"
-          formControlName="address"
-          type="text"
-          class="w-full"
-        />
-      </div>
-      <div class="flex flex-col gap-2 min-h-[5rem]">
-        <label for="phone" class="font-medium text-slate-600 text-sm"
-          >Phone Number</label
-        >
-        <input
-          pInputText
-          id="phone"
-          formControlName="phone"
-          type="tel"
-          [appPhoneMask]="true"
-          maxlength="14"
-          class="w-full"
-        />
-      </div>
-      <div class="flex flex-col gap-2 min-h-[5rem]">
-        <label for="email" class="font-medium text-slate-600 text-sm"
-          >Email</label
-        >
-        <input
-          pInputText
-          id="email"
-          formControlName="email"
-          type="email"
-          class="w-full"
-        />
-      </div>
-    </form>
-  </div>
-
-  <div class="flex justify-center mt-16">
-    <button
-      class="border border-blue-600 text-blue-600 font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
-      (click)="addFamilyMembers()"
-      [disabled]="!familyForm.valid"
-      [ngClass]="{
-        'bg-blue-600 text-white': familyForm.valid
-      }"
-    >
-      <div class="flex items-center gap-4">
-        <span>Add family members</span>
-        <i class="pi pi-plus"></i>
-      </div>
-    </button>
-  </div>
-  } @if (currentStep() === 'familyMembers') {
-  <div
-    class="flex items-center justify-between mb-8"
-    [ngClass]="{
-      'flex-wrap flex-direction-column gap-8 w-full': isMobile()
-    }"
-  >
-    @if (showMemberList() || familyInfo().members.length === 0) {
-    <button
-      class="text-black font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
-      (click)="showFamilyInfo()"
-    >
-      <div class="flex items-center gap-4">
-        <i class="pi pi-arrow-left"></i>
-        <span>Back to family info</span>
-      </div>
-    </button>
-    } @if (showMemberList()) {
-    <h3
-      class="text-slate-700 text-2xl font-semibold m-0"
-      [ngClass]="{
-        'w-full ml-0 text-center': isMobile(),
-        'ml-24': !isMobile()
-      }"
-    >
-      Family Members
-    </h3>
-    } @else {
-    <div class="flex flex-1 items-center justify-between gap-8">
-      <div class="flex flex-1 items-center gap-8">
-        <span class="text-slate-700 text-lg font-medium"> Editing - </span>
-        <p-select
-          [options]="memberDropdownOptions()"
-          [ngModel]="selectedMemberIndex()"
-          (ngModelChange)="selectMemberFromDropdown($event)"
-          placeholder="Select member"
-          style="min-width: 200px"
-          style="max-width: 300px"
-        >
-        </p-select>
-      </div>
-
-      @if (!isMobile()) {
-      <ng-container [ngTemplateOutlet]="editButtonsTemplate"></ng-container>
       }
     </div>
-    @if (isMobile()) {
-    <div class="flex justify-center w-full">
-      <ng-container [ngTemplateOutlet]="editButtonsTemplate"></ng-container>
-    </div>
-    } }
   </div>
+  <span class="sr-only" role="status">Loading…</span>
+  } @else if (!nominationsEnabled()) {
+  <div class="flex flex-col items-center gap-4 px-6 py-16 text-center animate-fade-up">
+    <div class="flex h-14 w-14 items-center justify-center rounded-full bg-stone-100">
+      <i class="pi pi-lock text-xl text-stone-500" aria-hidden="true"></i>
+    </div>
+    <div>
+      <h2 class="text-xl font-semibold tracking-title text-stone-900">Nominations are closed</h2>
+      <p class="mt-1 text-[0.9375rem] text-stone-500">
+        We aren't accepting new family nominations right now. You can still adopt gifts for families already on the list.
+      </p>
+    </div>
+    <button type="button" class="btn-adopt" (click)="viewOnAdoptFamilies()">Browse families</button>
+  </div>
+  } @else {
 
-  @if (showMemberList()) {
-  <div class="member-list-container">
-    @for (member of familyInfo().members; track $index; let i = $index) {
-    <div
-      class="member-list-item"
-      [ngClass]="{
-        '!border-2 !border-red-500':
-          getMemberValidationErrors(member).length > 0
-      }"
+  @if (step() !== 'done') {
+  <div class="mb-8" aria-hidden="true">
+    <p class="type-section-label tabular-nums">Step {{ stepNumber() }} of 3</p>
+    <div class="mt-2 grid grid-cols-3 gap-1.5">
+      @for (segment of [1, 2, 3]; track segment) {
+      <div class="h-1 overflow-hidden rounded-full bg-stone-100">
+        <div
+          class="h-full rounded-full bg-pine-600 transition-[width] duration-500 ease-out"
+          [style.width.%]="segment <= stepNumber() ? 100 : 0"
+        ></div>
+      </div>
+      }
+    </div>
+  </div>
+  }
+
+  @if (drafts.restored() && step() !== 'done') {
+  <div class="mb-8 flex items-center justify-between gap-3 rounded-xl bg-stone-50 px-4 py-3 animate-fade-in">
+    <span class="flex items-center gap-2 text-sm text-stone-600">
+      <i class="pi pi-history text-xs" aria-hidden="true"></i>
+      Picking up where you left off
+    </span>
+    <button
+      type="button"
+      class="shrink-0 rounded-full px-2 py-1 text-sm font-semibold text-stone-900 transition-colors hover:bg-stone-100"
+      (click)="startOver()"
     >
-      <div class="member-info">
-        <h4 class="member-name">
-          {{ member.name || "New Member " + (i + 1) }}
-        </h4>
-        @if (!isMobile()) {
-        <div class="member-details">
-          <span>{{ member.age }} years old</span>
-          <span>{{ member.gender }}</span>
+      Start over
+    </button>
+  </div>
+  }
+
+  @switch (step()) {
+  @case ('family') {
+  <div class="animate-fade-up">
+    <h2 class="type-page-title">Nominate a family</h2>
+    <p class="mt-3 text-[0.9375rem] leading-relaxed text-stone-500">
+      Tell us about a family who could use some help this season. Their address and contact
+      details aren't shown on the adoption pages.
+    </p>
+
+    <div [formGroup]="familyForm" class="mt-10 space-y-6">
+      <div>
+        <label class="field-label" for="family-name">Family last name</label>
+        <input
+          class="field-input"
+          [class.field-input-invalid]="showFamilyError('name')"
+          id="family-name"
+          formControlName="name"
+          placeholder="e.g. Hernandez"
+          autocomplete="off"
+          autocapitalize="words"
+          [attr.aria-invalid]="showFamilyError('name') || null"
+        />
+        @if (showFamilyError('name')) {
+        <p class="field-error"><i class="pi pi-exclamation-circle text-xs" aria-hidden="true"></i>Enter the family's last name</p>
+        }
+      </div>
+
+      <div>
+        <label class="field-label" for="family-address">Address</label>
+        <input
+          class="field-input"
+          [class.field-input-invalid]="showFamilyError('address')"
+          id="family-address"
+          formControlName="address"
+          placeholder="Street, city, state, ZIP"
+          autocomplete="off"
+          [attr.aria-invalid]="showFamilyError('address') || null"
+        />
+        @if (showFamilyError('address')) {
+        <p class="field-error"><i class="pi pi-exclamation-circle text-xs" aria-hidden="true"></i>Enter the family's address</p>
+        }
+      </div>
+
+      <div>
+        <label class="field-label" for="family-phone">Phone <span class="field-optional">optional</span></label>
+        <input
+          class="field-input tabular-nums"
+          [class.field-input-invalid]="showFamilyError('phone')"
+          id="family-phone"
+          type="tel"
+          formControlName="phone"
+          [appPhoneMask]="true"
+          placeholder="(555) 123-4567"
+          autocomplete="off"
+          [attr.aria-invalid]="showFamilyError('phone') || null"
+        />
+        @if (showFamilyError('phone')) {
+        <p class="field-error"><i class="pi pi-exclamation-circle text-xs" aria-hidden="true"></i>Enter a 10-digit phone number</p>
+        }
+      </div>
+
+      <div>
+        <label class="field-label" for="family-email">Email <span class="field-optional">optional</span></label>
+        <input
+          class="field-input"
+          [class.field-input-invalid]="showFamilyError('email')"
+          id="family-email"
+          type="email"
+          inputmode="email"
+          autocapitalize="off"
+          spellcheck="false"
+          formControlName="email"
+          autocomplete="off"
+          [attr.aria-invalid]="showFamilyError('email') || null"
+        />
+        @if (showFamilyError('email')) {
+        <p class="field-error"><i class="pi pi-exclamation-circle text-xs" aria-hidden="true"></i>Enter a valid email address</p>
+        }
+      </div>
+    </div>
+
+    <button type="button" class="btn-dark btn-lg mt-10 w-full sm:w-auto" (click)="continueFromFamily()">
+      Continue
+      <i class="pi pi-arrow-right text-sm" aria-hidden="true"></i>
+    </button>
+  </div>
+  }
+
+  @case ('members') {
+  <div class="animate-fade-up">
+    <button
+      type="button"
+      class="-ml-2 inline-flex items-center gap-1.5 rounded-full px-2 py-1.5 text-sm font-medium text-stone-500 transition-colors hover:text-stone-900 active:scale-95"
+      (click)="goTo('family')"
+    >
+      <i class="pi pi-chevron-left text-xs" aria-hidden="true"></i>
+      Family details
+    </button>
+    <h2 class="type-page-title mt-3">
+      Who's in the {{ familyName() || "family" }} family?
+    </h2>
+    <p class="mt-3 text-[0.9375rem] leading-relaxed text-stone-500">
+      Add everyone in the household. Each person needs at least one gift on their wish list.
+    </p>
+
+    <div class="mt-10 divide-y divide-stone-100 border-y border-stone-100">
+      @for (row of memberRows(); track row.member.id) {
+      <button
+        type="button"
+        class="group flex w-full items-center gap-3 py-4 text-left focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-pine-600"
+        (click)="editMember(row.member.id)"
+        @expandCollapse
+      >
+        <span
+          class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[0.9375rem] font-semibold transition-transform duration-150 group-active:scale-95"
+          [class]="
+            row.member.isChild === false
+              ? 'bg-pine-100 text-pine-800'
+              : row.member.gender === 'Male'
+              ? 'bg-sky-100 text-sky-800'
+              : row.member.gender === 'Female'
+              ? 'bg-rose-100 text-rose-800'
+              : 'bg-stone-100 text-stone-500'
+          "
+          aria-hidden="true"
+        >
+          {{ (row.member.name.trim() | titlecase).charAt(0) || "?" }}
+        </span>
+        <span class="min-w-0 flex-1">
+          <span class="block truncate text-base font-semibold tracking-snug text-stone-900">
+            {{ (row.member.name.trim() | titlecase) || "Unnamed member" }}
+          </span>
+          @if (row.problems.length > 0) {
+          <span
+            class="block text-sm"
+            [class.text-berry-700]="membersSubmitted()"
+            [class.text-stone-500]="!membersSubmitted()"
+          >
+            Needs {{ joinWithAnd(row.problems) }}
+          </span>
+          } @else {
+          <span class="block text-sm text-stone-500">{{ row.summary }}</span>
+          }
+        </span>
+        @if (row.problems.length > 0 && membersSubmitted()) {
+        <i class="pi pi-exclamation-circle shrink-0 text-berry-600" aria-hidden="true"></i>
+        }
+        <i class="pi pi-chevron-right shrink-0 text-sm text-stone-400" aria-hidden="true"></i>
+      </button>
+      }
+
+      <button
+        type="button"
+        class="flex w-full items-center gap-3 py-4 text-left text-base font-semibold text-pine-700 transition-colors hover:text-pine-800"
+        (click)="addMember()"
+      >
+        <span class="flex h-10 w-10 items-center justify-center rounded-full bg-pine-50" aria-hidden="true">
+          <i class="pi pi-plus text-sm"></i>
+        </span>
+        Add {{ memberRows().length > 0 ? "another" : "a" }} family member
+      </button>
+    </div>
+
+    @if (membersSubmitted() && memberRows().length === 0) {
+    <p class="field-error"><i class="pi pi-exclamation-circle text-xs" aria-hidden="true"></i>Add at least one family member</p>
+    } @else if (membersSubmitted() && incompleteCount() > 0) {
+    <p class="field-error">
+      <i class="pi pi-exclamation-circle text-xs" aria-hidden="true"></i>
+      Finish {{ incompleteCount() === 1 ? "the highlighted member" : "the " + incompleteCount() + " highlighted members" }} to continue
+    </p>
+    }
+
+    <button type="button" class="btn-dark btn-lg mt-10 w-full sm:w-auto" (click)="continueFromMembers()">
+      Review nomination
+      <i class="pi pi-arrow-right text-sm" aria-hidden="true"></i>
+    </button>
+  </div>
+  }
+
+  @case ('member') {
+  @if (editingMemberId(); as memberId) {
+  <app-member-editor
+    class="block animate-fade-up"
+    [memberId]="memberId"
+    [isNew]="editingIsNew()"
+    (saved)="closeEditor()"
+    (back)="closeEditor()"
+    (removeRequested)="removeEditingMember()"
+  />
+  }
+  }
+
+  @case ('review') {
+  <div class="animate-fade-up">
+    <button
+      type="button"
+      class="-ml-2 inline-flex items-center gap-1.5 rounded-full px-2 py-1.5 text-sm font-medium text-stone-500 transition-colors hover:text-stone-900 active:scale-95"
+      (click)="goTo('members')"
+    >
+      <i class="pi pi-chevron-left text-xs" aria-hidden="true"></i>
+      Family members
+    </button>
+    <h2 class="type-page-title mt-3">Review and submit</h2>
+    <p class="mt-3 text-[0.9375rem] leading-relaxed text-stone-500">
+      Once submitted, the family appears on Adopt Families right away.
+    </p>
+
+    <section class="mt-10">
+      <div class="flex items-baseline justify-between border-b border-stone-200 pb-2">
+        <h3 class="type-section-label">Family</h3>
+        <button type="button" class="text-sm font-semibold text-pine-700 hover:text-pine-800" (click)="goTo('family')">Edit</button>
+      </div>
+      <dl class="divide-y divide-stone-100 text-[0.9375rem]">
+        <div class="flex justify-between gap-6 py-3">
+          <dt class="text-stone-500">Last name</dt>
+          <dd class="text-right font-medium text-stone-900">{{ familyName() }}</dd>
+        </div>
+        <div class="flex justify-between gap-6 py-3">
+          <dt class="shrink-0 text-stone-500">Address</dt>
+          <dd class="text-right font-medium text-stone-900">{{ family().address }}</dd>
+        </div>
+        @if (family().phone) {
+        <div class="flex justify-between gap-6 py-3">
+          <dt class="text-stone-500">Phone</dt>
+          <dd class="text-right font-medium tabular-nums text-stone-900">{{ family().phone }}</dd>
+        </div>
+        } @if (family().email) {
+        <div class="flex justify-between gap-6 py-3">
+          <dt class="text-stone-500">Email</dt>
+          <dd class="min-w-0 truncate text-right font-medium text-stone-900">{{ family().email }}</dd>
+        </div>
+        }
+      </dl>
+    </section>
+
+    <section class="mt-10">
+      <div class="flex items-baseline justify-between border-b border-stone-200 pb-2">
+        <h3 class="type-section-label tabular-nums">
+          {{ memberRows().length }} {{ memberRows().length === 1 ? "person" : "people" }} ·
+          {{ giftCount() }} {{ giftCount() === 1 ? "gift" : "gifts" }}
+        </h3>
+        <button type="button" class="text-sm font-semibold text-pine-700 hover:text-pine-800" (click)="goTo('members')">Edit</button>
+      </div>
+      <div class="divide-y divide-stone-100">
+        @for (row of memberRows(); track row.member.id) {
+        <div class="py-4">
+          <p class="font-semibold tracking-snug text-stone-900">{{ row.member.name.trim() | titlecase }}</p>
+          <p class="text-sm text-stone-500">{{ row.summary }}</p>
+          <ul class="mt-2 space-y-1">
+            @for (item of row.member.items; track item) {
+            <li class="flex gap-2 text-sm text-stone-700">
+              <span class="text-stone-300" aria-hidden="true">•</span>
+              <span>
+                {{ item.description }}
+                @if (item.size || item.color) {
+                <span class="text-stone-400">· {{ itemVariant(item) }}</span>
+                }
+              </span>
+            </li>
+            }
+          </ul>
         </div>
         }
       </div>
+    </section>
 
-      <div class="flex items-center gap-2">
-        @if (getMemberValidationErrors(member).length > 0) {
-
-        <button
-          class="!text-orange-500 text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
-          (click)="showValidationErrors(i)"
-        >
-          <div class="flex items-center gap-4">
-            @if (!isMobile()) {
-            <span>View missing information</span>
-            }
-            <i class="pi pi-question-circle"></i>
-          </div>
-        </button>
-        }
-        <button
-          pButton
-          icon="pi pi-pencil"
-          class="p-button-text !text-blue-500"
-          (click)="editMember(i)"
-        ></button>
-        <button
-          pButton
-          icon="pi pi-trash"
-          class="p-button-text !text-red-500"
-          (click)="deleteMemberFromList(i)"
-        ></button>
-      </div>
+    @if (saveError()) {
+    <div class="mt-8 flex items-start gap-3 rounded-2xl bg-berry-50 p-4 animate-fade-up" role="alert">
+      <i class="pi pi-exclamation-circle mt-0.5 text-berry-600" aria-hidden="true"></i>
+      <span class="text-sm font-medium text-berry-800">{{ saveError() }}</span>
     </div>
     }
-    <div class="member-list-item mt-16">
-      <div class="member-info">
-        <h4 class="member-name">New member</h4>
-      </div>
-      <button
-        class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
-        (click)="addFamilyMember()"
-      >
-        <div class="flex items-center gap-4">
-          <span>Add</span>
-          <i class="pi pi-plus"></i>
-        </div>
+
+    <button
+      type="button"
+      class="btn-primary btn-lg mt-10 w-full"
+      [disabled]="isSaving()"
+      (click)="submit()"
+    >
+      @if (isSaving()) {
+      <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
+      Submitting…
+      } @else { Submit nomination }
+    </button>
+    <p class="mt-3 text-center text-[0.8125rem] text-stone-400">
+      Adopters see first names, ages and wish lists, not the address or contact details.
+    </p>
+  </div>
+  }
+
+  @case ('done') {
+  <div class="flex flex-col items-center py-10 text-center animate-fade-up">
+    <span
+      class="flex h-16 w-16 items-center justify-center rounded-full bg-pine-700 text-white animate-pop"
+      aria-hidden="true"
+    >
+      <i class="pi pi-check text-2xl"></i>
+    </span>
+    <h2 class="type-page-title mt-6">Nomination received</h2>
+    <p class="mt-3 max-w-sm text-[0.9375rem] leading-relaxed text-stone-500" role="status">
+      The {{ submitted()?.familyName }} family and their {{ submitted()?.gifts }}
+      {{ submitted()?.gifts === 1 ? "gift is" : "gifts are" }} now on Adopt Families.
+      Thank you for looking out for them.
+    </p>
+    <div class="mt-10 flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+      <button type="button" class="btn-primary btn-lg" (click)="viewOnAdoptFamilies()">
+        See it on Adopt Families
+      </button>
+      <button type="button" class="btn-quiet btn-lg" (click)="nominateAnother()">
+        Nominate another family
       </button>
     </div>
   </div>
-
-  <div class="flex justify-center mt-16">
-    <button
-      class="border border-red-600 text-red-600 font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
-      (click)="saveFamily()"
-      [disabled]="!isFamilyValid() || isSaving()"
-      [ngClass]="{
-        'bg-red-600 text-white': isFamilyValid() && !isSaving(),
-        'opacity-50 cursor-not-allowed': isSaving()
-      }"
-    >
-      <div class="flex items-center gap-4">
-        @if (isSaving()) {
-        <span> Saving... </span>
-        <i class="pi pi-spin pi-spinner"></i>
-        } @else {
-        <span> Submit Family </span>
-        <i class="pi pi-plus"></i>
-        }
-      </div>
-    </button>
-  </div>
-  } @else {
-  <div class="mb-8">
-    <div class="member-content">
-      @if (showMemberDetails()) {
-      <app-member-info
-        [member]="currentMember()"
-        (memberUpdated)="onMemberUpdated($event)"
-      >
-      </app-member-info>
-      } @else {
-      <app-item-form
-        [memberName]="currentMember().name"
-        [existingItems]="currentMember().items"
-        (itemsSaved)="onItemsSaved($event)"
-        (itemsUpdated)="onItemsUpdated($event)"
-        (doneAddingItems)="finishEditingMember()"
-      >
-      </app-item-form>
-      }
-    </div>
-  </div>
-  } } }
-
-  <app-confirm-delete-modal
-    [visible]="showDeleteModal()"
-    [memberName]="familyInfo().members[memberToDelete() ?? 0]?.name || ''"
-    (confirmed)="confirmDeleteFromList()"
-    (cancelled)="cancelDeleteFromList()"
-  ></app-confirm-delete-modal>
-
-  <!-- Validation Errors Modal -->
-  <p-dialog
-    [visible]="showValidationModal()"
-    [modal]="true"
-    [closable]="false"
-    [draggable]="false"
-    [resizable]="false"
-    header="Missing Information"
-    [style]="{ width: '400px' }"
-    (onHide)="closeValidationModal()"
-    [appendTo]="'body'"
-  >
-    <div class="validation-modal-content">
-      <p class="text-gray-600 text-sm mb-4">
-        The following information is required to complete this family member:
-      </p>
-
-      <div class="space-y-2">
-        @for (error of getCurrentValidationErrors(); track error) {
-        <div class="flex items-center gap-3 p-2 bg-red-50 rounded-lg">
-          <span class="w-2 h-2 bg-red-500 rounded-full flex-shrink-0"></span>
-          <span class="text-red-700 text-sm">{{ error }}</span>
-        </div>
-        }
-      </div>
-
-      <div class="flex justify-end mt-6">
-        <button
-          pButton
-          label="Got it"
-          class="p-button-sm"
-          (click)="closeValidationModal()"
-        ></button>
-      </div>
-    </div>
-  </p-dialog>
-
-  <ng-template #editButtonsTemplate>
-    @if (showMemberDetails()) {
-    <button
-      class="border border-red-500 text-red-500 hover:bg-red-600 hover:text-white font-medium py-2 px-4 rounded-lg flex items-center"
-      (click)="showWishlistItemsView()"
-    >
-      <div class="flex items-center gap-4">
-        <span> Edit wishlist items </span>
-        <i class="pi pi-gift"></i>
-      </div>
-    </button>
-    } @else {
-    <button
-      class="border border-blue-500 text-blue-500 hover:bg-blue-600 hover:text-white font-medium py-2 px-4 rounded-lg flex items-center"
-      (click)="showMemberDetailsView()"
-    >
-      <div class="flex items-center gap-4">
-        <span> Edit member details </span>
-        <i class="pi pi-user-edit"></i>
-      </div>
-    </button>
-    }
-  </ng-template>
-</div>
+  }
+  }
+  }
+</section>

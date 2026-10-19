@@ -11,11 +11,12 @@ export const routes: Routes = [
         canActivate: [authGuard],
         loadComponent: () => import('./components/adopt-family/adopt-family.component').then(m => m.AdoptFamilyComponent)
       },
-      // { 
-      //   path: 'nominate-family', 
-      //   canActivate: [authGuard],
-      //   loadComponent: () => import('./components/nominate-family/nominate-family.component').then(m => m.NominateFamilyComponent) 
-      // },
+      {
+        // Always routed; the page itself shows "closed" unless nomination_settings enables it
+        path: 'nominate-family',
+        canActivate: [authGuard],
+        loadComponent: () => import('./components/nominate-family/nominate-family.component').then(m => m.NominateFamilyComponent)
+      },
       {
         path: 'my-adoptions',
         canActivate: [authGuard],

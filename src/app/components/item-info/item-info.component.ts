@@ -1,6 +1,6 @@
 import { Component, computed, input } from '@angular/core';
 import { WishItem } from '../../shared/types';
-import { Item } from '../nominate-family/item-form/item-form.component';
+import { Item } from '../nominate-family/nomination.model';
 
 @Component({
   selector: 'app-item-info',

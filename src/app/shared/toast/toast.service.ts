@@ -57,6 +57,12 @@ export class ToastService {
     }, LEAVE_MS);
   }
 
+  /** Dismisses whatever is showing, e.g. an Undo that no longer applies. */
+  clear(): void {
+    const toast = this._current();
+    if (toast) this.dismiss(toast.id);
+  }
+
   runAction(toast: Toast): void {
     toast.action?.run();
     this.dismiss(toast.id);

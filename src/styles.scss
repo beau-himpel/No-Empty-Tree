@@ -87,6 +87,33 @@ h1, h2, h3, h4, h5, h6 {
   .btn-unadopt {
     @apply btn bg-white text-berry-700 border border-berry-200 hover:bg-berry-50 hover:border-berry-300 focus-visible:outline-berry-600;
   }
+
+  /* Form fields. Inputs stay at 16px so iOS Safari doesn't zoom in on focus. */
+  .field-label {
+    @apply mb-1.5 block text-sm font-medium text-stone-700;
+  }
+
+  .field-optional {
+    @apply font-normal text-stone-400;
+  }
+
+  .field-input {
+    @apply block w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-base text-stone-900
+      placeholder:text-stone-400 transition-[border-color,box-shadow] duration-150
+      hover:border-stone-400 focus:border-stone-900 focus:outline-none focus:ring-1 focus:ring-stone-900;
+  }
+
+  .field-input-invalid {
+    @apply border-berry-600 hover:border-berry-600 focus:border-berry-600 focus:ring-berry-600;
+  }
+
+  .field-error {
+    @apply mt-1.5 flex items-center gap-1.5 text-sm text-berry-700;
+  }
+
+  .field-hint {
+    @apply mt-1.5 text-sm text-stone-500;
+  }
 }
 
 /* Confirm sheet (CDK dialog): bottom sheet on phones, centered card on larger screens */
@@ -164,7 +191,9 @@ input[type="number"] {
   }
 }
 
-input, select, textarea {
+// Legacy fix for the PrimeNG inputs on the auth screens; the shared .field-input
+// classes style themselves and need their own focus/error borders.
+input:not(.field-input), select:not(.field-input), textarea:not(.field-input) {
   background-color: #fff !important;
   color: #1c1917 !important;
   border: 1px solid #d6d3d1 !important;
