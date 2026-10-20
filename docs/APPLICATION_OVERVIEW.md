@@ -63,7 +63,10 @@ Key facts that shape the design:
    animates it out (Undo brings it back). Empty state offers "Browse families".
 8. **Shopping list** (`/my-adoptions/shopping-list`, linked from My Adoptions) — Every gift
    the user adopted as a checklist: families A–Z, then each person with their gifts.
-   Ticks are saved in this browser only (localStorage, per user) with a "bought" count;
+   Ticks ("bought") are saved to the donor's account in `gift_purchases`, so they follow
+   them across devices, and mirrored in localStorage so ticking is instant. Ticks made
+   offline are queued on the device and sent when the connection returns (a note says so);
+   ticks the server refuses (gift no longer adopted) are dropped. **Clear ticks** has Undo.
    **Print** gives a plain, ink-friendly page (no app chrome; links print as site names).
 
 ## Secondary workflow: nomination (behind a feature flag)
@@ -110,6 +113,11 @@ never touches the column.
 - **profiles** — provides `full_name` for the "Adopted by" label (joined via
   `wishlist_items.adopted_by`).
 - **nomination_settings** — single row feature flag for the nomination UI.
+- **gift_purchases** — shopping list ticks: (`user_id`, `wishlist_item_id`, `purchased_at`),
+  one row per gift a donor marked bought. Row-level security: donors read and delete only
+  their own rows and can only insert for gifts they currently adopt
+  (`supabase/migrations/20261020000000_add_gift_purchases.sql`). Rows stay if the gift is
+  un-adopted (so Undo keeps the tick) and are deleted with the gift.
 - **Auth**: Supabase Auth with email/password and Google OAuth. All app routes require
   auth (`authGuard`); unauthenticated users only ever see the landing/sign-in screen.
 

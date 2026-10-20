@@ -409,6 +409,38 @@ export class SupabaseService {
     return data;
   }
 
+  /** Ids of the gifts the signed-in donor has ticked as bought (row-level security limits it to theirs). */
+  async getPurchasedItemIds(): Promise<string[]> {
+    const { data, error } = await this.supabase
+      .from('gift_purchases')
+      .select('wishlist_item_id');
+
+    if (error) throw error;
+    return (data ?? []).map((row) => row.wishlist_item_id as string);
+  }
+
+  async markPurchased(itemId: string, userId: string) {
+    const { error } = await this.supabase
+      .from('gift_purchases')
+      // Ticking twice (e.g. a retry after a dropped response) is not an error
+      .upsert(
+        { user_id: userId, wishlist_item_id: itemId },
+        { onConflict: 'user_id,wishlist_item_id', ignoreDuplicates: true }
+      );
+
+    if (error) throw error;
+  }
+
+  async unmarkPurchased(itemId: string, userId: string) {
+    const { error } = await this.supabase
+      .from('gift_purchases')
+      .delete()
+      .eq('user_id', userId)
+      .eq('wishlist_item_id', itemId);
+
+    if (error) throw error;
+  }
+
   async getWishlistItemsByUser(userId: string) {
     const { data, error } = await this.supabase
       .from('wishlist_items')

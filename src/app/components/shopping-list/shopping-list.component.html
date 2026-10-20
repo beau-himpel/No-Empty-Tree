@@ -74,6 +74,12 @@
       </button>
       }
     </div>
+    @if (syncProblem() && hasUnsyncedTicks()) {
+    <p class="mt-2 flex items-start gap-1.5 text-sm text-stone-500 animate-fade-in" role="status">
+      <i class="pi pi-cloud-upload mt-[0.3rem] text-xs" aria-hidden="true"></i>
+      Saved on this device. We'll sync your ticks when you're back online.
+    </p>
+    }
   </div>
 
   <div class="mt-10 space-y-10 print:mt-6 print:space-y-6">
