@@ -15,7 +15,7 @@ export class ItemInfoComponent {
 
   readonly metaLine = computed(() => {
     const item = this.item();
-    return [item.category, item.color, item.size ? `Size ${item.size}` : null]
+    return [item.color, item.size ? `Size ${item.size}` : null]
       .filter(Boolean)
       .join(' · ');
   });

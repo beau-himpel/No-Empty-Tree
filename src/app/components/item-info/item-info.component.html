@@ -1,12 +1,14 @@
+<p class="text-sm text-stone-500">{{ item().category }}</p>
 <p
-  class="text-[0.9375rem] font-semibold leading-snug tracking-snug transition-colors"
+  class="mt-0.5 text-[0.9375rem] font-semibold leading-snug tracking-snug transition-colors"
   [class.text-stone-900]="!muted()"
   [class.text-stone-400]="muted()"
 >
   {{ item().description }}
 </p>
+@if (metaLine()) {
 <p class="mt-0.5 text-sm text-stone-500">{{ metaLine() }}</p>
-@if (item().details) {
+} @if (item().details) {
 <p class="mt-1 text-sm leading-relaxed text-stone-500">{{ item().details }}</p>
 } @if (item().link) {
 <a
