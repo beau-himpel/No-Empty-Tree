@@ -1,9 +1,9 @@
-import { AnimationEvent } from '@angular/animations';
 import { NgTemplateOutlet, TitleCasePipe } from '@angular/common';
 import {
   afterNextRender,
   Component,
   computed,
+  DestroyRef,
   inject,
   Injector,
   OnInit,
@@ -15,7 +15,7 @@ import { BreakpointService } from '../../breakpoint.service';
 import { NominationSettingsService } from '../../nomination-settings.service';
 import { AnimatedNumberComponent } from '../../shared/animated-number.component';
 import { expandCollapse } from '../../shared/animations';
-import { scrollBehavior } from '../../shared/motion';
+import { prefersReducedMotion } from '../../shared/motion';
 import { Family } from '../../shared/types';
 import { SupabaseService } from '../../supabase.service';
 import { FamilyDetailsComponent } from '../family-details/family-details.component';
@@ -23,6 +23,7 @@ import { FamilyDetailsComponent } from '../family-details/family-details.compone
 // Height of the sticky app header; rows stick and scroll-align just below it
 const HEADER_OFFSET_PX = 64;
 const MAX_STAGGERED_ROWS = 10;
+const REVEAL_SCROLL_MS = 450;
 
 export interface FamilyRow {
   info: Family;
@@ -45,6 +46,7 @@ export interface FamilyRow {
 export class AdoptFamilyComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly injector = inject(Injector);
+  private glideFrame = 0;
   private readonly supabaseService = inject(SupabaseService);
   private readonly adoptionService = inject(AdoptionService);
   private readonly breakpointService = inject(BreakpointService);
@@ -87,6 +89,10 @@ export class AdoptFamilyComponent implements OnInit {
       progressPct: totalGifts === 0 ? 0 : (adoptedGifts / totalGifts) * 100,
     };
   });
+
+  constructor() {
+    inject(DestroyRef).onDestroy(() => this.stopGlide());
+  }
 
   ngOnInit() {
     this.loadFamilies();
@@ -132,6 +138,7 @@ export class AdoptFamilyComponent implements OnInit {
 
     if (!openId) {
       this.selectedFamilyId.set(family.id);
+      this.revealRow(family.id);
       return;
     }
 
@@ -147,29 +154,65 @@ export class AdoptFamilyComponent implements OnInit {
         window.scrollBy({ top: topAfter - topBefore, behavior: 'instant' });
         this.suppressAnimations.set(false);
         this.selectedFamilyId.set(family.id);
+        this.revealRow(family.id);
+      },
+      { injector: this.injector }
+    );
+  }
+
+  /** Brings a newly opened row to the top when its details would otherwise be off screen. */
+  private revealRow(familyId: string) {
+    afterNextRender(
+      () => {
+        const row = this.rowElement(familyId);
+        if (!row) return;
+        const top = row.getBoundingClientRect().top;
+        const isWellPlaced = Math.abs(top - HEADER_OFFSET_PX) < 4;
+        const isLowOnScreen = top > window.innerHeight * 0.45;
+        // Mobile keeps the original behavior of always bringing the selection into view
+        if (!isWellPlaced && (this.isMobile() || isLowOnScreen)) {
+          this.glideScrollTo(window.scrollY + top - HEADER_OFFSET_PX);
+        }
       },
       { injector: this.injector }
     );
   }
 
   /**
-   * Once a panel has finished opening, bring its row to the top if the details would
-   * otherwise be off screen. Waiting for the animation matters: before it, the page
-   * isn't tall enough yet and the browser would clamp the scroll short.
+   * Scrolls in step with the panel opening, as one motion. The page isn't tall
+   * enough for the target until the panel has grown, so each frame aims as far
+   * as the page currently allows. Any user scroll takes over immediately.
    */
-  onPanelAnimationDone(event: AnimationEvent, familyId: string) {
-    if (event.fromState !== 'void' || this.selectedFamilyId() !== familyId) return;
-
-    const row = this.rowElement(familyId);
-    if (!row) return;
-    const top = row.getBoundingClientRect().top;
-    const isWellPlaced = Math.abs(top - HEADER_OFFSET_PX) < 4;
-    const isLowOnScreen = top > window.innerHeight * 0.45;
-    // Mobile keeps the original behavior of always bringing the selection into view
-    if (!isWellPlaced && (this.isMobile() || isLowOnScreen)) {
-      row.scrollIntoView({ block: 'start', behavior: scrollBehavior() });
+  private glideScrollTo(target: number) {
+    this.stopGlide();
+    if (prefersReducedMotion()) {
+      window.scrollTo({ top: target, behavior: 'instant' });
+      return;
     }
+
+    const start = window.scrollY;
+    const startTime = performance.now();
+    const step = (now: number) => {
+      const progress = Math.min(1, (now - startTime) / REVEAL_SCROLL_MS);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      window.scrollTo({ top: Math.min(start + (target - start) * eased, maxScroll), behavior: 'instant' });
+      if (progress < 1) {
+        this.glideFrame = requestAnimationFrame(step);
+      } else {
+        this.stopGlide();
+      }
+    };
+    window.addEventListener('wheel', this.stopGlide, { passive: true });
+    window.addEventListener('touchstart', this.stopGlide, { passive: true });
+    this.glideFrame = requestAnimationFrame(step);
   }
+
+  private readonly stopGlide = () => {
+    cancelAnimationFrame(this.glideFrame);
+    window.removeEventListener('wheel', this.stopGlide);
+    window.removeEventListener('touchstart', this.stopGlide);
+  };
 
   navigateToNominate() {
     this.router.navigate(['/nominate-family']);

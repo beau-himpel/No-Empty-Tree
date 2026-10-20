@@ -45,11 +45,13 @@
   </button>
 
   <div
-    [@slideDown]="isCollapsed() ? 'collapsed' : 'expanded'"
+    class="wishlist grid"
+    [class.wishlist-open]="!isCollapsed()"
     [attr.inert]="isCollapsed() ? '' : null"
+    (transitionend)="onWishlistTransitionEnd($event)"
   >
-    <div class="pb-2 pl-[3.25rem]">
-      <div class="divide-y divide-stone-100">
+    <div class="wishlist-content min-h-0 pb-2 pl-[3.25rem]" [class.overflow-hidden]="clipContent()">
+      <div class="divide-y divide-stone-100" [@.disabled]="!animateItems()">
         @for (item of (member().wishlist_items || []); track item.id) {
         <app-wish-item [item]="item" [showAdoptionStatus]="showAdoptionStatus()" @expandCollapse />
         } @empty {

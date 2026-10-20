@@ -1,5 +1,4 @@
 import { Component, computed, inject, input, linkedSignal } from '@angular/core';
-import { trigger, state, style, transition, animate } from '@angular/animations';
 import { CommonModule } from '@angular/common';
 import { AdoptionService } from '../../../adoption.service';
 import { expandCollapse } from '../../../shared/animations';
@@ -15,25 +14,23 @@ import { WishItemComponent } from '../../wish-item/wish-item.component';
   ],
   templateUrl: './member-details.component.html',
   styleUrls: ['./member-details.component.scss'],
-  animations: [
-    trigger('slideDown', [
-      state('collapsed', style({ height: '0px', opacity: 0, overflow: 'hidden' })),
-      state('expanded', style({ height: '*', opacity: 1, overflow: 'visible' })),
-      transition('collapsed => expanded', animate('300ms cubic-bezier(0.2, 0, 0, 1)')),
-      transition('expanded => collapsed', animate('220ms cubic-bezier(0.4, 0, 1, 1)'))
-    ]),
-    expandCollapse,
-  ]
+  animations: [expandCollapse]
 })
 export class MemberDetailsComponent {
   member = input.required<FamilyMember>();
   /** Off where every item shown is already the viewer's own, e.g. My Adoptions. */
   showAdoptionStatus = input<boolean>(true);
   startExpanded = input<boolean>(false);
+  /** Animate gifts entering/leaving the list (My Adoptions removals and undo). */
+  animateItems = input<boolean>(false);
 
   private readonly adoptionService = inject(AdoptionService);
 
+  // Collapse is plain CSS (grid rows), not an Angular animation state: state styles
+  // are applied too late for a family panel that measures its height on enter.
   readonly isCollapsed = linkedSignal(() => !this.startExpanded());
+  /** Clip the wish list while closed or moving; unclipped once open so focus rings show. */
+  readonly clipContent = linkedSignal(() => !this.startExpanded());
 
   readonly roleLabel = computed(() => {
     const member = this.member();
@@ -74,6 +71,13 @@ export class MemberDetailsComponent {
 
   toggleWishlist(event: Event) {
     event.stopPropagation();
+    this.clipContent.set(true);
     this.isCollapsed.update(value => !value);
+  }
+
+  onWishlistTransitionEnd(event: TransitionEvent) {
+    if (event.target === event.currentTarget && !this.isCollapsed()) {
+      this.clipContent.set(false);
+    }
   }
 }

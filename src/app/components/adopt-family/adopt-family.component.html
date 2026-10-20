@@ -173,11 +173,7 @@
     </button>
 
     @if (selectedFamilyId() === row.info.id) {
-    <div
-      [id]="'family-panel-' + row.info.id"
-      @expandCollapse
-      (@expandCollapse.done)="onPanelAnimationDone($event, row.info.id)"
-    >
+    <div [id]="'family-panel-' + row.info.id" @expandCollapse>
       <app-family-details [family]="row.info" />
     </div>
     }
