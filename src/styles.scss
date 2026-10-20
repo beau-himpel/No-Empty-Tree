@@ -10,6 +10,9 @@
 
 :root {
   color-scheme: light;
+  // Always reserve the scrollbar's width, so centered content doesn't shift sideways
+  // when a page grows tall enough to scroll (no effect with overlay scrollbars, e.g. phones)
+  scrollbar-gutter: stable;
 }
 
 body {
