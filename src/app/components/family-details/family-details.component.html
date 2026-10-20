@@ -1,7 +1,7 @@
 @if (family(); as selectedFamily) {
-<div class="pb-8 pt-1">
+<div class="pb-8 pt-6">
   @if (gifts().allAdopted) {
-  <div class="flex items-center gap-3 py-2 animate-fade-up">
+  <div class="flex items-center justify-center gap-3 py-1 animate-fade-up">
     <span
       class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-pine-700 text-white animate-pop"
       aria-hidden="true"
@@ -14,9 +14,10 @@
     </div>
   </div>
   } @else if (gifts().total > 0) {
+  <div class="flex justify-center">
   <button
     type="button"
-    class="btn-adopt btn-lg w-full sm:w-auto"
+    class="btn-adopt btn-lg w-full sm:w-auto sm:min-w-[18rem]"
     [disabled]="adoptingAll()"
     (click)="adoptAll()"
   >
@@ -28,13 +29,14 @@
     {{ adoptAllLabel() }}
     }
   </button>
+  </div>
   } @else {
-  <p class="py-2 text-sm text-stone-500">
+  <p class="py-2 text-center text-sm text-stone-500">
     This family doesn't have any wish list items yet.
   </p>
   }
 
-  <div class="mt-4 divide-y divide-stone-100 border-t border-stone-100">
+  <div class="mt-6 divide-y divide-stone-100 border-t border-stone-100">
     @for (member of selectedFamily.family_members; track member.id) {
     <app-member-details [member]="member"></app-member-details>
     }
