@@ -2,7 +2,7 @@ import { Component, computed, inject, input, linkedSignal } from '@angular/core'
 import { CommonModule } from '@angular/common';
 import { AdoptionService } from '../../../adoption.service';
 import { expandCollapse } from '../../../shared/animations';
-import { PERSON_TONE_TEXT, PersonBadgeComponent, personTone } from '../../../shared/person-badge.component';
+import { PERSON_TONE_TEXT, PersonBadgeComponent, personTone, roleLabel } from '../../../shared/person-badge.component';
 import { FamilyMember } from '../../../shared/types';
 import { WishItemComponent } from '../../wish-item/wish-item.component';
 
@@ -37,13 +37,7 @@ export class MemberDetailsComponent {
   readonly tone = computed(() => personTone(this.member().is_parent, this.member().sex));
   readonly roleTextClass = computed(() => PERSON_TONE_TEXT[this.tone()]);
 
-  readonly roleLabel = computed(() => {
-    const member = this.member();
-    if (member.is_parent) {
-      return member.sex === 'male' ? 'Man' : member.sex === 'female' ? 'Woman' : 'Adult';
-    }
-    return member.sex === 'male' ? 'Boy' : member.sex === 'female' ? 'Girl' : 'Child';
-  });
+  readonly roleLabel = computed(() => roleLabel(this.member().is_parent, this.member().sex));
 
   /** Read out in place of the badge, which is decorative. */
   readonly ageLabel = computed(() => {

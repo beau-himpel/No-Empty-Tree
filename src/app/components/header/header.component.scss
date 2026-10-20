@@ -61,3 +61,10 @@
   color: #1c1917; // stone-900
   font-weight: 600;
 }
+
+// No app chrome on paper (e.g. the printable shopping list)
+@media print {
+  :host {
+    display: none;
+  }
+}

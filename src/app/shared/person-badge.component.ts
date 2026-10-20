@@ -25,6 +25,13 @@ export function personTone(isAdult: boolean | null, sex: string | null | undefin
   return 'unknown';
 }
 
+/** "Girl", "Man"… from how a family member was nominated. */
+export function roleLabel(isAdult: boolean, sex: string | null | undefined): string {
+  const normalized = sex?.toLowerCase();
+  if (isAdult) return normalized === 'male' ? 'Man' : normalized === 'female' ? 'Woman' : 'Adult';
+  return normalized === 'male' ? 'Boy' : normalized === 'female' ? 'Girl' : 'Child';
+}
+
 /** A person's age, tinted by who they are, so a family reads at a glance. */
 @Component({
   selector: 'app-person-badge',

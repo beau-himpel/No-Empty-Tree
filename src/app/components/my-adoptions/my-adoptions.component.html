@@ -39,6 +39,10 @@
       {{ totals().families }} {{ totals().families === 1 ? "family" : "families" }}.
       Thank you!
     </p>
+    <a routerLink="/my-adoptions/shopping-list" class="btn-outline btn-sm mt-5">
+      <i class="pi pi-list-check text-sm" aria-hidden="true"></i>
+      Shopping list
+    </a>
   </div>
 
   <div class="mt-12" [@.disabled]="!animateChanges()">

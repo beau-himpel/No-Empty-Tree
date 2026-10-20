@@ -31,6 +31,12 @@ export const routes: Routes = [
         title: 'My adoptions',
         loadComponent: () => import('./components/my-adoptions/my-adoptions.component').then(m => m.MyAdoptionsComponent)
       },
+      {
+        path: 'my-adoptions/shopping-list',
+        canActivate: [authGuard],
+        title: 'Shopping list',
+        loadComponent: () => import('./components/shopping-list/shopping-list.component').then(m => m.ShoppingListComponent)
+      },
     ]
   },
   { path: '**', redirectTo: 'adopt-family' }

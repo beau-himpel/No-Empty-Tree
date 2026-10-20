@@ -61,6 +61,10 @@ Key facts that shape the design:
 7. **My Adoptions page** (`/my-adoptions`) — A hero count of the user's adopted gifts, then
    their items grouped by family with member rows open by default. Removing an item
    animates it out (Undo brings it back). Empty state offers "Browse families".
+8. **Shopping list** (`/my-adoptions/shopping-list`, linked from My Adoptions) — Every gift
+   the user adopted as a checklist: families A–Z, then each person with their gifts.
+   Ticks are saved in this browser only (localStorage, per user) with a "bought" count;
+   **Print** gives a plain, ink-friendly page (no app chrome; links print as site names).
 
 ## Secondary workflow: nomination (behind a feature flag)
 
@@ -121,7 +125,7 @@ never touches the column.
 - **Routing** (`src/app/app.routes.ts`): everything nests under `HomeComponent` at `/`,
   which renders either the landing/sign-in screen (logged out) or the header + routed
   page (logged in). Routes: `/adopt-family`, `/nominate-family`, `/my-adoptions`,
-  `/reset-password` (all auth-guarded; the guard waits for the stored session to
+  `/my-adoptions/shopping-list`, `/reset-password` (all auth-guarded; the guard waits for the stored session to
   restore). Unknown paths redirect to `/adopt-family`. Each route sets the tab title
   ("My adoptions · No Empty Tree") via `title.strategy.ts`.
   Route changes cross-fade via the View Transitions API (`withViewTransitions`).
@@ -136,7 +140,9 @@ never touches the column.
     wish list (reused by both adopt-family and my-adoptions pages)
   - `src/app/components/wish-item/` + `item-info/` — single wish-list item row + its info
     (`item-info` is also used by the nomination wizard)
-  - `src/app/components/my-adoptions/` — user's adopted items page
+  - `src/app/components/my-adoptions/` — user's adopted items page; `adopted-by.ts`
+    filters families down to the user's gifts (shared with the shopping list)
+  - `src/app/components/shopping-list/` — printable checklist of the user's adoptions
   - `src/app/components/nominate-family/` — nomination wizard container (steps, family
     form, member list, review, submit); `member-editor/` — one member's details + wish
     list; `item-form/` — the add-a-gift form; `nomination-draft.service.ts` — draft state,

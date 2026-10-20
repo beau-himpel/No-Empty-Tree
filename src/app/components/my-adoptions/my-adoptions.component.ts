@@ -8,7 +8,7 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AdoptionService } from '../../adoption.service';
 import { AuthService } from '../../auth.service';
 import { AnimatedNumberComponent } from '../../shared/animated-number.component';
@@ -16,11 +16,12 @@ import { expandCollapse } from '../../shared/animations';
 import { Family } from '../../shared/types';
 import { SupabaseService } from '../../supabase.service';
 import { MemberDetailsComponent } from '../nominate-family/member-details/member-details.component';
+import { adoptedBy, giftCount } from './adopted-by';
 
 @Component({
   selector: 'app-my-adoptions',
   standalone: true,
-  imports: [MemberDetailsComponent, TitleCasePipe, AnimatedNumberComponent],
+  imports: [MemberDetailsComponent, TitleCasePipe, AnimatedNumberComponent, RouterLink],
   templateUrl: './my-adoptions.component.html',
   styleUrls: ['./my-adoptions.component.scss'],
   animations: [expandCollapse],
@@ -41,36 +42,12 @@ export class MyAdoptionsComponent implements OnInit {
 
   readonly adoptedFamilies = computed(() => {
     this.adoptionService.version();
-    const userId = this.authService.currentUser()?.id;
-    if (!userId) return [];
-
-    return this.families()
-      .map((family) => ({
-        ...family,
-        family_members: family.family_members
-          .map((member) => ({
-            ...member,
-            wishlist_items: (member.wishlist_items || []).filter(
-              (item) => item.is_adopted && item.adopted_by === userId
-            ),
-          }))
-          .filter((member) => member.wishlist_items.length > 0),
-      }))
-      .filter((family) => family.family_members.length > 0);
+    return adoptedBy(this.families(), this.authService.currentUser()?.id);
   });
 
   readonly totals = computed(() => {
     const families = this.adoptedFamilies();
-    const gifts = families.reduce(
-      (sum, family) =>
-        sum +
-        family.family_members.reduce(
-          (memberSum, member) => memberSum + (member.wishlist_items?.length || 0),
-          0
-        ),
-      0
-    );
-    return { gifts, families: families.length };
+    return { gifts: giftCount(families), families: families.length };
   });
 
   ngOnInit() {
