@@ -9,3 +9,35 @@
     transform: scale(0.92);
   }
 }
+
+// Trunk, then each tier grows up out of the one below it; the full tree holds,
+// then fades back to the empty silhouette and starts again.
+.splash-part {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: splash-grow 2400ms cubic-bezier(0.2, 0, 0, 1) infinite both;
+  animation-delay: calc(250ms + var(--part) * 150ms);
+}
+
+@keyframes splash-grow {
+  0% {
+    opacity: 0;
+    transform: translateY(8%) scale(0.7);
+  }
+  22%,
+  72% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+
+// Reduced motion: show the finished tree, still
+@media (prefers-reduced-motion: reduce) {
+  .splash-part {
+    animation: none;
+  }
+}
