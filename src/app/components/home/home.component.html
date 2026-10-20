@@ -50,6 +50,15 @@
   <!-- Sign in / create account -->
   <div class="pb-12 lg:flex lg:items-center lg:border-l lg:border-stone-100 lg:py-14 lg:pl-16">
     <div class="mx-auto w-full max-w-sm animate-fade-up [animation-delay:120ms] lg:mx-0">
+      @if (authService.connectionProblem()) {
+      <div class="mb-6 flex items-start gap-3 rounded-xl bg-amber-50 p-3.5 text-sm text-amber-900" role="alert">
+        <i class="pi pi-exclamation-triangle mt-0.5 text-amber-600" aria-hidden="true"></i>
+        <span>
+          <span class="font-semibold">We can't reach the server right now.</span>
+          Signing in may not work until it's back. Please try again in a few minutes.
+        </span>
+      </div>
+      }
       <app-auth-panel />
     </div>
   </div>

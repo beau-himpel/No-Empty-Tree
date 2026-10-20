@@ -5,6 +5,8 @@ import { filter } from 'rxjs/operators';
 import { SupabaseService } from './supabase.service';
 import type { User, Session } from '@supabase/supabase-js';
 
+const STARTUP_TIMEOUT_MS = 5000;
+
 export type AuthErrorKind =
   | 'invalid_credentials'
   | 'email_not_confirmed'
@@ -64,10 +66,26 @@ export class AuthService {
   /** True while the user arrived from a reset-password link and hasn't set one yet. */
   readonly isPasswordRecovery = computed(() => this.supabaseService.passwordRecovery());
 
+  private readonly _connectionProblem = signal(false);
+  /** Set when the auth server couldn't be reached while starting up. */
+  readonly connectionProblem = this._connectionProblem.asReadonly();
+
   private readonly ready: Promise<void>;
 
   constructor(private readonly supabaseService: SupabaseService, private readonly router: Router) {
-    this.ready = this.initializeAuth();
+    // Restoring an expired session needs the network, and the Supabase client
+    // retries for a long time when the server is unreachable. Stop waiting after
+    // a few seconds so the page and the route guard don't hang on the splash.
+    const startupTimeout = new Promise<void>((resolve) =>
+      setTimeout(() => {
+        if (!this._isReady()) {
+          this._connectionProblem.set(true);
+          this._isReady.set(true);
+        }
+        resolve();
+      }, STARTUP_TIMEOUT_MS)
+    );
+    this.ready = Promise.race([this.initializeAuth(), startupTimeout]);
 
     // A reset-password link signs the user in with a recovery session; send them
     // to choose a new password instead of into the app.
@@ -99,7 +117,11 @@ export class AuthService {
 
   private async initializeAuth(): Promise<void> {
     try {
-      const { data: { session } } = await this.supabaseService.client.auth.getSession();
+      const { data: { session }, error } = await this.supabaseService.client.auth.getSession();
+      if (error) {
+        console.warn('Error restoring session:', error);
+        if (authErrorKind(error) === 'network') this._connectionProblem.set(true);
+      }
       this.updateAuthState(session ?? null);
     } catch (error) {
       console.warn('Error getting initial session:', error);
@@ -123,6 +145,7 @@ export class AuthService {
     this._session.set(session);
     this._isLoggedIn.set(!!session);
     this._currentUser.set(session?.user ?? null);
+    if (session) this._connectionProblem.set(false);
 
     // Route only on an actual sign-in from the landing screen. Token refreshes and
     // page reloads fire auth events too, and must leave the user where they are.

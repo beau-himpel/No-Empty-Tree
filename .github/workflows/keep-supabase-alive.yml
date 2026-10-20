@@ -24,19 +24,24 @@ jobs:
           SUPABASE_URL="https://dgznrvltugmzacsdykfh.supabase.co"
           ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRnem5ydmx0dWdtemFjc2R5a2ZoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTczMDU3MzQsImV4cCI6MjA3Mjg4MTczNH0.Lfe4eZliQe3aIwvirOFQn15U1XFpzkwWogm9-XjwdLg"
 
-          status=$(curl -sS -o /tmp/body.txt -w "%{http_code}" --max-time 30 \
+          # Judge connection failures by curl's exit code, not its output: on a DNS
+          # failure curl still prints "000", so appending a fallback produced
+          # "000000", which slipped past the old string comparison and passed.
+          if ! status=$(curl -sS -o /tmp/body.txt -w "%{http_code}" --max-time 30 \
             "$SUPABASE_URL/rest/v1/families?select=id&limit=1" \
             -H "apikey: $ANON_KEY" \
-            -H "Authorization: Bearer $ANON_KEY" || echo "000")
+            -H "Authorization: Bearer $ANON_KEY"); then
+            echo "::error::Could not connect to Supabase (DNS or network failure). The project is likely paused; restore it at https://supabase.com/dashboard"
+            exit 1
+          fi
 
           echo "HTTP status: $status"
           cat /tmp/body.txt || true
 
           # Any 2xx/4xx means the request reached the database (RLS may hide rows,
-          # which is fine — the query still counts as activity). 000 means DNS/
-          # connection failure, i.e. the project is likely paused.
-          if [ "$status" = "000" ] || [ "$status" -ge 500 ]; then
-            echo "::error::Supabase project unreachable — it may be paused. Restore it at https://supabase.com/dashboard"
+          # which is fine — the query still counts as activity).
+          if [ "$status" -lt 200 ] || [ "$status" -ge 500 ]; then
+            echo "::error::Supabase responded with HTTP $status. Check the project at https://supabase.com/dashboard"
             exit 1
           fi
 
