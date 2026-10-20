@@ -16,8 +16,10 @@
 
   @if (isLoading()) {
   <div class="mt-6 animate-pulse" aria-hidden="true">
-    <div class="h-14 w-28 rounded-lg bg-stone-200 md:h-16"></div>
-    <div class="mt-3 h-4 w-56 rounded bg-stone-100"></div>
+    <div class="flex items-end gap-3">
+      <div class="h-14 w-20 rounded-lg bg-stone-200 md:h-16"></div>
+      <div class="mb-1 h-4 w-56 max-w-[55%] rounded bg-stone-100"></div>
+    </div>
     <div class="mt-6 h-1 w-full rounded-full bg-stone-100"></div>
     <div class="mt-12 divide-y divide-stone-100">
       @for (placeholder of [1, 2, 3, 4, 5]; track placeholder) {
@@ -35,16 +37,18 @@
   } @else if (totals().families > 0) {
   <!-- Hero: the one number that matters -->
   <div class="mt-6 animate-fade-up">
-    <p class="type-hero-number" [class.text-pine-700]="totals().remaining === 0">
-      <app-animated-number [value]="totals().remaining" />
-    </p>
-    <p class="mt-2 text-[0.9375rem] text-stone-500">
-      @if (totals().remaining === 0) {
-      Every gift has been adopted. Thank you!
-      } @else {
-      {{ totals().remaining === 1 ? "gift still needs" : "gifts still need" }} a home this season
-      }
-    </p>
+    <div class="flex items-baseline gap-3">
+      <p class="type-hero-number shrink-0" [class.text-pine-700]="totals().remaining === 0">
+        <app-animated-number [value]="totals().remaining" />
+      </p>
+      <p class="min-w-0 text-[0.9375rem] text-stone-500">
+        @if (totals().remaining === 0) {
+        Every gift has been adopted. Thank you!
+        } @else {
+        {{ totals().remaining === 1 ? "gift still needs" : "gifts still need" }} a home this season
+        }
+      </p>
+    </div>
     <div class="mt-6 h-1 overflow-hidden rounded-full bg-stone-100">
       <div
         class="h-full rounded-full bg-pine-600 transition-[width] duration-700 ease-out"
@@ -138,7 +142,15 @@
         <span class="block truncate text-sm text-stone-500">{{ row.summary }}</span>
       </span>
 
-      @if (row.totalGifts > 0) {
+      @if (row.fullyAdopted) {
+      <span
+        class="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-pine-700 px-3 py-1.5 text-[0.8125rem] font-semibold text-white"
+        [class.animate-pop]="completedThisVisit(row)"
+      >
+        <i class="pi pi-check text-[0.6875rem]" aria-hidden="true"></i>
+        All adopted
+      </span>
+      } @else if (row.totalGifts > 0) {
       <span
         class="hidden h-1 w-14 shrink-0 overflow-hidden rounded-full bg-stone-100 min-[380px]:block sm:w-24"
         aria-hidden="true"
@@ -149,31 +161,24 @@
         ></span>
       </span>
       <span class="w-[4.75rem] shrink-0 text-right">
-        @if (row.fullyAdopted) {
-        <span class="inline-flex items-center gap-1 text-sm font-semibold text-pine-700">
-          <i class="pi pi-check-circle text-[0.8125rem]" aria-hidden="true"></i>
-          Done
-        </span>
-        } @else {
         <span class="block text-[0.9375rem] font-semibold tabular-nums text-stone-900">
           {{ row.remaining }} left
         </span>
         <span class="block text-xs tabular-nums text-stone-500">
           of {{ row.totalGifts }} gifts
         </span>
-        }
       </span>
       }
 
       <i
-        class="pi pi-chevron-down shrink-0 text-sm text-stone-400 transition-transform duration-300 ease-out"
+        class="pi pi-chevron-down shrink-0 text-sm text-stone-400 transition-transform duration-500 ease-in-out"
         [class.rotate-180]="selectedFamilyId() === row.info.id"
         aria-hidden="true"
       ></i>
     </button>
 
     @if (selectedFamilyId() === row.info.id) {
-    <div [id]="'family-panel-' + row.info.id" @expandCollapse>
+    <div [id]="'family-panel-' + row.info.id" @panelExpand>
       <app-family-details [family]="row.info" />
     </div>
     }

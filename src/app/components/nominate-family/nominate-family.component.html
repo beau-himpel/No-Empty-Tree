@@ -173,21 +173,11 @@
         (click)="editMember(row.member.id)"
         @expandCollapse
       >
-        <span
-          class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[0.9375rem] font-semibold transition-transform duration-150 group-active:scale-95"
-          [class]="
-            row.member.isChild === false
-              ? 'bg-pine-100 text-pine-800'
-              : row.member.gender === 'Male'
-              ? 'bg-sky-100 text-sky-800'
-              : row.member.gender === 'Female'
-              ? 'bg-rose-100 text-rose-800'
-              : 'bg-stone-100 text-stone-500'
-          "
-          aria-hidden="true"
-        >
-          {{ (row.member.name.trim() | titlecase).charAt(0) || "?" }}
-        </span>
+        <app-person-badge
+          class="transition-transform duration-150 group-active:scale-95"
+          [age]="row.member.age"
+          [tone]="row.tone"
+        />
         <span class="min-w-0 flex-1">
           <span class="block truncate text-base font-semibold tracking-snug text-stone-900">
             {{ (row.member.name.trim() | titlecase) || "Unnamed member" }}

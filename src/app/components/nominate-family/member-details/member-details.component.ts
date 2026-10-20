@@ -2,6 +2,7 @@ import { Component, computed, inject, input, linkedSignal } from '@angular/core'
 import { CommonModule } from '@angular/common';
 import { AdoptionService } from '../../../adoption.service';
 import { expandCollapse } from '../../../shared/animations';
+import { PERSON_TONE_TEXT, PersonBadgeComponent, personTone } from '../../../shared/person-badge.component';
 import { FamilyMember } from '../../../shared/types';
 import { WishItemComponent } from '../../wish-item/wish-item.component';
 
@@ -11,6 +12,7 @@ import { WishItemComponent } from '../../wish-item/wish-item.component';
   imports: [
     CommonModule,
     WishItemComponent,
+    PersonBadgeComponent,
   ],
   templateUrl: './member-details.component.html',
   styleUrls: ['./member-details.component.scss'],
@@ -32,6 +34,9 @@ export class MemberDetailsComponent {
   /** Clip the wish list while closed or moving; unclipped once open so focus rings show. */
   readonly clipContent = linkedSignal(() => !this.startExpanded());
 
+  readonly tone = computed(() => personTone(this.member().is_parent, this.member().sex));
+  readonly roleTextClass = computed(() => PERSON_TONE_TEXT[this.tone()]);
+
   readonly roleLabel = computed(() => {
     const member = this.member();
     if (member.is_parent) {
@@ -40,33 +45,22 @@ export class MemberDetailsComponent {
     return member.sex === 'male' ? 'Boy' : member.sex === 'female' ? 'Girl' : 'Child';
   });
 
-  private readonly giftCounts = computed(() => {
+  /** Read out in place of the badge, which is decorative. */
+  readonly ageLabel = computed(() => {
+    const age = this.member().age;
+    return age === 0 ? 'under 1 year old' : `${age} ${age === 1 ? 'year' : 'years'} old`;
+  });
+
+  readonly giftCounts = computed(() => {
     this.adoptionService.version();
     const items = this.member().wishlist_items || [];
-    return {
-      total: items.length,
-      adopted: items.filter((item) => item.is_adopted).length,
-    };
+    const adopted = items.filter((item) => item.is_adopted).length;
+    return { total: items.length, adopted, remaining: items.length - adopted };
   });
 
   readonly allAdopted = computed(() => {
     const { total, adopted } = this.giftCounts();
     return total > 0 && adopted === total;
-  });
-
-  readonly metaLine = computed(() => {
-    const { total, adopted } = this.giftCounts();
-    const parts = [`${this.roleLabel()}, ${this.member().age}`];
-    if (total === 0) {
-      parts.push('No wish list yet');
-    } else if (adopted === 0) {
-      parts.push(`${total} ${total === 1 ? 'gift' : 'gifts'}`);
-    } else if (adopted < total) {
-      parts.push(`${total - adopted} of ${total} gifts left`);
-    } else {
-      parts.push(`${total} ${total === 1 ? 'gift' : 'gifts'}`);
-    }
-    return parts.join(' · ');
   });
 
   toggleWishlist(event: Event) {

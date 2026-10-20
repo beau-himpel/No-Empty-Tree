@@ -17,6 +17,7 @@ import { AuthService } from '../../auth.service';
 import { NominationSettingsService } from '../../nomination-settings.service';
 import { expandCollapse } from '../../shared/animations';
 import { ConfirmService } from '../../shared/confirm/confirm.service';
+import { PersonBadgeComponent, personTone } from '../../shared/person-badge.component';
 import { PhoneMaskDirective } from '../../shared/phone-mask.directive';
 import { scrollBehavior } from '../../shared/motion';
 import { ToastService } from '../../shared/toast/toast.service';
@@ -49,7 +50,7 @@ const phoneNumber = (control: AbstractControl) => {
 @Component({
   selector: 'app-nominate-family',
   standalone: true,
-  imports: [ReactiveFormsModule, PhoneMaskDirective, MemberEditorComponent, TitleCasePipe],
+  imports: [ReactiveFormsModule, PhoneMaskDirective, MemberEditorComponent, TitleCasePipe, PersonBadgeComponent],
   providers: [NominationDraftService],
   templateUrl: './nominate-family.component.html',
   styleUrls: ['./nominate-family.component.scss'],
@@ -102,6 +103,7 @@ export class NominateFamilyComponent implements OnInit {
       member,
       problems: memberProblems(member),
       summary: this.memberSummary(member),
+      tone: personTone(member.isChild === null ? null : !member.isChild, member.gender),
     }))
   );
   readonly incompleteCount = computed(

@@ -14,8 +14,8 @@ import { AdoptionService } from '../../adoption.service';
 import { BreakpointService } from '../../breakpoint.service';
 import { NominationSettingsService } from '../../nomination-settings.service';
 import { AnimatedNumberComponent } from '../../shared/animated-number.component';
-import { expandCollapse } from '../../shared/animations';
-import { prefersReducedMotion } from '../../shared/motion';
+import { PANEL_EASE_POINTS, PANEL_OPEN_MS, panelExpand } from '../../shared/animations';
+import { cubicBezier, prefersReducedMotion } from '../../shared/motion';
 import { Family } from '../../shared/types';
 import { SupabaseService } from '../../supabase.service';
 import { FamilyDetailsComponent } from '../family-details/family-details.component';
@@ -23,7 +23,8 @@ import { FamilyDetailsComponent } from '../family-details/family-details.compone
 // Height of the sticky app header; rows stick and scroll-align just below it
 const HEADER_OFFSET_PX = 64;
 const MAX_STAGGERED_ROWS = 10;
-const REVEAL_SCROLL_MS = 450;
+// Same curve and length as the panel opening, so both move as one
+const revealEase = cubicBezier(...PANEL_EASE_POINTS);
 
 export interface FamilyRow {
   info: Family;
@@ -41,7 +42,7 @@ export interface FamilyRow {
   imports: [FamilyDetailsComponent, TitleCasePipe, AnimatedNumberComponent, NgTemplateOutlet],
   templateUrl: './adopt-family.component.html',
   styleUrls: ['./adopt-family.component.scss'],
-  animations: [expandCollapse],
+  animations: [panelExpand],
 })
 export class AdoptFamilyComponent implements OnInit {
   private readonly router = inject(Router);
@@ -116,6 +117,11 @@ export class AdoptFamilyComponent implements OnInit {
     } finally {
       this.isLoading.set(false);
     }
+  }
+
+  /** Celebrate a family finished while this page was open; ones already done just show it. */
+  completedThisVisit(row: FamilyRow): boolean {
+    return row.fullyAdopted && !this.groupOrder().done.includes(row.info.id);
   }
 
   staggerDelay(index: number): number {
@@ -193,8 +199,8 @@ export class AdoptFamilyComponent implements OnInit {
     const start = window.scrollY;
     const startTime = performance.now();
     const step = (now: number) => {
-      const progress = Math.min(1, (now - startTime) / REVEAL_SCROLL_MS);
-      const eased = 1 - Math.pow(1 - progress, 3);
+      const progress = Math.min(1, (now - startTime) / PANEL_OPEN_MS);
+      const eased = revealEase(progress);
       const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
       window.scrollTo({ top: Math.min(start + (target - start) * eased, maxScroll), behavior: 'instant' });
       if (progress < 1) {

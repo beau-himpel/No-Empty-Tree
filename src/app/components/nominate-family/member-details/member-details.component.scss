@@ -7,13 +7,13 @@
 // with no measuring step that can go stale.
 .wishlist {
   grid-template-rows: 0fr;
-  transition: grid-template-rows 220ms cubic-bezier(0.4, 0, 1, 1);
+  // Same ease-in-out as a family panel (PANEL_EASE_POINTS), a little shorter since it's smaller
+  transition: grid-template-rows 320ms cubic-bezier(0.45, 0, 0.2, 1);
 }
 
 .wishlist-open {
   grid-template-rows: 1fr;
-  transition-duration: 320ms;
-  transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
+  transition-duration: 460ms;
 }
 
 .wishlist-content {
@@ -23,5 +23,5 @@
 
 .wishlist-open .wishlist-content {
   opacity: 1;
-  transition: opacity 260ms ease-out 40ms;
+  transition: opacity 300ms ease-out 120ms;
 }
