@@ -6,6 +6,7 @@ import {
   inject,
   Injector,
   signal,
+  viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
@@ -16,7 +17,9 @@ import {
   Validators,
 } from '@angular/forms';
 import { AuthErrorKind, authErrorKind, authErrorMessage, AuthService } from '../../auth.service';
+import { PANEL_EASE, PANEL_OPEN_MS } from '../../shared/animations';
 import { ChoiceGroupComponent, ChoiceOption } from '../../shared/choice-group.component';
+import { prefersReducedMotion } from '../../shared/motion';
 
 type Mode = 'signin' | 'signup' | 'forgot' | 'reset-sent' | 'check-email';
 
@@ -35,6 +38,43 @@ const notBlank = (control: AbstractControl) =>
   standalone: true,
   imports: [ReactiveFormsModule, ChoiceGroupComponent, NgTemplateOutlet],
   templateUrl: './auth-panel.component.html',
+  host: {
+    '[style.--switch-ms]': 'switchMs + "ms"',
+    '[style.--switch-ease]': 'switchEase',
+  },
+  styles: `
+    /* Sign in sits left of Create account (as in the toggle), so each slides out toward its side */
+    .auth-form {
+      transition:
+        opacity 380ms ease-out 120ms,
+        transform var(--switch-ms) var(--switch-ease),
+        visibility 0s;
+    }
+    .auth-form-hidden {
+      position: absolute;
+      inset: 0 0.375rem auto; /* inside the wrapper's px-1.5 */
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition:
+        opacity 200ms ease-in,
+        transform var(--switch-ms) var(--switch-ease),
+        visibility 0s linear var(--switch-ms);
+    }
+    .auth-form-hidden[data-side='start'] {
+      transform: translateX(-2.5rem);
+    }
+    .auth-form-hidden[data-side='end'] {
+      transform: translateX(2.5rem);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .auth-form,
+      .auth-form-hidden {
+        transition: none;
+        transform: none;
+      }
+    }
+  `,
 })
 export class AuthPanelComponent {
   private readonly authService = inject(AuthService);
@@ -43,6 +83,11 @@ export class AuthPanelComponent {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   readonly minPasswordLength = MIN_PASSWORD_LENGTH;
+  readonly switchMs = PANEL_OPEN_MS;
+  readonly switchEase = PANEL_EASE;
+
+  private readonly formSwitcher = viewChild<ElementRef<HTMLElement>>('formSwitcher');
+  private heightAnimation: Animation | null = null;
 
   readonly mode = signal<Mode>('signin');
   readonly modeControl = new FormControl<'signin' | 'signup'>('signin', { nonNullable: true });
@@ -82,6 +127,8 @@ export class AuthPanelComponent {
 
   setMode(mode: Mode): void {
     const email = this.currentEmail();
+    const isFormSwitch = this.isSignInOrUp(this.mode()) && this.isSignInOrUp(mode) && this.mode() !== mode;
+    if (isFormSwitch) this.animateFormSwitch();
     this.mode.set(mode);
     this.error.set(null);
     this.submitted.set(false);
@@ -98,7 +145,40 @@ export class AuthPanelComponent {
     }
   }
 
+  private isSignInOrUp(mode: Mode): boolean {
+    return mode === 'signin' || mode === 'signup';
+  }
+
+  /**
+   * Glides the panel between the two forms' heights so the controls below it move
+   * smoothly; the forms themselves cross-fade in CSS. Measured from where the panel
+   * is right now, so toggling again mid-animation reverses without a jump.
+   */
+  private animateFormSwitch(): void {
+    const switcher = this.formSwitcher()?.nativeElement;
+    if (!switcher || prefersReducedMotion()) return;
+    const from = switcher.getBoundingClientRect().height;
+    this.heightAnimation?.cancel();
+    afterNextRender(
+      () => {
+        const to = switcher.getBoundingClientRect().height;
+        // Clip while moving: the incoming form is taller than the panel until it finishes
+        this.heightAnimation = switcher.animate(
+          [
+            { height: `${from}px`, overflow: 'hidden' },
+            { height: `${to}px`, overflow: 'hidden' },
+          ],
+          { duration: PANEL_OPEN_MS, easing: PANEL_EASE }
+        );
+        this.heightAnimation.onfinish = () => (this.heightAnimation = null);
+      },
+      { injector: this.injector }
+    );
+  }
+
   showError(form: 'signin' | 'signup' | 'forgot', field: string): boolean {
+    // Both sign-in forms stay rendered; only the one in use shows errors
+    if (form !== this.mode()) return false;
     const group: AbstractControl =
       form === 'signin' ? this.signInForm : form === 'signup' ? this.signUpForm : this.forgotForm;
     const control = group.get(field);
@@ -179,7 +259,8 @@ export class AuthPanelComponent {
     form.markAllAsTouched();
     if (!form.invalid) return true;
     afterNextRender(
-      () => this.host.nativeElement.querySelector<HTMLElement>('.field-input-invalid')?.focus(),
+      // Skip the inactive (inert) form, which may still hold touched fields
+      () => this.host.nativeElement.querySelector<HTMLElement>('form:not([inert]) .field-input-invalid')?.focus(),
       { injector: this.injector }
     );
     return false;

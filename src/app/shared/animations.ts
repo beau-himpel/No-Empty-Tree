@@ -4,7 +4,7 @@ const EASE_OUT = 'cubic-bezier(0.2, 0, 0, 1)';
 const EASE_IN = 'cubic-bezier(0.4, 0, 1, 1)';
 /** Eases in and out, so a large panel never lurches; shared with the scroll that follows it. */
 export const PANEL_EASE_POINTS = [0.45, 0, 0.2, 1] as const;
-const PANEL_EASE = `cubic-bezier(${PANEL_EASE_POINTS.join(', ')})`;
+export const PANEL_EASE = `cubic-bezier(${PANEL_EASE_POINTS.join(', ')})`;
 export const PANEL_OPEN_MS = 560;
 const PANEL_CLOSE_MS = 380;
 

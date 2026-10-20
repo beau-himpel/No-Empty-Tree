@@ -38,8 +38,10 @@ export interface ChoiceOption<T> {
     >
       @if (variant() === 'segmented') {
       <span
-        class="pointer-events-none absolute bottom-1 left-1 top-1 rounded-lg bg-white shadow-sm transition-[transform,opacity] duration-300 ease-out"
+        class="pointer-events-none absolute bottom-1 left-1 top-1 rounded-lg bg-white shadow-sm transition-[transform,opacity]"
         [style.width]="indicatorWidth()"
+        [style.transition-duration.ms]="indicatorMs()"
+        [style.transition-timing-function]="indicatorEasing()"
         [style.transform]="'translateX(' + selectedIndex() * 100 + '%)'"
         [style.opacity]="selectedIndex() < 0 ? 0 : 1"
         aria-hidden="true"
@@ -68,6 +70,9 @@ export class ChoiceGroupComponent<T> implements ControlValueAccessor {
   readonly variant = input<'segmented' | 'chips'>('segmented');
   readonly labelledBy = input<string>();
   readonly invalid = input(false);
+  /** How long the segmented highlight takes to slide to a new choice. */
+  readonly indicatorMs = input(300);
+  readonly indicatorEasing = input('ease-out');
 
   private readonly value = signal<T | null>(null);
   readonly disabled = signal(false);
