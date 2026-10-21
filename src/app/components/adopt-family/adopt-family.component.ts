@@ -14,6 +14,7 @@ import { AdoptionService } from '../../adoption.service';
 import { BreakpointService } from '../../breakpoint.service';
 import { NominationSettingsService } from '../../nomination-settings.service';
 import { AnimatedNumberComponent } from '../../shared/animated-number.component';
+import { FamilyTabComponent } from '../../shared/family-tab.component';
 import { PANEL_EASE_POINTS, PANEL_OPEN_MS, panelExpand } from '../../shared/animations';
 import { cubicBezier, prefersReducedMotion } from '../../shared/motion';
 import { Family } from '../../shared/types';
@@ -39,7 +40,7 @@ export interface FamilyRow {
 @Component({
   selector: 'app-adopt-family',
   standalone: true,
-  imports: [FamilyDetailsComponent, TitleCasePipe, AnimatedNumberComponent, NgTemplateOutlet],
+  imports: [FamilyDetailsComponent, TitleCasePipe, AnimatedNumberComponent, NgTemplateOutlet, FamilyTabComponent],
   templateUrl: './adopt-family.component.html',
   styleUrls: ['./adopt-family.component.scss'],
   animations: [panelExpand],

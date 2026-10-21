@@ -120,61 +120,56 @@
 <ng-template #familyRow let-row let-index="index">
   <div
     [id]="'family-' + row.info.id"
-    class="scroll-mt-16 border-b border-stone-100 animate-fade-up"
+    class="scroll-mt-16 animate-fade-up"
     [style.animation-delay.ms]="staggerDelay(index)"
   >
     <button
       type="button"
-      class="group sticky top-16 z-10 flex w-full items-center gap-3 bg-white py-4 text-left transition-shadow focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-pine-600 sm:gap-4"
+      class="group sticky top-16 z-10 block w-full bg-white pb-3.5 pt-4 text-left transition-shadow focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-pine-600"
       [class.row-header-open]="selectedFamilyId() === row.info.id"
       (click)="viewFamilyDetails(row.info)"
       [attr.aria-expanded]="selectedFamilyId() === row.info.id"
       [attr.aria-controls]="'family-panel-' + row.info.id"
     >
-      <span class="min-w-0 flex-1 transition-transform duration-150 group-active:scale-[0.99]">
+      <app-family-tab>The {{ row.info.last_name | titlecase }} Family</app-family-tab>
+
+      <span class="mt-2.5 flex items-center gap-3 sm:gap-4">
+        <span class="min-w-0 flex-1 truncate text-sm text-stone-500">{{ row.summary }}</span>
+
+        @if (row.fullyAdopted) {
         <span
-          class="block truncate text-[1.0625rem] font-semibold tracking-snug transition-colors"
-          [class.text-stone-900]="selectedFamilyId() !== row.info.id"
-          [class.text-pine-700]="selectedFamilyId() === row.info.id"
+          class="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-pine-700 px-3 py-1.5 text-[0.8125rem] font-semibold text-white"
+          [class.animate-pop]="completedThisVisit(row)"
         >
-          The {{ row.info.last_name | titlecase }} Family
+          <i class="pi pi-check text-[0.6875rem]" aria-hidden="true"></i>
+          All adopted
         </span>
-        <span class="block truncate text-sm text-stone-500">{{ row.summary }}</span>
-      </span>
-
-      @if (row.fullyAdopted) {
-      <span
-        class="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-pine-700 px-3 py-1.5 text-[0.8125rem] font-semibold text-white"
-        [class.animate-pop]="completedThisVisit(row)"
-      >
-        <i class="pi pi-check text-[0.6875rem]" aria-hidden="true"></i>
-        All adopted
-      </span>
-      } @else if (row.totalGifts > 0) {
-      <span
-        class="hidden h-1 w-14 shrink-0 overflow-hidden rounded-full bg-stone-100 min-[380px]:block sm:w-24"
-        aria-hidden="true"
-      >
+        } @else if (row.totalGifts > 0) {
         <span
-          class="block h-full rounded-full bg-pine-600 transition-[width] duration-700 ease-out"
-          [style.width.%]="row.progressPct"
-        ></span>
-      </span>
-      <span class="w-[4.75rem] shrink-0 text-right">
-        <span class="block text-[0.9375rem] font-semibold tabular-nums text-stone-900">
-          {{ row.remaining }} left
+          class="hidden h-1 w-14 shrink-0 overflow-hidden rounded-full bg-stone-100 min-[380px]:block sm:w-24"
+          aria-hidden="true"
+        >
+          <span
+            class="block h-full rounded-full bg-pine-600 transition-[width] duration-700 ease-out"
+            [style.width.%]="row.progressPct"
+          ></span>
         </span>
-        <span class="block text-xs tabular-nums text-stone-500">
-          of {{ row.totalGifts }} gifts
+        <span class="w-[4.75rem] shrink-0 text-right">
+          <span class="block text-[0.9375rem] font-semibold tabular-nums text-stone-900">
+            {{ row.remaining }} left
+          </span>
+          <span class="block text-xs tabular-nums text-stone-500">
+            of {{ row.totalGifts }} gifts
+          </span>
         </span>
-      </span>
-      }
+        }
 
-      <i
-        class="pi pi-chevron-down shrink-0 text-sm text-stone-400 transition-transform duration-500 ease-in-out"
-        [class.rotate-180]="selectedFamilyId() === row.info.id"
-        aria-hidden="true"
-      ></i>
+        <i
+          class="pi pi-chevron-down shrink-0 text-sm text-stone-400 transition-transform duration-500 ease-in-out"
+          [class.rotate-180]="selectedFamilyId() === row.info.id"
+          aria-hidden="true"
+        ></i>
+      </span>
     </button>
 
     @if (selectedFamilyId() === row.info.id) {

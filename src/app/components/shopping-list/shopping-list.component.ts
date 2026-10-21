@@ -3,6 +3,7 @@ import { Component, computed, DestroyRef, inject, linkedSignal, OnInit, signal }
 import { RouterLink } from '@angular/router';
 import { AdoptionService } from '../../adoption.service';
 import { AuthService } from '../../auth.service';
+import { FamilyTabComponent } from '../../shared/family-tab.component';
 import { roleLabel } from '../../shared/person-badge.component';
 import { ToastService } from '../../shared/toast/toast.service';
 import { Family, FamilyMember, WishItem } from '../../shared/types';
@@ -27,7 +28,7 @@ type PendingTicks = Record<string, boolean>;
 @Component({
   selector: 'app-shopping-list',
   standalone: true,
-  imports: [RouterLink, TitleCasePipe],
+  imports: [RouterLink, TitleCasePipe, FamilyTabComponent],
   templateUrl: './shopping-list.component.html',
   styleUrls: ['./shopping-list.component.scss'],
 })

@@ -12,6 +12,7 @@ import { Router, RouterLink } from '@angular/router';
 import { AdoptionService } from '../../adoption.service';
 import { AuthService } from '../../auth.service';
 import { AnimatedNumberComponent } from '../../shared/animated-number.component';
+import { FamilyTabComponent } from '../../shared/family-tab.component';
 import { expandCollapse } from '../../shared/animations';
 import { Family } from '../../shared/types';
 import { SupabaseService } from '../../supabase.service';
@@ -21,7 +22,7 @@ import { adoptedBy, giftCount } from './adopted-by';
 @Component({
   selector: 'app-my-adoptions',
   standalone: true,
-  imports: [MemberDetailsComponent, TitleCasePipe, AnimatedNumberComponent, RouterLink],
+  imports: [MemberDetailsComponent, TitleCasePipe, AnimatedNumberComponent, RouterLink, FamilyTabComponent],
   templateUrl: './my-adoptions.component.html',
   styleUrls: ['./my-adoptions.component.scss'],
   animations: [expandCollapse],

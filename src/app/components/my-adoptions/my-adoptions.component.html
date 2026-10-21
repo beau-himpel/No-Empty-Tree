@@ -52,8 +52,8 @@
       [style.animation-delay.ms]="i * 60"
       @expandCollapse
     >
-      <h2 class="type-section-label border-b border-stone-200 pb-2">
-        The {{ family.last_name | titlecase }} Family
+      <h2>
+        <app-family-tab>The {{ family.last_name | titlecase }} Family</app-family-tab>
       </h2>
       <div class="divide-y divide-stone-100">
         @for (member of family.family_members; track member.id) {

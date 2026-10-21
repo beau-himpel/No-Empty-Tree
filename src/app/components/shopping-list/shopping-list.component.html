@@ -85,8 +85,8 @@
   <div class="mt-10 space-y-10 print:mt-6 print:space-y-6">
     @for (family of adoptedFamilies(); track family.id; let i = $index) {
     <section class="animate-fade-up" [style.animation-delay.ms]="60 + i * 60" [attr.aria-labelledby]="'list-family-' + family.id">
-      <h2 [id]="'list-family-' + family.id" class="type-section-label list-family border-b border-stone-200 pb-2">
-        The {{ family.last_name | titlecase }} Family
+      <h2 [id]="'list-family-' + family.id" class="list-family">
+        <app-family-tab>The {{ family.last_name | titlecase }} Family</app-family-tab>
       </h2>
 
       @for (member of family.family_members; track member.id) {
