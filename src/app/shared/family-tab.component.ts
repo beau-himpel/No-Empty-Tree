@@ -14,7 +14,7 @@ import { Component } from '@angular/core';
   styles: `
     :host {
       --tab-color: #d84e62; /* berry-500 */
-      --bar-height: 4.5px;
+      --bar-height: 5px; /* about 15% of the tab's height */
       --radius: 0.5rem;
       display: flex;
       align-items: flex-end;
