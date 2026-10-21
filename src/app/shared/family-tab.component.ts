@@ -15,40 +15,22 @@ import { Component } from '@angular/core';
     :host {
       --tab-color: #d84e62; /* berry-500 */
       --bar-height: 3px;
-      --fillet: 0.5rem;
       display: flex;
       align-items: flex-end;
       min-width: 0;
     }
 
     .tab-label {
-      position: relative;
       min-width: 0;
-      /* Leave room for the fillet and a visible run of bar on narrow screens */
-      max-width: calc(100% - 1.75rem);
+      /* Leave a visible run of bar on narrow screens */
+      max-width: calc(100% - 1.25rem);
       padding: 0.375rem 0.875rem 0.3125rem;
-      border-radius: 0.875rem 0.875rem 0 0;
       background: var(--tab-color);
       color: #fff;
       font-size: 1rem;
       font-weight: 600;
       line-height: 1.375;
       letter-spacing: -0.011em;
-    }
-
-    /* Concave curve where the tab's right side meets the bar, so the two read as one shape */
-    .tab-label::after {
-      content: '';
-      position: absolute;
-      right: calc(var(--fillet) * -1);
-      bottom: 0;
-      width: var(--fillet);
-      height: calc(var(--fillet) + var(--bar-height));
-      background: radial-gradient(
-        circle at 100% 0,
-        transparent calc(var(--fillet) - 0.5px),
-        var(--tab-color) var(--fillet)
-      );
     }
 
     /* The bar: from the tab's base to the far right */
@@ -66,9 +48,6 @@ import { Component } from '@angular/core';
         padding-left: 0;
         background: none;
         color: #000;
-      }
-      .tab-label::after {
-        display: none;
       }
       :host::after {
         height: 1px;
