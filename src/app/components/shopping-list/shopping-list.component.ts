@@ -5,11 +5,10 @@ import { AdoptionService } from '../../adoption.service';
 import { AuthService } from '../../auth.service';
 import { NominationSettingsService } from '../../nomination-settings.service';
 import { FamilyTabComponent } from '../../shared/family-tab.component';
-import { roleLabel } from '../../shared/person-badge.component';
 import { ToastService } from '../../shared/toast/toast.service';
-import { Family, FamilyMember, WishItem } from '../../shared/types';
+import { Family, WishItem } from '../../shared/types';
 import { SupabaseService } from '../../supabase.service';
-import { adoptedBy, giftCount } from '../my-adoptions/adopted-by';
+import { adoptedBy, giftCount, itemMeta, memberLine } from '../my-adoptions/adopted-by';
 
 const STORAGE_PREFIX = 'net:shopping-list:';
 const PENDING_PREFIX = 'net:shopping-list-pending:';
@@ -193,16 +192,8 @@ export class ShoppingListComponent implements OnInit {
     window.print();
   }
 
-  memberLine(member: FamilyMember): string {
-    const age = member.age === 0 ? 'under 1' : String(member.age);
-    return `${roleLabel(member.is_parent, member.sex)}, ${age}`;
-  }
-
-  itemMeta(item: WishItem): string {
-    return [item.category, item.color, item.size ? `Size ${item.size}` : null]
-      .filter(Boolean)
-      .join(' · ');
-  }
+  readonly memberLine = memberLine;
+  readonly itemMeta = itemMeta;
 
   /** A link is printed as its site name, which is something you can actually type. */
   linkHost(link: string): string {

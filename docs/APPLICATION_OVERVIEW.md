@@ -58,9 +58,10 @@ Key facts that shape the design:
    Adopted items read "Adopted by you" or "Adopted by {name}". The adopter can "Remove" an
    item. Single adopt and remove are instant with an **Undo** toast; only adopt-all asks
    for confirmation.
-7. **My Adoptions page** (`/my-adoptions`) — A hero count of the user's adopted gifts, then
-   their items grouped by family with member rows open by default. Removing an item
-   animates it out (Undo brings it back). Empty state offers "Browse families".
+7. **My Adoptions page** (`/my-adoptions`) — A hero count of the user's adopted gifts this
+   season, links to **Shopping list** and **Past adoptions**, then their items grouped by
+   family with member rows closed until tapped. Removing an item animates it out (Undo
+   brings it back). Empty state offers "Browse families" and "Past adoptions".
 8. **Shopping list** (`/my-adoptions/shopping-list`, linked from My Adoptions) — Every gift
    the user adopted as a checklist: families A–Z, then each person with their gifts.
    Ticks ("bought") are saved to the donor's account in `gift_purchases`, so they follow
@@ -68,6 +69,10 @@ Key facts that shape the design:
    offline are queued on the device and sent when the connection returns (a note says so);
    ticks the server refuses (gift no longer adopted) are dropped. **Clear ticks** has Undo.
    **Print** gives a plain, ink-friendly page (no app chrome; links print as site names).
+9. **Past adoptions** (`/my-adoptions/past`, linked from My Adoptions) — Read-only list of
+   what the user adopted in seasons before the active one: years newest first, then
+   families A–Z, then each person with their gifts. Year chips filter to one year when
+   there's more than one.
 
 ## Secondary workflow: nomination (behind a feature flag)
 
@@ -137,7 +142,7 @@ never touches the column.
 - **Routing** (`src/app/app.routes.ts`): everything nests under `HomeComponent` at `/`,
   which renders either the landing/sign-in screen (logged out) or the header + routed
   page (logged in). Routes: `/adopt-family`, `/nominate-family`, `/my-adoptions`,
-  `/my-adoptions/shopping-list`, `/reset-password` (all auth-guarded; the guard waits for the stored session to
+  `/my-adoptions/shopping-list`, `/my-adoptions/past`, `/reset-password` (all auth-guarded; the guard waits for the stored session to
   restore). Unknown paths redirect to `/adopt-family`. Each route sets the tab title
   ("My adoptions · No Empty Tree") via `title.strategy.ts`.
   Route changes cross-fade via the View Transitions API (`withViewTransitions`).
@@ -155,6 +160,7 @@ never touches the column.
   - `src/app/components/my-adoptions/` — user's adopted items page; `adopted-by.ts`
     filters families down to the user's gifts (shared with the shopping list)
   - `src/app/components/shopping-list/` — printable checklist of the user's adoptions
+  - `src/app/components/past-adoptions/` — the user's adoptions from earlier seasons
   - `src/app/components/nominate-family/` — nomination wizard container (steps, family
     form, member list, review, submit); `member-editor/` — one member's details + wish
     list; `item-form/` — the add-a-gift form; `nomination-draft.service.ts` — draft state,
@@ -217,7 +223,7 @@ color used sparingly.
   registered so the flag stays the single switch.
 - **Seasons**: Adopt a Family, My Adoptions and the shopping list only load families whose
   `season` equals `nomination_settings.active_season`, and new nominations are saved with
-  it. To start a new year, set `active_season` to that year (and turn nominations on);
+  it. Past adoptions loads the seasons before it. To start a new year, set `active_season` to that year (and turn nominations on);
   earlier families stay in the database but disappear from the app.
 - Deployment is a static Vercel build; environment values are baked in at build time
   from `src/environments/environment.prod.ts`.
