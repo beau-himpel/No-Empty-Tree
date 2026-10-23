@@ -5,6 +5,7 @@ export interface Family {
   phone?: string;
   email?: string;
   nominated_by?: string; // User ID of the user who nominated this family
+  season: number; // Christmas season (year) the family was nominated for
   created_at: string;
   updated_at: string;
   family_members: FamilyMember[];

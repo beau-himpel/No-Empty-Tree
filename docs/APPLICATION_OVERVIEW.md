@@ -101,7 +101,8 @@ never touches the column.
 
 ## Domain model (Supabase/Postgres)
 
-- **families** — `last_name`, `address`, `phone`, `email`, `nominated_by` (user id).
+- **families** — `last_name`, `address`, `phone`, `email`, `nominated_by` (user id),
+  `season` (the Christmas year it was nominated for; defaults to the current year).
   Address/phone/email are collected but **not displayed** in the adopt UI.
 - **family_members** — `first_name`, `age`, `sex` ('male' | 'female' | 'other'),
   `is_parent`, optional `ethnicity` (text, max 100 characters; added by
@@ -112,7 +113,9 @@ never touches the column.
   item**, not per family — "adopt family" is just a bulk item adoption.
 - **profiles** — provides `full_name` for the "Adopted by" label (joined via
   `wishlist_items.adopted_by`).
-- **nomination_settings** — single row feature flag for the nomination UI.
+- **nomination_settings** — single row (`id = 1`): `nominations_enabled` (feature flag for
+  the nomination UI) and `active_season`. Signed-in users can read it but not change it;
+  change it from the Supabase dashboard or SQL editor.
 - **gift_purchases** — shopping list ticks: (`user_id`, `wishlist_item_id`, `purchased_at`),
   one row per gift a donor marked bought. Row-level security: donors read and delete only
   their own rows and can only insert for gifts they currently adopt
@@ -212,5 +215,9 @@ color used sparingly.
   scroll-into-view on family selection.
 - Opening/closing nominations is data-only (`nomination_settings`); keep the route
   registered so the flag stays the single switch.
+- **Seasons**: Adopt a Family, My Adoptions and the shopping list only load families whose
+  `season` equals `nomination_settings.active_season`, and new nominations are saved with
+  it. To start a new year, set `active_season` to that year (and turn nominations on);
+  earlier families stay in the database but disappear from the app.
 - Deployment is a static Vercel build; environment values are baked in at build time
   from `src/environments/environment.prod.ts`.
