@@ -39,10 +39,16 @@
       {{ totals().families }} {{ totals().families === 1 ? "family" : "families" }}.
       Thank you!
     </p>
-    <a routerLink="/my-adoptions/shopping-list" class="btn-outline btn-sm mt-5">
-      <i class="pi pi-list-check text-sm" aria-hidden="true"></i>
-      Shopping list
-    </a>
+    <div class="mt-5 flex flex-wrap gap-2">
+      <a routerLink="/my-adoptions/shopping-list" class="btn-outline btn-sm">
+        <i class="pi pi-list-check text-sm" aria-hidden="true"></i>
+        Shopping list
+      </a>
+      <a routerLink="/my-adoptions/past" class="btn-outline btn-sm">
+        <i class="pi pi-history text-sm" aria-hidden="true"></i>
+        Past adoptions
+      </a>
+    </div>
   </div>
 
   <div class="mt-12" [@.disabled]="!animateChanges()">
@@ -60,7 +66,6 @@
         <app-member-details
           [member]="member"
           [showAdoptionStatus]="false"
-          [startExpanded]="true"
           [animateItems]="true"
           @expandCollapse
         ></app-member-details>
@@ -83,6 +88,10 @@
     <button type="button" class="btn-adopt" (click)="navigateToAdoptFamily()">
       Browse families
     </button>
+    <a routerLink="/my-adoptions/past" class="btn-quiet btn-sm">
+      <i class="pi pi-history text-sm" aria-hidden="true"></i>
+      Past adoptions
+    </a>
   </div>
   }
 </section>

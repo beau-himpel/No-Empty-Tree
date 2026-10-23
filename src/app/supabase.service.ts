@@ -95,7 +95,36 @@ export class SupabaseService {
   // Family-related methods
   /** Families of one Christmas season (year), with their members and wish lists. */
   async getFamiliesWithMembers(season: number) {
-    const { data, error } = await this.supabase
+    return this.familiesWithMembers((query) => query.eq('season', season));
+  }
+
+  /** Every family from seasons before this one (newest first), for past adoptions. */
+  async getFamiliesBeforeSeason(season: number) {
+    return this.familiesWithMembers((query) =>
+      query.lt('season', season).order('season', { ascending: false })
+    );
+  }
+
+  private async familiesWithMembers(
+    filter: (query: ReturnType<typeof this.familiesQuery>) => ReturnType<typeof this.familiesQuery>
+  ) {
+    const { data, error } = await filter(this.familiesQuery()).order('last_name');
+
+    if (error) throw error;
+    
+    if (data) {
+      data.forEach(family => {
+        if (family.family_members) {
+          family.family_members.sort((a, b) => b.age - a.age);
+        }
+      });
+    }
+    
+    return data;
+  }
+
+  private familiesQuery() {
+    return this.supabase
       .from('families')
       .select(`
         id,
@@ -132,21 +161,7 @@ export class SupabaseService {
             updated_at
           )
         )
-      `)
-      .eq('season', season)
-      .order('last_name');
-
-    if (error) throw error;
-    
-    if (data) {
-      data.forEach(family => {
-        if (family.family_members) {
-          family.family_members.sort((a, b) => b.age - a.age);
-        }
-      });
-    }
-    
-    return data;
+      `);
   }
 
   async getFamilyById(familyId: string) {

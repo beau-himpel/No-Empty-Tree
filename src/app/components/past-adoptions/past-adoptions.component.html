@@ -1,0 +1,106 @@
+<section class="mx-auto w-full max-w-3xl">
+  <a
+    routerLink="/my-adoptions"
+    class="-ml-2 inline-flex items-center gap-1.5 rounded-full px-2 py-1.5 text-sm font-medium text-stone-500 transition-colors hover:text-stone-900 active:scale-95"
+  >
+    <i class="pi pi-chevron-left text-xs" aria-hidden="true"></i>
+    My Adoptions
+  </a>
+
+  <h1 class="type-page-title mt-3">Past adoptions</h1>
+  @if (!isLoading() && !error() && totals().gifts > 0) {
+  <p class="mt-2 text-[0.9375rem] text-stone-500 tabular-nums">
+    {{ totals().gifts }} {{ totals().gifts === 1 ? "gift" : "gifts" }} across
+    {{ totals().seasons }} {{ totals().seasons === 1 ? "season" : "seasons" }}. Thank you!
+  </p>
+  }
+
+  @if (isLoading()) {
+  <div class="mt-10 animate-pulse space-y-4" aria-hidden="true">
+    @for (placeholder of [1, 2, 3]; track placeholder) {
+    <div class="h-8 w-40 rounded-lg bg-stone-100"></div>
+    <div class="h-4 w-2/3 rounded bg-stone-100"></div>
+    }
+  </div>
+  <span class="sr-only" role="status">Loading your past adoptions…</span>
+  } @else if (error()) {
+  <div class="mt-6 flex flex-col gap-3 rounded-2xl bg-berry-50 p-4 sm:flex-row sm:items-center sm:justify-between animate-fade-up">
+    <div class="flex items-center gap-3">
+      <i class="pi pi-exclamation-circle text-berry-600" aria-hidden="true"></i>
+      <span class="text-sm font-medium text-berry-800">{{ error() }}</span>
+    </div>
+    <button type="button" class="btn-outline btn-sm self-start sm:self-auto" (click)="load()">
+      <i class="pi pi-refresh text-xs" aria-hidden="true"></i>
+      Try again
+    </button>
+  </div>
+  } @else if (totals().gifts === 0) {
+  <div class="flex flex-col items-center gap-4 px-6 py-16 text-center animate-fade-up">
+    <div class="flex h-14 w-14 items-center justify-center rounded-full bg-pine-50">
+      <i class="pi pi-history text-2xl text-pine-600" aria-hidden="true"></i>
+    </div>
+    <div>
+      <p class="text-lg font-semibold tracking-snug text-stone-900">No past adoptions yet</p>
+      <p class="mt-1 text-sm text-stone-500">Gifts you adopted in earlier seasons will show up here.</p>
+    </div>
+  </div>
+  } @else {
+  @if (totals().seasons > 1) {
+  <div class="mt-6 animate-fade-up">
+    <span class="sr-only" id="past-year-label">Show year</span>
+    <app-choice-group
+      [formControl]="yearControl"
+      [options]="yearOptions()"
+      variant="chips"
+      labelledBy="past-year-label"
+    />
+  </div>
+  }
+
+  <div class="mt-10 space-y-14">
+    @for (season of visibleSeasons(); track season.season) {
+    <section class="animate-fade-up" [attr.aria-labelledby]="'past-season-' + season.season">
+      <div class="flex items-baseline justify-between gap-4">
+        <h2
+          [id]="'past-season-' + season.season"
+          class="text-[1.75rem] font-semibold leading-none tracking-title tabular-nums text-stone-900"
+        >
+          {{ season.season }}
+        </h2>
+        <span class="text-sm text-stone-500 tabular-nums">
+          {{ season.gifts }} {{ season.gifts === 1 ? "gift" : "gifts" }}
+        </span>
+      </div>
+
+      <div class="mt-6 space-y-8">
+        @for (family of season.families; track family.id) {
+        <div>
+          <h3>
+            <app-family-tab>The {{ family.last_name | titlecase }} Family</app-family-tab>
+          </h3>
+
+          @for (member of family.family_members; track member.id) {
+          <div class="pt-5">
+            <h4 class="flex items-baseline gap-2">
+              <span class="text-[1.0625rem] font-semibold tracking-snug text-stone-900">
+                {{ member.first_name | titlecase }}
+              </span>
+              <span class="text-sm text-stone-500">{{ memberLine(member) }}</span>
+            </h4>
+            <ul class="mt-1 divide-y divide-stone-100">
+              @for (item of member.wishlist_items; track item.id) {
+              <li class="py-3">
+                <app-item-info [item]="item" />
+              </li>
+              }
+            </ul>
+          </div>
+          }
+        </div>
+        }
+      </div>
+    </section>
+    }
+  </div>
+  }
+</section>
