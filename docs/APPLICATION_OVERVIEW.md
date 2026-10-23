@@ -105,7 +105,7 @@ never touches the column.
   Address/phone/email are collected but **not displayed** in the adopt UI.
 - **family_members** — `first_name`, `age`, `sex` ('male' | 'female' | 'other'),
   `is_parent`, optional `ethnicity` (text, max 100 characters; added by
-  `supabase/migrations/20261019000000_add_family_members_ethnicity.sql`, not selected or
+  `supabase/migrations/20261023030718_add_family_members_ethnicity.sql`, not selected or
   displayed by the adopt UI); belongs to a family. Displayed sorted by age, descending.
 - **wishlist_items** — `category`, `description`, optional `color`, `size`, `link`,
   `details`; `is_adopted` + `adopted_by` (user id) track adoption. Adoption is **per
@@ -116,7 +116,8 @@ never touches the column.
 - **gift_purchases** — shopping list ticks: (`user_id`, `wishlist_item_id`, `purchased_at`),
   one row per gift a donor marked bought. Row-level security: donors read and delete only
   their own rows and can only insert for gifts they currently adopt
-  (`supabase/migrations/20261020000000_add_gift_purchases.sql`). Rows stay if the gift is
+  (`supabase/migrations/20261023032206_add_gift_purchases.sql` plus the three
+  `gift_purchases_*_policy` migrations after it). Rows stay if the gift is
   un-adopted (so Undo keeps the tick) and are deleted with the gift.
 - **Auth**: Supabase Auth with email/password and Google OAuth. All app routes require
   auth (`authGuard`); unauthenticated users only ever see the landing/sign-in screen.
