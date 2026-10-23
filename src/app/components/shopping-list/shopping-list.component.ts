@@ -3,6 +3,7 @@ import { Component, computed, DestroyRef, inject, linkedSignal, OnInit, signal }
 import { RouterLink } from '@angular/router';
 import { AdoptionService } from '../../adoption.service';
 import { AuthService } from '../../auth.service';
+import { NominationSettingsService } from '../../nomination-settings.service';
 import { FamilyTabComponent } from '../../shared/family-tab.component';
 import { roleLabel } from '../../shared/person-badge.component';
 import { ToastService } from '../../shared/toast/toast.service';
@@ -36,6 +37,7 @@ export class ShoppingListComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly adoptionService = inject(AdoptionService);
   private readonly supabaseService = inject(SupabaseService);
+  private readonly nominationSettings = inject(NominationSettingsService);
   private readonly toast = inject(ToastService);
 
   readonly isLoading = signal(true);
@@ -90,7 +92,9 @@ export class ShoppingListComponent implements OnInit {
     this.error.set(null);
     try {
       const [familiesData] = await Promise.all([
-        this.supabaseService.getFamiliesWithMembers(),
+        this.nominationSettings
+          .currentSeason()
+          .then((season) => this.supabaseService.getFamiliesWithMembers(season)),
         this.loadSavedTicks(),
       ]);
       this.families.set((familiesData ?? []) as unknown as Family[]);

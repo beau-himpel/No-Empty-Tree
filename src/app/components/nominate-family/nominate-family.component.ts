@@ -231,6 +231,7 @@ export class NominateFamilyComponent implements OnInit {
         phone: draft.family.phone || undefined,
         email: draft.family.email.trim() || undefined,
         nominated_by: user.id,
+        season: await this.nominationSettingsService.currentSeason(),
       });
 
       try {

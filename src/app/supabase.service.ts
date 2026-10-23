@@ -93,7 +93,8 @@ export class SupabaseService {
   }
 
   // Family-related methods
-  async getFamiliesWithMembers() {
+  /** Families of one Christmas season (year), with their members and wish lists. */
+  async getFamiliesWithMembers(season: number) {
     const { data, error } = await this.supabase
       .from('families')
       .select(`
@@ -103,6 +104,7 @@ export class SupabaseService {
         phone,
         email,
         nominated_by,
+        season,
         created_at,
         updated_at,
         family_members (
@@ -131,6 +133,7 @@ export class SupabaseService {
           )
         )
       `)
+      .eq('season', season)
       .order('last_name');
 
     if (error) throw error;
@@ -202,6 +205,7 @@ export class SupabaseService {
     phone?: string;
     email?: string;
     nominated_by?: string;
+    season: number;
   }) {
     const { data, error } = await this.supabase
       .from('families')

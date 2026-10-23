@@ -105,7 +105,9 @@ export class AdoptFamilyComponent implements OnInit {
     this.error.set(null);
 
     try {
-      const familiesData = (await this.supabaseService.getFamiliesWithMembers()) as unknown as Family[];
+      const familiesData = (await this.supabaseService.getFamiliesWithMembers(
+        await this.nominationSettingsService.currentSeason()
+      )) as unknown as Family[];
       this.availableFamilies.set(familiesData);
 
       const rows = familiesData.map((family) => this.toRow(family));

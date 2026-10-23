@@ -11,6 +11,7 @@ import {
 import { Router, RouterLink } from '@angular/router';
 import { AdoptionService } from '../../adoption.service';
 import { AuthService } from '../../auth.service';
+import { NominationSettingsService } from '../../nomination-settings.service';
 import { AnimatedNumberComponent } from '../../shared/animated-number.component';
 import { FamilyTabComponent } from '../../shared/family-tab.component';
 import { expandCollapse } from '../../shared/animations';
@@ -31,6 +32,7 @@ export class MyAdoptionsComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly adoptionService = inject(AdoptionService);
   private readonly supabaseService = inject(SupabaseService);
+  private readonly nominationSettings = inject(NominationSettingsService);
   private readonly router = inject(Router);
   private readonly injector = inject(Injector);
 
@@ -60,7 +62,8 @@ export class MyAdoptionsComponent implements OnInit {
     this.error.set(null);
 
     try {
-      const familiesData = await this.supabaseService.getFamiliesWithMembers();
+      const season = await this.nominationSettings.currentSeason();
+      const familiesData = await this.supabaseService.getFamiliesWithMembers(season);
       this.families.set((familiesData ?? []) as unknown as Family[]);
     } catch (error) {
       console.error('Error loading adopted items:', error);
