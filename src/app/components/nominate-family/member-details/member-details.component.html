@@ -1,80 +1,71 @@
-<div class="member-card" [class.all-adopted]="showAllAdoptedMessage() && isAllItemsAdopted(member())">
-  <div class="member-header">
-    <h4>{{ member().first_name | titlecase }}</h4>
-    <span class="member-info">{{ member().age }} years old</span>
+<div>
+  <button
+    type="button"
+    class="group flex w-full items-center gap-3 py-4 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pine-600"
+    (click)="toggleWishlist($event)"
+    [attr.aria-expanded]="!isCollapsed()"
+  >
+    <app-person-badge
+      class="transition-transform duration-150 group-active:scale-95"
+      [age]="member().age"
+      [tone]="tone()"
+    />
 
-    <span
-      [ngClass]="
-        member().is_parent
-          ? member().sex === 'male'
-            ? 'man-badge'
-            : 'woman-badge'
-          : member().sex === 'male'
-          ? 'boy-badge'
-          : 'girl-badge'
-      "
-    >
-      {{
-        member().is_parent
-          ? member().sex === "male"
-            ? "Man"
-            : "Woman"
-          : member().sex === "male"
-          ? "Boy"
-          : "Girl"
-      }}
+    <span class="min-w-0 flex-1">
+      <span class="block truncate text-[1.0625rem] font-semibold tracking-snug text-stone-900">
+        {{ member().first_name | titlecase }}
+      </span>
+      <span class="block text-sm font-semibold" [ngClass]="roleTextClass()">
+        {{ roleLabel() }}<span class="sr-only">, {{ ageLabel() }}</span>
+      </span>
     </span>
 
-    @if (!isMobile()) {
-    <button
-      class="border border-black text-black font-medium py-2 px-4 rounded-lg flex items-center"
-      (click)="toggleWishlist($event)"
-    >
-      <div class="flex items-center gap-2">
-        <span class="text-sm">{{
-          isCollapsed() ? "Show Wishlist" : "Hide Wishlist"
-        }}</span>
-        <i
-          [class]="isCollapsed() ? 'pi pi-chevron-down' : 'pi pi-chevron-up'"
-        ></i>
-      </div>
-    </button>
-    }
-  </div>
+    <span class="min-w-[4.75rem] shrink-0 text-right">
+      @if (giftCounts().total === 0) {
+      <span class="block text-sm text-stone-400">No list yet</span>
+      } @else if (!showAdoptionStatus()) {
+      <span class="block text-[0.9375rem] font-semibold tabular-nums text-stone-900">
+        {{ giftCounts().total }} {{ giftCounts().total === 1 ? "gift" : "gifts" }}
+      </span>
+      } @else if (allAdopted()) {
+      <span class="inline-flex items-center gap-1 rounded-full bg-pine-50 px-2.5 py-1 text-[0.8125rem] font-semibold text-pine-700">
+        <i class="pi pi-check text-[0.6875rem]" aria-hidden="true"></i>
+        Adopted
+      </span>
+      } @else {
+      <span class="block text-[0.9375rem] font-semibold tabular-nums text-stone-900">
+        {{ giftCounts().remaining }} left
+      </span>
+      <span class="block text-xs tabular-nums text-stone-500">
+        of {{ giftCounts().total }} {{ giftCounts().total === 1 ? "gift" : "gifts" }}
+      </span>
+      }
+    </span>
 
-  <div class="flex justify-center w-full">
-    @if (isMobile()) {
-    <button
-      class="border border-black text-black font-medium py-2 px-4 rounded-lg flex items-center mb-4"
-      (click)="toggleWishlist($event)"
-    >
-      <div class="flex items-center gap-2">
-        <span class="text-sm">{{
-          isCollapsed() ? "Show Wishlist" : "Hide Wishlist"
-        }}</span>
-        <i
-          [class]="isCollapsed() ? 'pi pi-chevron-down' : 'pi pi-chevron-up'"
-        ></i>
-      </div>
-    </button>
-    }
-  </div>
+    <i
+      class="pi pi-chevron-down shrink-0 text-sm text-stone-400 transition-transform duration-300 ease-out"
+      [class.rotate-180]="!isCollapsed()"
+      aria-hidden="true"
+    ></i>
+  </button>
 
   <div
-    class="wish-list"
-    [@slideDown]="isCollapsed() ? 'collapsed' : 'expanded'"
+    class="wishlist grid"
+    [class.wishlist-open]="!isCollapsed()"
+    [attr.inert]="isCollapsed() ? '' : null"
+    (transitionend)="onWishlistTransitionEnd($event)"
   >
-    @for (item of (member().wishlist_items || []); track item.id) {
-    <app-wish-item
-      [item]="item"
-      (adoptItem)="adoptItem.emit(item)"
-      (unadoptItem)="unadoptItem.emit(item)"
-    >
-    </app-wish-item>
-    @if (!$last) {
-    <div class="flex justify-center">
-      <div class="h-px w-[50%] bg-[#cbd5e0]"></div>
+    <!-- Padding lives inside the collapsing box; on the box itself it would stay visible when closed -->
+    <div class="wishlist-content min-h-0" [class.overflow-hidden]="clipContent()">
+      <div class="divide-y divide-stone-100 pb-2 pl-14" [@.disabled]="!animateItems()">
+        @for (item of (member().wishlist_items || []); track item.id) {
+        <app-wish-item [item]="item" [showAdoptionStatus]="showAdoptionStatus()" @expandCollapse />
+        } @empty {
+        <p class="py-3 text-sm text-stone-400">
+          No wish list items for this family member yet.
+        </p>
+        }
+      </div>
     </div>
-    } }
   </div>
 </div>

@@ -1,0 +1,161 @@
+<button
+  type="button"
+  class="-ml-2 inline-flex items-center gap-1.5 rounded-full px-2 py-1.5 text-sm font-medium text-stone-500 transition-colors hover:text-stone-900 active:scale-95"
+  (click)="goBack()"
+>
+  <i class="pi pi-chevron-left text-xs" aria-hidden="true"></i>
+  Family members
+</button>
+
+<h1 class="type-page-title mt-3 truncate">{{ title() }}</h1>
+
+<div [formGroup]="form" class="mt-8 space-y-6">
+  <div>
+    <label class="field-label" for="member-name">First name</label>
+    <input
+      class="field-input"
+      [class.field-input-invalid]="showError('name')"
+      id="member-name"
+      formControlName="name"
+      autocomplete="off"
+      autocapitalize="words"
+      [attr.aria-invalid]="showError('name') || null"
+    />
+    @if (showError('name')) {
+    <p class="field-error"><i class="pi pi-exclamation-circle text-xs" aria-hidden="true"></i>Enter a first name</p>
+    }
+  </div>
+
+  <div>
+    <label class="field-label" for="member-age">Age</label>
+    <input
+      class="field-input max-w-[8rem] tabular-nums"
+      [class.field-input-invalid]="showError('age')"
+      id="member-age"
+      type="number"
+      inputmode="numeric"
+      min="0"
+      [max]="120"
+      formControlName="age"
+      [attr.aria-invalid]="showError('age') || null"
+      aria-describedby="member-age-hint"
+    />
+    @if (showError('age')) {
+    <p class="field-error"><i class="pi pi-exclamation-circle text-xs" aria-hidden="true"></i>Enter an age from 0 to 120</p>
+    } @else {
+    <p class="field-hint" id="member-age-hint">Use 0 for babies under one.</p>
+    }
+  </div>
+
+  <div>
+    <span class="field-label" id="member-type-label">Adult or child</span>
+    <app-choice-group
+      formControlName="isChild"
+      [options]="typeOptions"
+      labelledBy="member-type-label"
+      [invalid]="showError('isChild')"
+    />
+    @if (showError('isChild')) {
+    <p class="field-error"><i class="pi pi-exclamation-circle text-xs" aria-hidden="true"></i>Choose adult or child</p>
+    }
+  </div>
+
+  <div>
+    <span class="field-label" id="member-gender-label">Gender</span>
+    <app-choice-group
+      formControlName="gender"
+      [options]="genderOptions()"
+      labelledBy="member-gender-label"
+      [invalid]="showError('gender')"
+    />
+    @if (showError('gender')) {
+    <p class="field-error"><i class="pi pi-exclamation-circle text-xs" aria-hidden="true"></i>Choose a gender</p>
+    }
+  </div>
+
+  <div>
+    <label class="field-label" for="member-ethnicity">Ethnicity <span class="field-optional">optional</span></label>
+    <input
+      class="field-input"
+      id="member-ethnicity"
+      formControlName="ethnicity"
+      autocomplete="off"
+      autocapitalize="words"
+      [maxlength]="maxEthnicityLength"
+      aria-describedby="member-ethnicity-hint"
+    />
+    <p class="field-hint" id="member-ethnicity-hint">Not shown to adopters.</p>
+  </div>
+</div>
+
+<section class="mt-12 scroll-mt-20" #giftSection>
+  <div class="flex items-baseline justify-between border-b border-stone-200 pb-2">
+    <h2 class="type-section-label">Wish list</h2>
+    @if (items().length > 0) {
+    <span class="text-[0.8125rem] font-medium tabular-nums text-stone-500">
+      {{ items().length }} {{ items().length === 1 ? "gift" : "gifts" }}
+    </span>
+    }
+  </div>
+
+  <div class="divide-y divide-stone-100">
+    @for (item of items(); track item; let i = $index) {
+    <div class="flex items-start gap-3 py-4" @expandCollapse>
+      <app-item-info class="min-w-0 flex-1" [item]="item" />
+      <button
+        type="button"
+        class="btn-quiet -mr-2 -mt-1 !p-2.5"
+        (click)="removeItem(i)"
+        [attr.aria-label]="'Remove ' + item.description"
+      >
+        <i class="pi pi-times text-sm" aria-hidden="true"></i>
+      </button>
+    </div>
+    }
+  </div>
+
+  @if (giftsMissing()) {
+  <p class="field-error" id="gifts-missing">
+    <i class="pi pi-exclamation-circle text-xs" aria-hidden="true"></i>Add at least one gift
+  </p>
+  }
+
+  @if (showGiftForm()) {
+  <div class="pt-5" @expandCollapse>
+    @if (items().length === 0) {
+    <p class="mb-5 text-[0.9375rem] text-stone-500">
+      What would {{ member()?.name?.trim() ? title() : "they" }} love to unwrap? Be as specific as you can.
+    </p>
+    }
+    <app-item-form
+      [canCancel]="items().length > 0"
+      (added)="addItem($event)"
+      (cancelled)="showGiftForm.set(false)"
+    />
+  </div>
+  } @else {
+  <button
+    type="button"
+    class="mt-4 flex w-full items-center gap-3 rounded-xl py-3 text-left text-[0.9375rem] font-semibold text-pine-700 transition-colors hover:text-pine-800 active:scale-[0.99]"
+    (click)="openGiftForm()"
+  >
+    <span class="flex h-8 w-8 items-center justify-center rounded-full bg-pine-50" aria-hidden="true">
+      <i class="pi pi-plus text-xs"></i>
+    </span>
+    Add {{ items().length > 0 ? "another" : "a" }} gift
+  </button>
+  }
+</section>
+
+<div class="mt-12 flex flex-col gap-2 border-t border-stone-100 pt-6 sm:flex-row sm:items-center sm:justify-between">
+  <button type="button" class="btn-dark btn-lg w-full sm:w-auto" (click)="save()">
+    {{ isNew() ? "Add to family" : "Save" }}
+  </button>
+  <button
+    type="button"
+    class="btn-quiet btn-lg w-full !text-berry-700 hover:!bg-berry-50 sm:w-auto"
+    (click)="removeRequested.emit()"
+  >
+    Remove from family
+  </button>
+</div>

@@ -1,89 +1,181 @@
-<div class="w-full bg-white border-2 border-gray-300 rounded-xl p-8">
-  <h2 class="text-center text-2xl font-bold text-slate-800 mb-6">
-    Adopt a Family
-  </h2>
+<section class="mx-auto w-full max-w-3xl">
+  <h1 class="type-page-title">Adopt a Family</h1>
+
   @if (error()) {
-  <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-    <div class="flex items-center">
-      <i class="pi pi-exclamation-triangle text-red-500 mr-2"></i>
-      <span class="text-red-700">{{ error() }}</span>
+  <div class="mt-6 flex flex-col gap-3 rounded-2xl bg-berry-50 p-4 sm:flex-row sm:items-center sm:justify-between animate-fade-up">
+    <div class="flex items-center gap-3">
+      <i class="pi pi-exclamation-circle text-berry-600" aria-hidden="true"></i>
+      <span class="text-sm font-medium text-berry-800">{{ error() }}</span>
     </div>
+    <button type="button" class="btn-outline btn-sm self-start sm:self-auto" (click)="loadFamilies()">
+      <i class="pi pi-refresh text-xs" aria-hidden="true"></i>
+      Try again
+    </button>
   </div>
-  } @if (isLoading()) {
-  <div class="flex justify-center items-center py-20">
-    <p-progressSpinner />
-  </div>
-  } @else {
-  <div class="flex flex-wrap justify-center gap-4 md:gap-6">
-    @for (family of familyCounts(); track family.info.id) {
-    <div
-      class="border rounded-lg p-6 transition-all duration-200 cursor-pointer max-w-[450px] flex-1"
-      [class]="
-        selectedFamily()?.id === family.info.id
-          ? 'border-indigo-500 bg-indigo-50 shadow-md'
-          : 'border-slate-200 bg-white hover:shadow-md hover:border-indigo-300'
-      "
-      (click)="viewFamilyDetails(family.info)"
-    >
-      <div class="mb-4">
-        <h3 class="text-xl font-semibold text-slate-700 mb-3 text-center">
-          {{ family.info.last_name }}
-        </h3>
-        <div class="flex gap-4 text-sm justify-center">
-          <span
-            class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-3 py-1 rounded-full font-medium"
-            ><span style="padding-right: 8px">{{ family.adultCount }}</span
-            >{{ family.adultCount === 1 ? "Adult" : "Adults" }}</span
-          >
-          <span
-            class="bg-gradient-to-r from-blue-500 to-cyan-600 text-white px-3 py-1 rounded-full font-medium"
-            ><span style="padding-right: 8px">{{ family.boysCount }}</span
-            >{{ family.boysCount === 1 ? "Boy" : "Boys" }}</span
-          >
-          <span
-            class="bg-gradient-to-r from-pink-500 to-rose-600 text-white px-3 py-1 rounded-full font-medium"
-            ><span style="padding-right: 8px">{{ family.girlsCount }}</span
-            >{{ family.girlsCount === 1 ? "Girl" : "Girls" }}</span
-          >
+  }
+
+  @if (isLoading()) {
+  <div class="mt-6 animate-pulse" aria-hidden="true">
+    <div class="flex items-end gap-3">
+      <div class="h-14 w-20 rounded-lg bg-stone-200 md:h-16"></div>
+      <div class="mb-1 h-4 w-56 max-w-[55%] rounded bg-stone-100"></div>
+    </div>
+    <div class="mt-6 h-1 w-full rounded-full bg-stone-100"></div>
+    <div class="mt-12 divide-y divide-stone-100">
+      @for (placeholder of [1, 2, 3, 4, 5]; track placeholder) {
+      <div class="flex items-center gap-4 py-4">
+        <div class="flex-1">
+          <div class="h-5 w-2/5 rounded bg-stone-200"></div>
+          <div class="mt-2 h-4 w-1/4 rounded bg-stone-100"></div>
         </div>
+        <div class="h-8 w-14 rounded bg-stone-100"></div>
       </div>
-      <div class="text-center">
-        <span class="text-slate-500 text-sm">
-          {{
-            selectedFamily()?.id === family.info.id
-              ? "Click to close details"
-              : "Click to view details"
-          }}
-        </span>
-      </div>
+      }
     </div>
-    } @empty {
-    <div
-      class="flex justify-center items-center flex-col gap-8 text-center py-12"
-    >
-      <p class="text-slate-500 text-lg mb-6">
-        No families available for adoption at this time.
+  </div>
+  <span class="sr-only" role="status">Loading families…</span>
+  } @else if (totals().families > 0) {
+  <!-- Hero: the one number that matters -->
+  <div class="mt-6 animate-fade-up">
+    <div class="flex items-baseline gap-3">
+      <p class="type-hero-number shrink-0" [class.text-pine-700]="totals().remaining === 0">
+        <app-animated-number [value]="totals().remaining" />
       </p>
-      <button
-        class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-colors"
-        (click)="navigateToNominate()"
-      >
-        <div class="flex items-center gap-4">
-          <span> Nominate a family </span>
-          <i class="pi pi-plus"></i>
-        </div>
+      <p class="min-w-0 text-[0.9375rem] text-stone-500">
+        @if (totals().remaining === 0) {
+        Every gift has been adopted. Thank you!
+        } @else {
+        {{ totals().remaining === 1 ? "gift still needs" : "gifts still need" }} a home this season
+        }
+      </p>
+    </div>
+    <div class="mt-6 h-1 overflow-hidden rounded-full bg-stone-100">
+      <div
+        class="h-full rounded-full bg-pine-600 transition-[width] duration-700 ease-out"
+        [style.width.%]="totals().progressPct"
+      ></div>
+    </div>
+    <p class="mt-2.5 flex justify-between text-sm font-medium tabular-nums">
+      <span class="text-pine-700">
+        <app-animated-number [value]="totals().adoptedGifts" /> of
+        {{ totals().totalGifts.toLocaleString() }} adopted
+      </span>
+      <span class="text-stone-500">
+        {{ totals().families }} {{ totals().families === 1 ? "family" : "families" }}
+      </span>
+    </p>
+  </div>
+  }
+
+  @if (!isLoading() && !error()) {
+  <div class="mt-12" [@.disabled]="suppressAnimations()">
+    @if (needsRows().length > 0) {
+    <h2 class="type-section-label border-b border-stone-200 pb-2">Need gifts</h2>
+    @for (row of needsRows(); track row.info.id; let i = $index) {
+    <ng-container
+      [ngTemplateOutlet]="familyRow"
+      [ngTemplateOutletContext]="{ $implicit: row, index: i }"
+    />
+    }
+    }
+
+    @if (doneRows().length > 0) {
+    <h2
+      class="type-section-label border-b border-stone-200 pb-2"
+      [class.mt-12]="needsRows().length > 0"
+    >
+      Fully adopted
+    </h2>
+    @for (row of doneRows(); track row.info.id; let i = $index) {
+    <ng-container
+      [ngTemplateOutlet]="familyRow"
+      [ngTemplateOutletContext]="{ $implicit: row, index: needsRows().length + i }"
+    />
+    }
+    }
+
+    @if (needsRows().length === 0 && doneRows().length === 0) {
+    <div class="flex flex-col items-center gap-4 px-6 py-16 text-center animate-fade-up">
+      <div class="flex h-14 w-14 items-center justify-center rounded-full bg-pine-50">
+        <i class="pi pi-gift text-2xl text-pine-600" aria-hidden="true"></i>
+      </div>
+      <div>
+        <p class="text-lg font-semibold tracking-snug text-stone-900">No families yet</p>
+        <p class="mt-1 text-sm text-stone-500">
+          There are no families available for adoption right now. Please check back soon.
+        </p>
+      </div>
+      @if (nominationsEnabled()) {
+      <button type="button" class="btn-primary" (click)="navigateToNominate()">
+        <i class="pi pi-plus text-xs" aria-hidden="true"></i>
+        Nominate a family
       </button>
+      }
     </div>
     }
   </div>
   }
-</div>
+</section>
 
-@if (selectedFamily()) {
-<div #familyDetails>
-  <app-family-details
-    [family]="selectedFamily()"
-    (closeRequested)="onFamilyDetailsClose()"
-  />
-</div>
-}
+<ng-template #familyRow let-row let-index="index">
+  <div
+    [id]="'family-' + row.info.id"
+    class="scroll-mt-16 animate-fade-up"
+    [style.animation-delay.ms]="staggerDelay(index)"
+  >
+    <button
+      type="button"
+      class="group sticky top-16 z-10 block w-full bg-white pb-3.5 pt-4 text-left transition-shadow focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-pine-600"
+      [class.row-header-open]="selectedFamilyId() === row.info.id"
+      (click)="viewFamilyDetails(row.info)"
+      [attr.aria-expanded]="selectedFamilyId() === row.info.id"
+      [attr.aria-controls]="'family-panel-' + row.info.id"
+    >
+      <app-family-tab>The {{ row.info.last_name | titlecase }} Family</app-family-tab>
+
+      <span class="mt-2.5 flex items-center gap-3 sm:gap-4">
+        <span class="min-w-0 flex-1 truncate text-sm text-stone-500">{{ row.summary }}</span>
+
+        @if (row.fullyAdopted) {
+        <span
+          class="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-pine-700 px-3 py-1.5 text-[0.8125rem] font-semibold text-white"
+          [class.animate-pop]="completedThisVisit(row)"
+        >
+          <i class="pi pi-check text-[0.6875rem]" aria-hidden="true"></i>
+          All adopted
+        </span>
+        } @else if (row.totalGifts > 0) {
+        <span
+          class="hidden h-1 w-14 shrink-0 overflow-hidden rounded-full bg-stone-100 min-[380px]:block sm:w-24"
+          aria-hidden="true"
+        >
+          <span
+            class="block h-full rounded-full bg-pine-600 transition-[width] duration-700 ease-out"
+            [style.width.%]="row.progressPct"
+          ></span>
+        </span>
+        <span class="w-[4.75rem] shrink-0 text-right">
+          <span class="block text-[0.9375rem] font-semibold tabular-nums text-stone-900">
+            {{ row.remaining }} left
+          </span>
+          <span class="block text-xs tabular-nums text-stone-500">
+            of {{ row.totalGifts }} gifts
+          </span>
+        </span>
+        }
+
+        <i
+          class="pi pi-chevron-down shrink-0 text-sm text-stone-400 transition-transform duration-500 ease-in-out"
+          [class.rotate-180]="selectedFamilyId() === row.info.id"
+          aria-hidden="true"
+        ></i>
+      </span>
+    </button>
+
+    @if (selectedFamilyId() === row.info.id) {
+    <div [id]="'family-panel-' + row.info.id" @panelExpand>
+      <app-family-details [family]="row.info" />
+    </div>
+    }
+  </div>
+</ng-template>

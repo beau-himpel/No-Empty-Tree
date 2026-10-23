@@ -1,31 +1,5 @@
-.item-info {
+:host {
+  display: block;
   flex: 1;
-
-  .item-detail {
-    display: block;
-    color: #666;
-    font-size: 0.9rem;
-  }
-
-  .item-details {
-    color: #555;
-    font-size: 0.9rem;
-    margin-top: 0.5rem;
-  }
-
-  .item-link {
-    display: inline-flex;
-    align-items: center;
-    color: #007bff;
-    text-decoration: none;
-    font-size: 0.9rem;
-
-    &:hover {
-      text-decoration: underline;
-    }
-
-    i {
-      margin-left: 0.5rem;
-    }
-  }
+  min-width: 0;
 }

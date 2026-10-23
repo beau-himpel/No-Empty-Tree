@@ -17,6 +17,7 @@ export interface FamilyMember {
   age: number;
   sex: 'male' | 'female' | 'other';
   is_parent: boolean;
+  ethnicity?: string | null;
   created_at: string;
   updated_at: string;
   wishlist_items?: WishItem[];

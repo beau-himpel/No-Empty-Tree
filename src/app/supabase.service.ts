@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { environment } from '../environments/environment';
 
@@ -75,21 +75,18 @@ export class SupabaseService {
       }
     );
 
-    // Handle auth state changes with error handling
-    this.supabase.auth.onAuthStateChange((event, session) => {
-      this.handleAuthStateChange(event, session);
+    // Registered synchronously after client creation: this is the only subscriber
+    // guaranteed to receive PASSWORD_RECOVERY, which fires while the client
+    // processes a reset link during startup.
+    this.supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') this.passwordRecovery.set(true);
     });
   }
 
-
-  private handleAuthStateChange(event: string, session: any) {
-    try {
-      // Handle auth state changes
-      console.log('Auth state change:', event, session);
-    } catch (error) {
-      console.warn('Error handling auth state change:', error);
-    }
-  }
+  /** True after arriving from a "reset your password" email link. */
+  readonly passwordRecovery = signal(
+    typeof window !== 'undefined' && /(^|[#&?])type=recovery\b/.test(window.location.hash)
+  );
 
   get client(): SupabaseClient {
     return this.supabase;
@@ -222,6 +219,7 @@ export class SupabaseService {
     age: number;
     sex: 'male' | 'female' | 'other';
     is_parent: boolean;
+    ethnicity?: string;
   }) {
     const { data, error } = await this.supabase
       .from('family_members')
@@ -383,10 +381,12 @@ export class SupabaseService {
     const { data, error } = await this.supabase
       .from('wishlist_items')
       .update({ 
-        is_adopted: true, 
-        adopted_by: adoptedBy 
+        is_adopted: true,
+        adopted_by: adoptedBy
       })
       .eq('id', itemId)
+      // Never take over an item someone else adopted after this page loaded
+      .eq('is_adopted', false)
       .select()
       .single();
 
@@ -407,6 +407,38 @@ export class SupabaseService {
 
     if (error) throw error;
     return data;
+  }
+
+  /** Ids of the gifts the signed-in donor has ticked as bought (row-level security limits it to theirs). */
+  async getPurchasedItemIds(): Promise<string[]> {
+    const { data, error } = await this.supabase
+      .from('gift_purchases')
+      .select('wishlist_item_id');
+
+    if (error) throw error;
+    return (data ?? []).map((row) => row.wishlist_item_id as string);
+  }
+
+  async markPurchased(itemId: string, userId: string) {
+    const { error } = await this.supabase
+      .from('gift_purchases')
+      // Ticking twice (e.g. a retry after a dropped response) is not an error
+      .upsert(
+        { user_id: userId, wishlist_item_id: itemId },
+        { onConflict: 'user_id,wishlist_item_id', ignoreDuplicates: true }
+      );
+
+    if (error) throw error;
+  }
+
+  async unmarkPurchased(itemId: string, userId: string) {
+    const { error } = await this.supabase
+      .from('gift_purchases')
+      .delete()
+      .eq('user_id', userId)
+      .eq('wishlist_item_id', itemId);
+
+    if (error) throw error;
   }
 
   async getWishlistItemsByUser(userId: string) {

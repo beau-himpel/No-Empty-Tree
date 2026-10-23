@@ -1,26 +1,99 @@
-  @if (authService.isLoggedIn()) {
-    <div class="flex flex-col min-h-screen">
-      <app-header></app-header>
+@if (!authService.isReady()) {
+<!-- Restoring the stored session: show nothing rather than flash the sign-in screen -->
+<div class="flex min-h-screen items-center justify-center" aria-busy="true">
+  <!-- An empty silhouette that fills in from the trunk up, on a loop -->
+  <svg viewBox="0 0 24 24" class="splash-mark h-28 w-28" aria-hidden="true">
+    <g class="fill-pine-100">
+      <path d="M12 1.5 16.2 8H7.8L12 1.5Z" />
+      <path d="M12 6 17.6 14.2H6.4L12 6Z" />
+      <path d="M12 11 19 20H5L12 11Z" />
+      <rect x="10.75" y="20" width="2.5" height="2.5" rx="0.5" />
+    </g>
+    <g class="fill-pine-700">
+      <rect class="splash-part" style="--part: 0" x="10.75" y="20" width="2.5" height="2.5" rx="0.5" />
+      <path class="splash-part" style="--part: 1" d="M12 11 19 20H5L12 11Z" />
+      <path class="splash-part" style="--part: 2" d="M12 6 17.6 14.2H6.4L12 6Z" />
+      <path class="splash-part" style="--part: 3" d="M12 1.5 16.2 8H7.8L12 1.5Z" />
+    </g>
+  </svg>
+  <span class="sr-only" role="status">Loading No Empty Tree…</span>
+</div>
+} @else if (authService.isLoggedIn()) {
+<div class="flex flex-col min-h-screen">
+  <app-header></app-header>
 
-    <main class="flex-1 p-4 md:p-8 bg-gray-100">
+  <main class="flex-1 px-4 pt-6 pb-32 md:px-8 md:pt-10 md:pb-16 print:p-0">
+    <div class="mx-auto w-full max-w-6xl">
       <router-outlet></router-outlet>
-    </main>
-  </div>
-  } @else {
-  <div class="flex justify-center min-h-screen items-center p-8 md:p-4">
-    <div class="flex flex-col lg:flex-row items-center lg:items-start gap-10 lg:gap-28 w-full max-w-4xl">
-      <div class="text-center">
-        <h1 class="text-6xl md:text-7xl lg:text-10xl font-bold bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent mb-4">
-          No Empty Tree
-        </h1>
-        <p class="text-sm md:text-base text-slate-400 font-medium text-center md:mt-6 lg:mt-8">
-          Helping those in need experience the holiday magic
-        </p>
-      </div>
+    </div>
+  </main>
 
-      <div class="w-full max-w-md">
-        <app-sign-in></app-sign-in>
-      </div>
+  <app-toast class="print:hidden" />
+</div>
+} @else {
+<div class="mx-auto grid min-h-screen w-full max-w-6xl px-5 md:px-8 lg:grid-cols-[1.15fr_1fr] lg:gap-16">
+  <!-- Pitch -->
+  <div class="flex flex-col pb-10 pt-6 lg:pb-14 lg:pt-8">
+    <div class="flex items-center gap-2">
+      <svg viewBox="0 0 24 24" class="h-7 w-7 text-pine-700" fill="currentColor" aria-hidden="true">
+        <path d="M12 1.5 16.2 8H7.8L12 1.5Z" />
+        <path d="M12 6 17.6 14.2H6.4L12 6Z" />
+        <path d="M12 11 19 20H5L12 11Z" />
+        <rect x="10.75" y="20" width="2.5" height="2.5" rx="0.5" />
+      </svg>
+      <span class="text-[1.0625rem] font-semibold tracking-title text-stone-900">No Empty Tree</span>
+    </div>
+
+    <div class="mt-12 md:mt-16 lg:my-auto">
+      <h1 class="text-[2.5rem] font-semibold leading-[1.04] tracking-display text-stone-900 animate-fade-up md:text-[3.75rem]">
+        Give a family a Christmas to remember.
+      </h1>
+      <p class="mt-5 max-w-md text-[1.0625rem] leading-relaxed text-stone-500 animate-fade-up [animation-delay:60ms] md:text-lg">
+        Families in our community share their holiday wish lists. Adopt a single gift or a
+        whole list, so no family wakes up to an empty tree.
+      </p>
+      <ng-container [ngTemplateOutlet]="howItWorks" [ngTemplateOutletContext]="{ classes: 'mt-12 hidden lg:block' }" />
     </div>
   </div>
-  }
+
+  <!-- Sign in / create account -->
+  <div class="pb-12 lg:flex lg:items-center lg:border-l lg:border-stone-100 lg:py-14 lg:pl-16">
+    <div class="mx-auto w-full max-w-sm animate-fade-up [animation-delay:120ms] lg:mx-0">
+      @if (authService.connectionProblem()) {
+      <div class="mb-6 flex items-start gap-3 rounded-xl bg-amber-50 p-3.5 text-sm text-amber-900" role="alert">
+        <i class="pi pi-exclamation-triangle mt-0.5 text-amber-600" aria-hidden="true"></i>
+        <span>
+          <span class="font-semibold">We can't reach the server right now.</span>
+          Signing in may not work until it's back. Please try again in a few minutes.
+        </span>
+      </div>
+      }
+      <app-auth-panel />
+    </div>
+  </div>
+
+  <ng-container [ngTemplateOutlet]="howItWorks" [ngTemplateOutletContext]="{ classes: 'border-t border-stone-100 pb-14 pt-10 lg:hidden' }" />
+</div>
+}
+
+<ng-template #howItWorks let-classes="classes">
+  <section [class]="classes" aria-labelledby="how-it-works">
+    <h2 id="how-it-works" class="type-section-label">How it works</h2>
+    <ol class="mt-5 space-y-6">
+      @for (step of steps; track step.title; let i = $index) {
+      <li class="flex gap-4 animate-fade-up" [style.animation-delay.ms]="180 + i * 60">
+        <span
+          class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-pine-50 text-sm font-semibold tabular-nums text-pine-700"
+          aria-hidden="true"
+        >
+          {{ i + 1 }}
+        </span>
+        <span>
+          <span class="block font-semibold tracking-snug text-stone-900">{{ step.title }}</span>
+          <span class="block text-[0.9375rem] text-stone-500">{{ step.body }}</span>
+        </span>
+      </li>
+      }
+    </ol>
+  </section>
+</ng-template>

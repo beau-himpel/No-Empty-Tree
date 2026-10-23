@@ -1,66 +1,70 @@
-.nav-item {
-  padding: 1rem;
+// The sticky <header> can only stick within its parent; without this the host
+// element is exactly header-height, so the bar scrolls away with the page.
+:host {
+  display: contents;
+}
+
+.nav-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 0.875rem;
+  border-radius: 9999px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: #78716c; // stone-500
+  text-decoration: none;
+  background: transparent;
+  border: none;
   cursor: pointer;
-  transition: all 0.2s;
   white-space: nowrap;
-  
+  transition: color 0.15s ease, background-color 0.15s ease;
+
   &:hover {
-    color: #334155;
+    color: #1c1917;
+    background-color: #f5f5f4; // stone-100
   }
 }
 
-.nav-item-active {
-  color: black;
+.nav-link-active {
+  color: #1c1917; // stone-900
   font-weight: 600;
-  border-top: 2px solid black;
-  border-left: 2px solid black;
-  border-right: 2px solid black;
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
-  background-color: #f5f5f5;
-}
 
-.nav-item-inactive {
-  color: #64748b;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-// Mobile menu styles
-.mobile-menu-button {
-  color: #64748b !important;
-  
   &:hover {
-    color: #334155 !important;
-    background-color: rgba(255, 255, 255, 0.5) !important;
+    background-color: transparent;
   }
 }
 
-:host ::ng-deep .mobile-menu {
-  .p-menu {
-    min-width: 200px;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+.tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.625rem 0.25rem 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: #a8a29e; // stone-400
+  text-decoration: none;
+  transition: color 0.15s ease;
+
+  &:active .tab-icon {
+    transform: scale(0.88);
   }
-  
-  .p-menuitem-link {
-    padding: 0.75rem 1rem;
-    color: #374151;
-    transition: all 0.2s;
-    
-    &:hover {
-      background-color: #f3f4f6;
-      color: #111827;
-    }
-  }
-  
-  .p-menuitem-icon {
-    margin-right: 0.5rem;
-    color: #6b7280;
-  }
-  
-  .p-menu-separator {
-    border-top: 1px solid #e5e7eb;
-    margin: 0.5rem 0;
+}
+
+.tab-icon {
+  font-size: 1.25rem;
+  transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.tab-active {
+  color: #1c1917; // stone-900
+  font-weight: 600;
+}
+
+// No app chrome on paper (e.g. the printable shopping list)
+@media print {
+  :host {
+    display: none;
   }
 }

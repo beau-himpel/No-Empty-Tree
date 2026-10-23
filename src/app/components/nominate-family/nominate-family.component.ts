@@ -1,359 +1,223 @@
-import { CommonModule, NgClass } from '@angular/common';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { TitleCasePipe } from '@angular/common';
 import {
-  FormBuilder,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+  afterNextRender,
+  Component,
+  computed,
+  DestroyRef,
+  ElementRef,
+  inject,
+  Injector,
+  OnInit,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { MessageService } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { DialogModule } from 'primeng/dialog';
-import { InputTextModule } from 'primeng/inputtext';
-import { SelectModule } from 'primeng/select';
-import { TextareaModule } from 'primeng/textarea';
-import { ToastModule } from 'primeng/toast';
-import { TooltipModule } from 'primeng/tooltip';
 import { AuthService } from '../../auth.service';
-import { BreakpointService } from '../../breakpoint.service';
 import { NominationSettingsService } from '../../nomination-settings.service';
+import { expandCollapse } from '../../shared/animations';
+import { ConfirmService } from '../../shared/confirm/confirm.service';
+import { PersonBadgeComponent, personTone } from '../../shared/person-badge.component';
 import { PhoneMaskDirective } from '../../shared/phone-mask.directive';
+import { scrollBehavior } from '../../shared/motion';
+import { ToastService } from '../../shared/toast/toast.service';
 import { SupabaseService } from '../../supabase.service';
-import { ConfirmDeleteModalComponent } from '../confirm-delete-modal/confirm-delete-modal.component';
-import { Item, ItemFormComponent } from './item-form/item-form.component';
-import { FamilyMember, MemberInfoComponent } from './member-info/member-info.component';
+import { MemberEditorComponent } from './member-editor/member-editor.component';
+import { NominationDraftService } from './nomination-draft.service';
+import {
+  DraftMember,
+  genderLabel,
+  isBlankMember,
+  Item,
+  joinWithAnd,
+  memberProblems,
+  normalizeLink,
+  ResumableStep,
+} from './nomination.model';
 
-interface FamilyInfo {
-  name: string;
-  address: string;
-  phone: string;
-  email: string;
-  members: FamilyMember[];
-}
+type Step = ResumableStep | 'member' | 'done';
+
+const STEP_NUMBER: Record<Step, number> = { family: 1, members: 2, member: 2, review: 3, done: 3 };
+
+const notBlank = (control: AbstractControl) =>
+  typeof control.value === 'string' && control.value.trim() === '' ? { required: true } : null;
+
+const phoneNumber = (control: AbstractControl) => {
+  const digits = String(control.value ?? '').replace(/\D/g, '');
+  return digits.length === 0 || digits.length === 10 ? null : { phone: true };
+};
 
 @Component({
   selector: 'app-nominate-family',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    FormsModule,
-    NgClass,
-    CardModule,
-    ButtonModule,
-    DialogModule,
-    InputTextModule,
-    TextareaModule,
-    SelectModule,
-    TooltipModule,
-    ToastModule,
-    MemberInfoComponent,
-    ItemFormComponent,
-    ConfirmDeleteModalComponent,
-    PhoneMaskDirective,
-  ],
+  imports: [ReactiveFormsModule, PhoneMaskDirective, MemberEditorComponent, TitleCasePipe, PersonBadgeComponent],
+  providers: [NominationDraftService],
   templateUrl: './nominate-family.component.html',
   styleUrls: ['./nominate-family.component.scss'],
+  animations: [expandCollapse],
 })
 export class NominateFamilyComponent implements OnInit {
+  readonly drafts = inject(NominationDraftService);
   private readonly fb = inject(FormBuilder);
-  private readonly FAMILY_INFO_STORAGE_KEY = 'nominateFamilyInfo';
-
-  currentStep = signal<'familyInfo' | 'familyMembers'>('familyInfo');
-  selectedMemberIndex = signal<number | null>(null);
-  showMemberList = signal(true);
-  showMemberDetails = signal(true);
-  showDeleteModal = signal(false);
-  memberToDelete = signal<number | null>(null);
-  showValidationModal = signal(false);
-  validationMemberIndex = signal<number | null>(null);
-
-  isSaving = signal(false);
-  saveError = signal<string | null>(null);
-
   private readonly router = inject(Router);
-  private readonly breakpointService = inject(BreakpointService);
-  private readonly nominationSettingsService = inject(
-    NominationSettingsService
-  );
+  private readonly injector = inject(Injector);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly supabaseService = inject(SupabaseService);
   private readonly authService = inject(AuthService);
-  private readonly messageService = inject(MessageService);
+  private readonly confirmService = inject(ConfirmService);
+  private readonly toast = inject(ToastService);
+  private readonly nominationSettingsService = inject(NominationSettingsService);
 
-  readonly familyInfo = signal<FamilyInfo>({
-    name: '',
-    address: '',
-    phone: '',
-    email: '',
-    members: [],
+  readonly nominationsEnabled = this.nominationSettingsService.nominationsEnabled;
+  readonly settingsLoading = computed(
+    () => this.nominationSettingsService.loading() || this.nominationsEnabled() === null
+  );
+
+  readonly step = signal<Step>('family');
+  readonly stepNumber = computed(() => STEP_NUMBER[this.step()]);
+  readonly editingMemberId = signal<string | null>(null);
+  readonly editingIsNew = signal(false);
+
+  readonly familySubmitted = signal(false);
+  readonly membersSubmitted = signal(false);
+  readonly isSaving = signal(false);
+  readonly saveError = signal<string | null>(null);
+  readonly submitted = signal<{ familyName: string; gifts: number } | null>(null);
+
+  readonly familyForm = this.fb.nonNullable.group({
+    name: ['', [Validators.required, notBlank]],
+    address: ['', [Validators.required, notBlank]],
+    phone: ['', [phoneNumber]],
+    email: ['', [Validators.email]],
   });
 
-  readonly currentMember = signal<FamilyMember>({
-    id: '',
-    name: '',
-    age: 0,
-    gender: '',
-    ethnicity: '',
-    isChild: false,
-    items: [],
+  readonly family = computed(() => this.drafts.draft().family);
+  readonly familyName = computed(() => {
+    const name = this.family().name.trim();
+    return name ? new TitleCasePipe().transform(name) : '';
   });
 
-  readonly isAddingMember = signal(false);
-  readonly isMobile = this.breakpointService.isMobile;
+  readonly memberRows = computed(() =>
+    this.drafts.draft().members.map((member) => ({
+      member,
+      problems: memberProblems(member),
+      summary: this.memberSummary(member),
+      tone: personTone(member.isChild === null ? null : !member.isChild, member.gender),
+    }))
+  );
+  readonly incompleteCount = computed(
+    () => this.memberRows().filter((row) => row.problems.length > 0).length
+  );
+  readonly giftCount = computed(() =>
+    this.drafts.draft().members.reduce((sum, member) => sum + member.items.length, 0)
+  );
 
-  readonly nominationsEnabled =
-    this.nominationSettingsService.nominationsEnabled;
-  readonly loading = this.nominationSettingsService.loading;
-  readonly error = this.nominationSettingsService.error;
+  readonly joinWithAnd = joinWithAnd;
 
-  readonly isMemberValid = computed(() => {
-    const member = this.currentMember();
-    return this.isMemberBasicInfoValid() && member.items.length > 0;
-  });
+  ngOnInit(): void {
+    const draft = this.drafts.draft();
+    this.familyForm.setValue(draft.family, { emitEvent: false });
+    if (draft.step !== 'family') this.familySubmitted.set(true);
+    this.step.set(draft.step);
 
-  isFamilyValid = computed(() => {
-    return (
-      this.familyForm.valid &&
-      this.familyInfo().members.length > 0 &&
-      this.familyInfo().members.every(
-        (member) =>
-          member.items.length > 0 &&
-          member.name.trim() &&
-          member.gender &&
-          member.isChild !== undefined
-      )
-    );
-  });
-
-  readonly isMemberBasicInfoValid = computed(() => {
-    const member = this.currentMember();
-    return !!(
-      member.name.trim() &&
-      member.age > 0 &&
-      member.gender &&
-      member.isChild !== undefined
-    );
-  });
-
-  readonly memberDropdownOptions = computed(() => {
-    return this.familyInfo().members.map((member, index) => ({
-      label: member.name || `New Member ${index + 1}`,
-      value: index,
-    }));
-  });
-
-  readonly familyForm = this.fb.group({
-    name: ['', [Validators.required]],
-    address: ['', [Validators.required]],
-    phone: [''],
-    email: [''],
-    // email: ['', [Validators.email, Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)]]
-  });
-
-  get familyName() {
-    return this.familyForm.get('name');
-  }
-  get familyAddress() {
-    return this.familyForm.get('address');
-  }
-  get familyPhone() {
-    return this.familyForm.get('phone');
-  }
-  get familyEmail() {
-    return this.familyForm.get('email');
+    this.familyForm.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.drafts.updateFamily(this.familyForm.getRawValue()));
   }
 
-  ngOnInit() {
-    this.loadCachedFamilyInfo();
-    this.setupFormAutoSave();
+  showFamilyError(name: 'name' | 'address' | 'phone' | 'email'): boolean {
+    const control = this.familyForm.controls[name];
+    return control.invalid && (control.touched || this.familySubmitted());
   }
 
-  private loadCachedFamilyInfo() {
-    try {
-      const cachedData = localStorage.getItem(this.FAMILY_INFO_STORAGE_KEY);
-      if (cachedData) {
-        const parsedData = JSON.parse(cachedData);
-
-        // Load family info signal
-        if (parsedData.familyInfo) {
-          this.familyInfo.set(parsedData.familyInfo);
-        }
-
-        // Load form values
-        if (parsedData.formValues) {
-          this.familyForm.patchValue(parsedData.formValues);
-        }
-      }
-    } catch (error) {
-      console.warn('Failed to load cached family info:', error);
-      // Clear corrupted data
-      localStorage.removeItem(this.FAMILY_INFO_STORAGE_KEY);
+  goTo(step: Step): void {
+    this.step.set(step);
+    if (step === 'family' || step === 'members' || step === 'review') {
+      this.drafts.setStep(step);
     }
+    window.scrollTo({ top: 0, behavior: 'instant' });
   }
 
-  private setupFormAutoSave() {
-    this.familyForm.valueChanges.subscribe(() => {
-      this.saveFamilyInfoToLocalStorage();
+  continueFromFamily(): void {
+    this.familySubmitted.set(true);
+    this.familyForm.markAllAsTouched();
+    if (this.familyForm.invalid) {
+      this.focusFirstInvalid();
+      return;
+    }
+    this.goTo('members');
+  }
+
+  addMember(): void {
+    const member = this.drafts.addMember();
+    this.openEditor(member.id, true);
+  }
+
+  editMember(id: string): void {
+    this.openEditor(id, false);
+  }
+
+  closeEditor(): void {
+    const id = this.editingMemberId();
+    const member = id ? this.drafts.member(id) : undefined;
+    // A member opened via "Add" and left untouched shouldn't linger as a blank row
+    if (id && member && isBlankMember(member)) {
+      this.drafts.removeMember(id, { undoable: false });
+    }
+    this.editingMemberId.set(null);
+    this.goTo('members');
+  }
+
+  removeEditingMember(): void {
+    const id = this.editingMemberId();
+    if (!id) return;
+    const member = this.drafts.member(id);
+    this.drafts.removeMember(id, { undoable: !!member && !isBlankMember(member) });
+    this.editingMemberId.set(null);
+    this.goTo('members');
+  }
+
+  continueFromMembers(): void {
+    this.membersSubmitted.set(true);
+    if (this.memberRows().length === 0 || this.incompleteCount() > 0) return;
+    this.goTo('review');
+  }
+
+  async startOver(): Promise<void> {
+    const confirmed = await this.confirmService.open({
+      tone: 'dark',
+      icon: 'pi-refresh',
+      title: 'Start over?',
+      message: "This clears the family details and members you've entered so far.",
+      confirmLabel: 'Start over',
     });
+    if (!confirmed) return;
+    this.resetFlow();
+    this.goTo('family');
   }
 
-  private saveFamilyInfoToLocalStorage() {
-    try {
-      const dataToSave = {
-        familyInfo: this.familyInfo(),
-        formValues: this.familyForm.value,
-      };
-      localStorage.setItem(
-        this.FAMILY_INFO_STORAGE_KEY,
-        JSON.stringify(dataToSave)
-      );
-    } catch (error) {
-      console.warn('Failed to save family info to local storage:', error);
-    }
+  nominateAnother(): void {
+    this.submitted.set(null);
+    this.goTo('family');
   }
 
-  addFamilyMember() {
-    const newMember: FamilyMember = {
-      id: this.generateMemberId(),
-      name: '',
-      age: 0,
-      gender: '',
-      ethnicity: '',
-      isChild: false,
-      items: [],
-    };
-
-    // Add directly to family members
-    const family = this.familyInfo();
-    family.members.push(newMember);
-    this.familyInfo.set({ ...family });
-    this.saveFamilyInfoToLocalStorage();
-
-    // Set up for editing the new member
-    this.isAddingMember.set(true);
-    this.selectedMemberIndex.set(family.members.length - 1);
-    this.currentMember.set(newMember);
-    this.showMemberList.set(false);
-    this.showMemberDetails.set(true);
+  viewOnAdoptFamilies(): void {
+    this.router.navigate(['/adopt-family']);
   }
 
-  editMember(index: number) {
-    this.selectedMemberIndex.set(index);
-    this.isAddingMember.set(false);
-    const member = this.familyInfo().members[index];
-    this.currentMember.set({ ...member });
-    this.showMemberList.set(false);
-    this.showMemberDetails.set(true);
-  }
+  async submit(): Promise<void> {
+    if (this.isSaving()) return;
 
-  removeMember(index: number) {
-    const family = this.familyInfo();
-    family.members.splice(index, 1);
-    this.familyInfo.set({ ...family });
-    this.saveFamilyInfoToLocalStorage();
-
-    // If we removed the currently selected member, go back to list view
-    if (this.selectedMemberIndex() === index) {
-      this.showMemberList.set(true);
-      this.selectedMemberIndex.set(null);
-    } else if (
-      this.selectedMemberIndex() !== null &&
-      this.selectedMemberIndex()! > index
-    ) {
-      // Adjust selected index if we removed a member before the current one
-      this.selectedMemberIndex.set(this.selectedMemberIndex()! - 1);
-    }
-  }
-
-  selectMemberFromDropdown(index: number) {
-    this.selectedMemberIndex.set(index);
-    const member = this.familyInfo().members[index];
-    this.currentMember.set({ ...member });
-    this.showMemberList.set(false);
-    this.showMemberDetails.set(true);
-  }
-
-  finishEditingMember() {
-    this.showMemberList.set(true);
-    this.selectedMemberIndex.set(null);
-    this.isAddingMember.set(false);
-  }
-
-  cancelAddMember() {
-    this.isAddingMember.set(false);
-    this.selectedMemberIndex.set(null);
-    this.showMemberList.set(true);
-    this.resetCurrentMember();
-  }
-
-  addFamilyMembers() {
-    this.currentStep.set('familyMembers');
-    this.saveFamilyInfoToLocalStorage();
-  }
-
-  showFamilyInfo() {
-    this.currentStep.set('familyInfo');
-  }
-
-  onItemsSaved(items: Item[]) {
-    const member = this.currentMember();
-    member.items = items;
-    this.currentMember.set({ ...member });
-
-    // Update the family member
-    const selectedIndex = this.selectedMemberIndex();
-    if (selectedIndex !== null) {
-      const family = this.familyInfo();
-      family.members[selectedIndex] = { ...member };
-      this.familyInfo.set({ ...family });
-      this.saveFamilyInfoToLocalStorage();
-    }
-  }
-
-  onItemsUpdated(items: Item[]) {
-    const member = this.currentMember();
-    member.items = items;
-    this.currentMember.set({ ...member });
-
-    // Update the family member
-    const selectedIndex = this.selectedMemberIndex();
-    if (selectedIndex !== null) {
-      const family = this.familyInfo();
-      family.members[selectedIndex] = { ...member };
-      this.familyInfo.set({ ...family });
-      this.saveFamilyInfoToLocalStorage();
-    }
-  }
-
-  onMemberUpdated(member: FamilyMember) {
-    this.currentMember.set(member);
-
-    // Update the family member
-    const selectedIndex = this.selectedMemberIndex();
-    if (selectedIndex !== null) {
-      const family = this.familyInfo();
-      family.members[selectedIndex] = { ...member };
-      this.familyInfo.set({ ...family });
-      this.saveFamilyInfoToLocalStorage();
-    }
-  }
-
-  async saveFamily() {
-    if (!this.familyForm.valid || !this.familyForm.value) {
+    const user = this.authService.getCurrentUser();
+    if (!user) {
+      this.saveError.set('Your session has ended. Please sign in again to submit.');
       return;
     }
 
-    // Check if user is authenticated
-    const currentUser = this.authService.getCurrentUser();
-    if (!currentUser) {
-      this.saveError.set('You must be logged in to save a family');
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Authentication Required',
-        detail: 'You must be logged in to save a family',
-      });
+    const draft = this.drafts.draft();
+    if (this.familyForm.invalid || draft.members.length === 0 || this.incompleteCount() > 0) {
+      this.saveError.set('Some details are missing. Check the family and members above.');
       return;
     }
 
@@ -361,31 +225,26 @@ export class NominateFamilyComponent implements OnInit {
     this.saveError.set(null);
 
     try {
-      const familyData = this.familyForm.value as Partial<FamilyInfo>;
-      const family = { ...this.familyInfo(), ...familyData };
-
-      // Create the family record first
       const familyRecord = await this.supabaseService.createFamily({
-        last_name: family.name,
-        address: family.address,
-        phone: family.phone || undefined,
-        email: family.email || undefined,
-        nominated_by: currentUser.id,
+        last_name: draft.family.name.trim(),
+        address: draft.family.address.trim(),
+        phone: draft.family.phone || undefined,
+        email: draft.family.email.trim() || undefined,
+        nominated_by: user.id,
       });
 
-      // Only proceed with members and items if family creation succeeded
       try {
-        // Add family members
-        for (const member of family.members) {
+        for (const member of draft.members) {
           const memberRecord = await this.supabaseService.addFamilyMember({
             family_id: familyRecord.id,
-            first_name: member.name,
-            age: member.age,
-            sex: this.mapGenderToSex(member.gender),
-            is_parent: !member.isChild,
+            first_name: member.name.trim(),
+            age: member.age ?? 0,
+            sex: member.gender === 'Female' ? 'female' : 'male',
+            is_parent: member.isChild === false,
+            // Omitted when blank, so saving works even before the column migration runs
+            ethnicity: member.ethnicity.trim() || undefined,
           });
 
-          // Add wishlist items for this member
           for (const item of member.items) {
             await this.supabaseService.addWishlistItem({
               family_member_id: memberRecord.id,
@@ -393,160 +252,68 @@ export class NominateFamilyComponent implements OnInit {
               description: item.description,
               color: item.color || undefined,
               size: item.size || undefined,
-              link: item.link || undefined,
+              link: normalizeLink(item.link),
               details: item.details || undefined,
             });
           }
         }
-
-        localStorage.removeItem(this.FAMILY_INFO_STORAGE_KEY);
-
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Family Saved',
-          detail: 'Family nomination has been saved successfully',
-        });
-
-        this.router.navigate(['/my-adoptions']);
       } catch (memberError) {
-        try {
-          await this.supabaseService.deleteFamily(familyRecord.id);
-        } catch (deleteError) {
-        }
-
-        this.saveError.set('Failed to save family members. Please try again.');
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Save Failed',
-          detail: 'Failed to save family members. Please try again.',
-        });
+        // Don't leave a half-saved family on the adopt list
+        await this.supabaseService.deleteFamily(familyRecord.id).catch(() => undefined);
+        throw memberError;
       }
+
+      this.submitted.set({ familyName: this.familyName(), gifts: this.giftCount() });
+      this.resetFlow();
+      this.step.set('done');
+      window.scrollTo({ top: 0, behavior: 'instant' });
     } catch (error) {
-      console.error('Error creating family:', error);
-      this.saveError.set('Failed to save family. Please try again.');
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Save Failed',
-        detail: 'Failed to save family. Please try again.',
-      });
+      console.error('Error saving nomination:', error);
+      this.saveError.set(
+        "We couldn't submit this nomination. Your draft is saved, so please try again."
+      );
+      this.toast.error("Couldn't submit the nomination");
     } finally {
       this.isSaving.set(false);
     }
   }
 
-  private generateMemberId(): string {
-    return (
-      'member_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
+  itemVariant(item: Item): string {
+    return [item.color, item.size ? `Size ${item.size}` : null].filter(Boolean).join(' · ');
+  }
+
+  private openEditor(id: string, isNew: boolean): void {
+    this.editingMemberId.set(id);
+    this.editingIsNew.set(isNew);
+    this.goTo('member');
+  }
+
+  private resetFlow(): void {
+    // A pending "Undo" would otherwise write into the fresh, empty draft
+    this.toast.clear();
+    this.drafts.reset();
+    this.familyForm.reset({ name: '', address: '', phone: '', email: '' }, { emitEvent: false });
+    this.familySubmitted.set(false);
+    this.membersSubmitted.set(false);
+    this.saveError.set(null);
+  }
+
+  private memberSummary(member: DraftMember): string {
+    const who = genderLabel(member.gender, member.isChild) ||
+      (member.isChild === true ? 'Child' : member.isChild === false ? 'Adult' : '');
+    const parts = [[who, member.age ?? ''].filter((part) => part !== '').join(', ')];
+    parts.push(`${member.items.length} ${member.items.length === 1 ? 'gift' : 'gifts'}`);
+    return parts.filter(Boolean).join(' · ');
+  }
+
+  private focusFirstInvalid(): void {
+    afterNextRender(
+      () => {
+        const target = this.host.nativeElement.querySelector<HTMLElement>('.field-input-invalid');
+        target?.scrollIntoView({ block: 'center', behavior: scrollBehavior() });
+        target?.focus({ preventScroll: true });
+      },
+      { injector: this.injector }
     );
-  }
-
-  private mapGenderToSex(gender: string): 'male' | 'female' {
-    switch (gender.toLowerCase()) {
-      case 'male':
-        return 'male';
-      case 'female':
-        return 'female';
-      default:
-        // Default to male if somehow an invalid value gets through
-        return 'male';
-    }
-  }
-
-  private resetCurrentMember() {
-    this.currentMember.set({
-      id: '',
-      name: '',
-      age: 0,
-      gender: '',
-      ethnicity: '',
-      isChild: false,
-      items: [],
-    });
-  }
-
-  deleteMemberFromList(index: number) {
-    this.memberToDelete.set(index);
-    this.showDeleteModal.set(true);
-  }
-
-  confirmDeleteFromList() {
-    const index = this.memberToDelete();
-    if (index !== null) {
-      this.removeMember(index);
-    }
-    this.showDeleteModal.set(false);
-    this.memberToDelete.set(null);
-  }
-
-  cancelDeleteFromList() {
-    this.showDeleteModal.set(false);
-    this.memberToDelete.set(null);
-  }
-
-  getMemberValidationErrors(member: FamilyMember): string[] {
-    const errors: string[] = [];
-
-    if (!member.name || member.name.trim() === '') {
-      errors.push('Name is required');
-    }
-
-    if (!member.gender || member.gender.trim() === '') {
-      errors.push('Gender is required');
-    }
-
-    if (member.isChild === undefined || member.isChild === null) {
-      errors.push('Member type (Child/Adult) is required');
-    }
-
-    if (!member.items || member.items.length === 0) {
-      errors.push('At least 1 wish list item is required');
-    }
-
-    return errors;
-  }
-
-  showValidationErrors(memberIndex: number) {
-    this.validationMemberIndex.set(memberIndex);
-    this.showValidationModal.set(true);
-  }
-
-  closeValidationModal() {
-    this.showValidationModal.set(false);
-    this.validationMemberIndex.set(null);
-  }
-
-  getCurrentValidationErrors(): string[] {
-    const memberIndex = this.validationMemberIndex();
-    if (
-      memberIndex !== null &&
-      memberIndex >= 0 &&
-      memberIndex < this.familyInfo().members.length
-    ) {
-      return this.getMemberValidationErrors(
-        this.familyInfo().members[memberIndex]
-      );
-    }
-    return [];
-  }
-
-  getCurrentValidationMemberName(): string {
-    const memberIndex = this.validationMemberIndex();
-    if (
-      memberIndex !== null &&
-      memberIndex >= 0 &&
-      memberIndex < this.familyInfo().members.length
-    ) {
-      const member = this.familyInfo().members[memberIndex];
-      return member.name || `New Member ${memberIndex + 1}`;
-    }
-    return '';
-  }
-
-  showMemberDetailsView() {
-    this.showMemberDetails.set(true);
-  }
-
-  showWishlistItemsView() {
-    this.showMemberDetails.set(false);
   }
 }

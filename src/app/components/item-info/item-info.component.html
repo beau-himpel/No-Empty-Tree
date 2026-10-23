@@ -1,17 +1,23 @@
-<div class="item-info">
-  <span class="item-detail">Category: {{ item().category }}</span>
-  <span class="item-detail mb-2">Description: {{ item().description }}</span>
-
-  @if (item().color) {
-  <span class="item-detail">Color: {{ item().color }}</span>
-  } @if (item().size) {
-  <span class="item-detail">Size: {{ item().size }}</span>
-  } @if (item().details) {
-  <div class="item-details">{{ item().details }}</div>
-  } @if (item().link) {
-  <a href="{{ item().link }}" target="_blank" class="item-link mt-2">
-    View Item
-    <i class="pi pi-external-link"></i>
-  </a>
-  }
-</div>
+<p class="text-sm text-stone-500">{{ item().category }}</p>
+<p
+  class="mt-0.5 text-[0.9375rem] font-semibold leading-snug tracking-snug transition-colors"
+  [class.text-stone-900]="!muted()"
+  [class.text-stone-400]="muted()"
+>
+  {{ item().description }}
+</p>
+@if (metaLine()) {
+<p class="mt-0.5 text-sm text-stone-500">{{ metaLine() }}</p>
+} @if (item().details) {
+<p class="mt-1 text-sm leading-relaxed text-stone-500">{{ item().details }}</p>
+} @if (item().link) {
+<a
+  [href]="item().link"
+  target="_blank"
+  rel="noopener noreferrer"
+  class="mt-1.5 inline-flex items-center gap-1 text-sm font-semibold text-pine-700 hover:text-pine-800 hover:underline"
+>
+  View item
+  <i class="pi pi-arrow-up-right text-[0.6875rem]" aria-hidden="true"></i>
+</a>
+}

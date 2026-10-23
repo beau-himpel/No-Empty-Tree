@@ -1,95 +1,77 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { Router } from '@angular/router';
-import { MessageService } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { TitleCasePipe } from '@angular/common';
+import {
+  afterNextRender,
+  Component,
+  computed,
+  inject,
+  Injector,
+  OnInit,
+  signal,
+} from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
+import { AdoptionService } from '../../adoption.service';
 import { AuthService } from '../../auth.service';
-import { Family, WishItem } from '../../shared/types';
+import { AnimatedNumberComponent } from '../../shared/animated-number.component';
+import { FamilyTabComponent } from '../../shared/family-tab.component';
+import { expandCollapse } from '../../shared/animations';
+import { Family } from '../../shared/types';
 import { SupabaseService } from '../../supabase.service';
 import { MemberDetailsComponent } from '../nominate-family/member-details/member-details.component';
+import { adoptedBy, giftCount } from './adopted-by';
 
 @Component({
   selector: 'app-my-adoptions',
   standalone: true,
-  imports: [ButtonModule, MemberDetailsComponent, ProgressSpinnerModule],
-  providers: [MessageService],
+  imports: [MemberDetailsComponent, TitleCasePipe, AnimatedNumberComponent, RouterLink, FamilyTabComponent],
   templateUrl: './my-adoptions.component.html',
   styleUrls: ['./my-adoptions.component.scss'],
+  animations: [expandCollapse],
 })
 export class MyAdoptionsComponent implements OnInit {
-  readonly adoptedFamilies = signal<Family[]>([]);
-  readonly isLoading = signal<boolean>(true);
   private readonly authService = inject(AuthService);
+  private readonly adoptionService = inject(AdoptionService);
   private readonly supabaseService = inject(SupabaseService);
-  private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
+  private readonly injector = inject(Injector);
+
+  readonly isLoading = signal<boolean>(true);
+  readonly error = signal<string | null>(null);
+  /** List enter/leave animations start only after the first render, so the page doesn't animate in piece by piece. */
+  readonly animateChanges = signal(false);
+
+  private readonly families = signal<Family[]>([]);
+
+  readonly adoptedFamilies = computed(() => {
+    this.adoptionService.version();
+    return adoptedBy(this.families(), this.authService.currentUser()?.id);
+  });
+
+  readonly totals = computed(() => {
+    const families = this.adoptedFamilies();
+    return { gifts: giftCount(families), families: families.length };
+  });
 
   ngOnInit() {
     this.loadAdoptedItems();
   }
 
-  private async loadAdoptedItems() {
+  async loadAdoptedItems() {
     this.isLoading.set(true);
-    const user = this.authService.getCurrentUser();
-    if (!user?.id) {
-      this.adoptedFamilies.set([]);
-      return;
-    }
+    this.error.set(null);
 
     try {
       const familiesData = await this.supabaseService.getFamiliesWithMembers();
-
-      if (familiesData) {
-        const filteredAdoptedFamilies = familiesData
-          .map((family) => ({
-            ...family,
-            family_members: family.family_members
-              .filter((member) =>
-                member.wishlist_items?.some(
-                  (item) => item.adopted_by === user.id
-                )
-              )
-              .map((member) => ({
-                ...member,
-                wishlist_items:
-                  member.wishlist_items?.filter(
-                    (item) => item.adopted_by === user.id
-                  ) || [],
-              })),
-          }))
-          .filter(
-            (family) => family.family_members.length > 0
-          ) as unknown as Family[];
-
-        this.adoptedFamilies.set(filteredAdoptedFamilies);
-      }
+      this.families.set((familiesData ?? []) as unknown as Family[]);
     } catch (error) {
       console.error('Error loading adopted items:', error);
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'Failed to load adopted items',
-      });
-      this.adoptedFamilies.set([]);
+      this.error.set("We couldn't load your adoptions. Check your connection and try again.");
     } finally {
       this.isLoading.set(false);
-    }
-  }
-
-  async unadoptItem(item: WishItem) {
-    try {
-      await this.supabaseService.unadoptWishlistItem(item.id);
-      await this.loadAdoptedItems();
-    } catch (error) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'Error unadopting item',
-      });
+      afterNextRender(() => this.animateChanges.set(true), { injector: this.injector });
     }
   }
 
   navigateToAdoptFamily() {
-    this.router.navigate(['adopt-family']);
+    this.router.navigate(['/adopt-family']);
   }
 }

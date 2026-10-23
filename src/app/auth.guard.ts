@@ -2,14 +2,13 @@ import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from './auth.service';
 
-export const authGuard = () => {
+export const authGuard = async () => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  if (authService.isLoggedIn()) {
-    return true;
-  } else {
-    router.navigate(['']);
-    return false;
-  }
-}; 
+  // On a page reload the stored session is restored asynchronously; deciding before
+  // it lands would bounce signed-in users to the landing page.
+  await authService.whenReady();
+
+  return authService.isLoggedIn() ? true : router.createUrlTree(['']);
+};

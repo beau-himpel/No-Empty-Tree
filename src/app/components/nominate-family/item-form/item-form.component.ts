@@ -1,96 +1,90 @@
-import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, inject, Input, Output, signal } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { SelectModule } from 'primeng/select';
-import { ItemInfoComponent } from '../../item-info/item-info.component';
+import { Component, inject, input, output, signal } from '@angular/core';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ChoiceGroupComponent, ChoiceOption } from '../../../shared/choice-group.component';
+import { Item, normalizeLink } from '../nomination.model';
 
-export interface Item {
-  category: string;
-  description: string;
-  color?: string;
-  size?: string;
-  details?: string;
-  link?: string;
-}
+export type { Item } from '../nomination.model';
+
+let nextId = 0;
+
+const notBlank = (control: AbstractControl) =>
+  typeof control.value === 'string' && control.value.trim() === '' ? { required: true } : null;
 
 @Component({
   selector: 'app-item-form',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    ButtonModule,
-    InputTextModule,
-    SelectModule,
-    ItemInfoComponent
-  ],
+  imports: [ReactiveFormsModule, ChoiceGroupComponent],
   templateUrl: './item-form.component.html',
   styleUrls: ['./item-form.component.scss']
 })
 export class ItemFormComponent {
   private readonly fb = inject(FormBuilder);
 
-  @Input() memberName: string = '';
-  @Input() existingItems: Item[] = [];
-  @Output() itemsSaved = new EventEmitter<Item[]>();
-  @Output() itemsUpdated = new EventEmitter<Item[]>();
-  @Output() doneAddingItems = new EventEmitter<void>();
+  readonly canCancel = input(true);
+  readonly added = output<Item>();
+  readonly cancelled = output<void>();
 
-  readonly itemForm = signal<FormGroup>(this.createItemForm());
+  readonly uid = `gift-${nextId++}`;
+  readonly submitted = signal(false);
 
-  readonly itemCategoryOptions = [
-    { label: 'Toy', value: 'Toy' },
-    { label: 'Clothing', value: 'Clothing' },
-    { label: 'Book', value: 'Book' },
-    { label: 'Electronics', value: 'Electronics' },
-    { label: 'Other', value: 'Other' }
-  ];
+  readonly categoryOptions: ChoiceOption<string>[] = [
+    'Toy', 'Clothing', 'Book', 'Electronics', 'Other',
+  ].map((value) => ({ label: value, value }));
 
+  readonly form = this.fb.nonNullable.group({
+    category: ['', [Validators.required]],
+    description: ['', [Validators.required, notBlank]],
+    color: [''],
+    size: [''],
+    link: [''],
+    details: [''],
+  });
 
-  createItemForm(): FormGroup {
-    return this.fb.group({
-      category: ['', [Validators.required]],
-      description: ['', [Validators.required]],
-      color: [''],
-      size: [''],
-      details: [''],
-      link: ['']
+  hasInput(): boolean {
+    return Object.values(this.form.getRawValue()).some((value) => value.trim() !== '');
+  }
+
+  /**
+   * Adds the gift if it is complete. A partially filled gift is never dropped:
+   * it reports 'invalid' and shows what's missing so the caller can stay put.
+   */
+  commit(): 'empty' | 'added' | 'invalid' {
+    if (!this.hasInput()) return 'empty';
+    if (this.form.invalid) {
+      this.submitted.set(true);
+      return 'invalid';
+    }
+
+    const value = this.form.getRawValue();
+    this.added.emit({
+      category: value.category,
+      description: value.description.trim(),
+      color: value.color.trim() || undefined,
+      size: value.size.trim() || undefined,
+      link: normalizeLink(value.link),
+      details: value.details.trim() || undefined,
     });
+    this.form.reset();
+    this.submitted.set(false);
+    return 'added';
   }
 
-  addAnotherItem() {
-    const form = this.itemForm();
-    if (form.valid) {
-      const newItem = form.value as Item;
-      const allItems = [...this.existingItems, newItem];
-      this.itemsSaved.emit(allItems);
-      
-      // Reset the form for the next item
-      this.itemForm.set(this.createItemForm());
+  submit(): void {
+    if (!this.hasInput()) {
+      this.submitted.set(true);
+      return;
     }
+    this.commit();
   }
 
-  onDoneAddingItems() {
-    const form = this.itemForm();
-    if (form.valid) {
-      const newItem = form.value as Item;
-      const allItems = [...this.existingItems, newItem];
-      this.itemsSaved.emit(allItems);
-    }
-    
-    // Emit the done event to return to member list
-    this.doneAddingItems.emit();
+  cancel(): void {
+    this.form.reset();
+    this.submitted.set(false);
+    this.cancelled.emit();
   }
 
-  removeExistingItem(index: number) {
-    const updatedItems = [...this.existingItems];
-    updatedItems.splice(index, 1);
-    this.itemsUpdated.emit(updatedItems);
-  }
-
-  isFormValid(): boolean {
-    return this.itemForm().valid;
+  showError(name: 'category' | 'description'): boolean {
+    const control = this.form.controls[name];
+    return control.invalid && (control.touched || this.submitted());
   }
 }
