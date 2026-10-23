@@ -27,7 +27,8 @@ import { Component } from '@angular/core';
       /* Leave room for the curve and a visible run of bar on narrow screens */
       max-width: calc(100% - 1.5rem);
       padding: 0.375rem 0.875rem 0.3125rem;
-      border-radius: var(--radius) var(--radius) 0 0;
+      /* Every corner rounded except bottom-right, where the tab runs into the bar */
+      border-radius: var(--radius) var(--radius) 0 var(--radius);
       background: var(--tab-color);
       color: #fff;
       font-size: 1rem;
@@ -57,6 +58,8 @@ import { Component } from '@angular/core';
       flex: 1 1 0;
       min-width: 1rem;
       height: var(--bar-height);
+      /* Round off the bar's far end */
+      border-radius: 0 calc(var(--bar-height) / 2) calc(var(--bar-height) / 2) 0;
       background: var(--tab-color);
     }
 
