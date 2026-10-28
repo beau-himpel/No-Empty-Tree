@@ -1,4 +1,5 @@
 {
-    "buildCommand": "npm run build -- --configuration production",
-    "outputDirectory": "dist/No-Empty-Tree/browser"
-  }
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}

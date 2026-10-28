@@ -1,0 +1,22 @@
+/* Animating grid rows from 0fr to 1fr transitions to the content's real height,
+   with no measuring step that can go stale. */
+.wishlist {
+  grid-template-rows: 0fr;
+  /* Same ease-in-out as a family panel (PANEL_EASE_POINTS), a little shorter since it's smaller */
+  transition: grid-template-rows 320ms cubic-bezier(0.45, 0, 0.2, 1);
+}
+
+.wishlist-open {
+  grid-template-rows: 1fr;
+  transition-duration: 460ms;
+}
+
+.wishlist-content {
+  opacity: 0;
+  transition: opacity 160ms ease-in;
+}
+
+.wishlist-open .wishlist-content {
+  opacity: 1;
+  transition: opacity 300ms ease-out 120ms;
+}

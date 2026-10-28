@@ -1,0 +1,35 @@
+/* Sign in sits left of Create account (as in the toggle), so each slides out toward its side */
+.auth-form {
+  transition:
+    opacity 380ms ease-out 120ms,
+    transform var(--switch-ms) var(--switch-ease),
+    visibility 0s;
+}
+
+.auth-form-hidden {
+  position: absolute;
+  inset: 0 0.375rem auto; /* inside the wrapper's px-1.5 */
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 200ms ease-in,
+    transform var(--switch-ms) var(--switch-ease),
+    visibility 0s linear var(--switch-ms);
+}
+
+.auth-form-hidden[data-side='start'] {
+  transform: translateX(-2.5rem);
+}
+
+.auth-form-hidden[data-side='end'] {
+  transform: translateX(2.5rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-form,
+  .auth-form-hidden {
+    transition: none;
+    transform: none;
+  }
+}

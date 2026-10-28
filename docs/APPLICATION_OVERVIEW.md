@@ -128,57 +128,68 @@ never touches the column.
   `gift_purchases_*_policy` migrations after it). Rows stay if the gift is
   un-adopted (so Undo keeps the tick) and are deleted with the gift.
 - **Auth**: Supabase Auth with email/password and Google OAuth. All app routes require
-  auth (`authGuard`); unauthenticated users only ever see the landing/sign-in screen.
+  auth (the `Home` shell sends signed-out visitors to `/`); unauthenticated users only ever
+  see the landing/sign-in screen.
 
 ## Technical structure
 
-- **Stack**: Angular 20 (standalone components, signals, new `@if`/`@for` control flow),
-  Tailwind CSS with a shared component layer in `src/styles.scss`, Angular CDK (confirm
-  sheet), `@angular/animations` (expand/collapse), and the Geist variable font
-  (self-hosted via `@fontsource-variable/geist`). PrimeIcons for icons; PrimeNG has been
-  removed. Deployed
-  on Vercel (`noemptytree.com`); backend is Supabase (project URL/keys in
-  `src/environments/`).
-- **Routing** (`src/app/app.routes.ts`): everything nests under `HomeComponent` at `/`,
-  which renders either the landing/sign-in screen (logged out) or the header + routed
-  page (logged in). Routes: `/adopt-family`, `/nominate-family`, `/my-adoptions`,
-  `/my-adoptions/shopping-list`, `/my-adoptions/past`, `/reset-password` (all auth-guarded; the guard waits for the stored session to
-  restore). Unknown paths redirect to `/adopt-family`. Each route sets the tab title
-  ("My adoptions · No Empty Tree") via `title.strategy.ts`.
-  Route changes cross-fade via the View Transitions API (`withViewTransitions`).
+- **Stack**: React 19 + TypeScript, built with Vite. React Router 7 (data router, lazy
+  route modules), Tailwind CSS with a shared component layer in `src/styles.css`,
+  framer-motion (`LazyMotion` + `AnimatePresence`) for list enter/leave animations, and
+  the Geist variable font (self-hosted via `@fontsource-variable/geist`). PrimeIcons for
+  icons. Deployed on Vercel (`noemptytree.com`, SPA rewrite in `vercel.json`); backend is
+  Supabase (project URL/keys in `src/lib/environment.ts`). Unit tests run with Vitest
+  (`npm test`).
+- **Routing** (`src/router.tsx`): everything nests under `Home` at `/`, which renders a
+  splash while the stored session restores, then either the landing/sign-in screen
+  (logged out) or the header + routed page (logged in). Routes: `/adopt-family`,
+  `/nominate-family`, `/my-adoptions`, `/my-adoptions/shopping-list`,
+  `/my-adoptions/past`, `/reset-password`. Unknown paths redirect to `/adopt-family`;
+  signed-out visitors on any other path are sent to `/`. Each route's `handle.title` sets
+  the tab title ("My adoptions · No Empty Tree"). Route changes cross-fade via the View
+  Transitions API (`viewTransition` on links and navigations).
 - **Key files**:
-  - `src/app/components/home/` — app shell + landing page split; hosts the toast
-  - `src/app/components/auth/` — `auth-panel` (sign in, create account, forgot password,
-    check-email states) and `reset-password` (new password after a reset link)
-  - `src/app/components/header/` — sticky top bar, desktop nav, mobile bottom tab bar
-  - `src/app/components/adopt-family/` — hero + family list page
-  - `src/app/components/family-details/` — inline details + adopt-all
-  - `src/app/components/nominate-family/member-details/` — collapsible member row with
-    wish list (reused by both adopt-family and my-adoptions pages)
-  - `src/app/components/wish-item/` + `item-info/` — single wish-list item row + its info
-    (`item-info` is also used by the nomination wizard)
-  - `src/app/components/my-adoptions/` — user's adopted items page; `adopted-by.ts`
-    filters families down to the user's gifts (shared with the shopping list)
-  - `src/app/components/shopping-list/` — printable checklist of the user's adoptions
-  - `src/app/components/past-adoptions/` — the user's adoptions from earlier seasons
-  - `src/app/components/nominate-family/` — nomination wizard container (steps, family
-    form, member list, review, submit); `member-editor/` — one member's details + wish
-    list; `item-form/` — the add-a-gift form; `nomination-draft.service.ts` — draft state,
-    autosave and undo; `nomination.model.ts` — draft types, validation rules, link
-    normalization, legacy-draft migration
-  - `src/app/adoption.service.ts` — every adopt/unadopt goes through here (pending state,
-    undo toasts, error handling, `version` signal)
-  - `src/app/shared/` — `toast/`, `confirm/` (CDK confirm sheet), `animated-number`,
-    `choice-group` (segmented control / chips form control), `phone-mask.directive`,
-    `animations.ts`, `motion.ts` (reduced-motion helpers)
+  - `src/components/home/` — app shell + landing page split; hosts the toast and confirm
+    sheet
+  - `src/components/auth/` — `AuthPanel` (sign in, create account, forgot password,
+    check-email states), `ResetPassword` (new password after a reset link) and
+    `PasswordInput`
+  - `src/components/header/` — sticky top bar, desktop nav, mobile bottom tab bar
+  - `src/components/adopt-family/` — hero + family list page; `ExpandPanel` animates a
+    family's details open and closed
+  - `src/components/family-details/` — inline details + adopt-all
+  - `src/components/member-details/` — collapsible member row with wish list (reused by
+    both adopt-family and my-adoptions pages)
+  - `src/components/wish-item/` + `item-info/` — single wish-list item row + its info
+    (`ItemInfo` is also used by the nomination wizard)
+  - `src/components/my-adoptions/` — user's adopted items page; `adopted-by.ts` filters
+    families down to the user's gifts (shared with the shopping list)
+  - `src/components/shopping-list/` — printable checklist of the user's adoptions
+  - `src/components/past-adoptions/` — the user's adoptions from earlier seasons
+  - `src/components/nominate-family/` — `NominateFamily` wizard container (steps, family
+    form, member list, review, submit); `MemberEditor` — one member's details + wish list;
+    `ItemForm` — the add-a-gift form; `nomination-draft.ts` — draft state, autosave and
+    undo; `nomination.model.ts` — draft types, validation rules, link normalization,
+    legacy-draft migration
+  - `src/lib/adoption.ts` — every adopt/unadopt goes through here (pending state, undo
+    toasts, error handling, `version` counter)
+  - `src/lib/supabase.ts` — Supabase client and all data access; `auth.ts` — session
+    state and auth actions (`auth-errors.ts` maps errors to messages);
+    `nomination-settings.ts` — nominations flag and active season; `toast.ts`;
+    `navigation.ts` (lets non-component code change pages); `motion.ts` (reduced-motion,
+    `isMobile` and easing helpers)
+  - `src/shared/` — `Toast`, `confirm` (confirm sheet; `confirm()` returns a promise),
+    `AnimatedNumber`, `ChoiceGroup` (segmented control / chips), `FamilyTab`,
+    `PersonBadge`, `animations.tsx` (`ExpandCollapse`), `forms.ts` (validators, phone
+    formatting, touched/submitted tracking, `useAfterRender`)
   - `public/` — tree favicon (`favicon.svg`/`.ico`), `apple-touch-icon.png`,
     `icon-192/512.png` + `manifest.webmanifest` (Add to Home Screen), and `og-image.png`
-    (1200×630 link-preview card referenced by the Open Graph tags in `src/index.html`)
-  - `src/app/supabase.service.ts` — all data access; `auth.service.ts` — session state
-    (signals); `breakpoint.service.ts` — `isMobile` signal (breakpoint < 768px)
-- **State**: no global store; Angular signals inside services/components. Data is
-  refetched per page load; adopt/unadopt mutate local objects for instant feedback, so
-  anything derived from family data must read `AdoptionService.version()` to recompute.
+    (1200×630 link-preview card referenced by the Open Graph tags in `index.html`)
+- **State**: app-wide state (auth, adoptions, nomination settings, toast, confirm) lives in
+  small stores (`src/lib/store.ts`, read in components with `useStore` /
+  `useSyncExternalStore`); everything else is component state. Data is refetched per page
+  load; adopt/unadopt mutate local objects for instant feedback, so anything derived from
+  family data must depend on `useAdoptions().version` to recompute.
 
 ## Current visual language
 
@@ -190,7 +201,7 @@ color used sparingly.
   Numbers use tabular figures.
 - **Color**: pine (evergreen) for brand, progress and success; berry (cranberry) only for
   adopt actions and "Adopted by you"; stone grays for text. Tokens live in
-  `tailwind.config.js`.
+  `tailwind.config.cjs`.
 - **Components**: pill buttons (`btn-adopt`, `btn-primary`, `btn-dark`, `btn-outline`,
   `btn-quiet`, sizes `btn-sm`/`btn-lg`) with press-scale feedback; divided lists rather
   than cards; dark single-line toasts with an optional action; a confirm sheet that is a
@@ -201,12 +212,11 @@ color used sparingly.
 
 ## Known UI debt / quirks (useful targets for refinement)
 
-- My Adoptions loads **all** families and filters client-side (a dedicated
-  `getWishlistItemsByUser` query exists in `supabase.service.ts` but is unused there).
+- My Adoptions loads **all** of the season's families and filters client-side.
 - No user-facing display of family address/contact info anywhere — adopters currently
   have no in-app guidance on gift drop-off/delivery logistics.
-- The initial bundle (~574 kB raw, ~141 kB transferred) is above Angular's 500 kB
-  warning budget; most of it is the Supabase client and Angular itself.
+- Most of the initial download is the Supabase client and React; both are split into
+  their own long-cached chunks (`vite.config.ts`).
 - Auth redirect URLs (`/` and `/reset-password` on each deployed origin) must be in
   Supabase's allowed Redirect URLs, or Supabase falls back to the Site URL.
 - Unadopt isn't guarded server-side to the adopter (the UI only offers it to them).
@@ -214,16 +224,16 @@ color used sparingly.
 
 ## Constraints for UI work
 
-- Keep `SupabaseService` method signatures and data flow intact unless intentionally
+- Keep the `src/lib/supabase.ts` function signatures and data flow intact unless intentionally
   refactoring data access; RLS policies on the Supabase side assume the current tables.
 - Preserve the auth gate: nothing except the landing screen should be visible logged out.
-- Preserve mobile behavior: `isMobile` signal drives the bottom-sheet confirm and
-  scroll-into-view on family selection.
+- Preserve mobile behavior: `isMobile()` (`src/lib/motion.ts`) drives the bottom-sheet
+  confirm and scroll-into-view on family selection.
 - Opening/closing nominations is data-only (`nomination_settings`); keep the route
   registered so the flag stays the single switch.
 - **Seasons**: Adopt a Family, My Adoptions and the shopping list only load families whose
   `season` equals `nomination_settings.active_season`, and new nominations are saved with
   it. Past adoptions loads the seasons before it. To start a new year, set `active_season` to that year (and turn nominations on);
   earlier families stay in the database but disappear from the app.
-- Deployment is a static Vercel build; environment values are baked in at build time
-  from `src/environments/environment.prod.ts`.
+- Deployment is a static Vercel build (`npm run build` → `dist/`); environment values
+  are baked in at build time from `src/lib/environment.ts`.

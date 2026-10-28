@@ -1,0 +1,162 @@
+/* Global styles: design tokens live in tailwind.config.cjs (pine/berry palettes, Geist, motion) */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  /* Always reserve the scrollbar's width, so centered content doesn't shift sideways
+     when a page grows tall enough to scroll (no effect with overlay scrollbars, e.g. phones) */
+  scrollbar-gutter: stable;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: #ffffff;
+  color: #1c1917;
+  font-weight: 400;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+/* Shared component system — keep every button and text style in the app on these
+   classes so the visual language stays consistent across pages. */
+@layer components {
+  /* Type scale */
+  .type-page-title {
+    @apply text-[2rem] leading-[1.1] md:text-[2.5rem] font-semibold tracking-display text-stone-900;
+  }
+
+  .type-hero-number {
+    @apply text-[3.25rem] leading-none md:text-[4rem] font-semibold tracking-display tabular-nums text-stone-900;
+  }
+
+  .type-section-label {
+    @apply text-[0.8125rem] font-medium text-stone-500;
+  }
+
+  /* Buttons */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full font-semibold text-[0.9375rem] tracking-snug
+      px-5 py-2.5 cursor-pointer select-none whitespace-nowrap
+      transition-[transform,background-color,color,border-color,opacity] duration-150 ease-out
+      active:scale-[0.97]
+      focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2
+      disabled:opacity-60 disabled:pointer-events-none;
+  }
+
+  .btn-sm {
+    @apply px-4 py-2.5 text-sm;
+  }
+
+  .btn-lg {
+    @apply px-6 py-3.5 text-base;
+  }
+
+  .btn-primary {
+    @apply btn bg-pine-700 text-white hover:bg-pine-800 focus-visible:outline-pine-700;
+  }
+
+  .btn-dark {
+    @apply btn bg-stone-900 text-white hover:bg-stone-800 focus-visible:outline-stone-900;
+  }
+
+  .btn-adopt {
+    @apply btn bg-berry-600 text-white hover:bg-berry-700 focus-visible:outline-berry-600;
+  }
+
+  .btn-outline {
+    @apply btn bg-white text-stone-700 border border-stone-300 hover:bg-stone-50 hover:border-stone-400 focus-visible:outline-stone-400;
+  }
+
+  .btn-quiet {
+    @apply btn bg-transparent text-stone-500 hover:bg-stone-100 hover:text-stone-700 focus-visible:outline-stone-400;
+  }
+
+  .btn-unadopt {
+    @apply btn bg-white text-berry-700 border border-berry-200 hover:bg-berry-50 hover:border-berry-300 focus-visible:outline-berry-600;
+  }
+
+  /* Form fields. Inputs stay at 16px so iOS Safari doesn't zoom in on focus. */
+  .field-label {
+    @apply mb-1.5 block text-sm font-medium text-stone-700;
+  }
+
+  .field-optional {
+    @apply font-normal text-stone-400;
+  }
+
+  .field-input {
+    @apply block w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-base text-stone-900
+      placeholder:text-stone-400 transition-[border-color,box-shadow] duration-150
+      hover:border-stone-400 focus:border-stone-900 focus:outline-none focus:ring-1 focus:ring-stone-900;
+  }
+
+  .field-input-invalid {
+    @apply border-berry-600 hover:border-berry-600 focus:border-berry-600 focus:ring-berry-600;
+  }
+
+  .field-error {
+    @apply mt-1.5 flex items-center gap-1.5 text-sm text-berry-700;
+  }
+
+  .field-hint {
+    @apply mt-1.5 text-sm text-stone-500;
+  }
+}
+
+/* Route changes: cross-fade the page while the header and tab bar stay put */
+::view-transition-old(root) {
+  animation: 140ms ease-in both vt-fade-out;
+}
+
+::view-transition-new(root) {
+  animation: 260ms cubic-bezier(0.2, 0, 0, 1) both vt-fade-up;
+}
+
+@keyframes vt-fade-out {
+  to { opacity: 0; }
+}
+
+@keyframes vt-fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+}
+
+/* Remove number input spinners globally */
+input[type="number"] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
