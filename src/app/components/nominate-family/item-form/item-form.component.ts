@@ -1,6 +1,21 @@
-import { Component, inject, input, output, signal } from '@angular/core';
-import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ChoiceGroupComponent, ChoiceOption } from '../../../shared/choice-group.component';
+import {
+  Component,
+  inject,
+  input,
+  output,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
+import {
+  AbstractControl,
+  FormBuilder,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import {
+  ChoiceGroupComponent,
+  ChoiceOption,
+} from '../../../shared/choice-group.component';
 import { Item, normalizeLink } from '../nomination.model';
 
 export type { Item } from '../nomination.model';
@@ -8,14 +23,17 @@ export type { Item } from '../nomination.model';
 let nextId = 0;
 
 const notBlank = (control: AbstractControl) =>
-  typeof control.value === 'string' && control.value.trim() === '' ? { required: true } : null;
+  typeof control.value === 'string' && control.value.trim() === ''
+    ? { required: true }
+    : null;
 
 @Component({
   selector: 'app-item-form',
   standalone: true,
   imports: [ReactiveFormsModule, ChoiceGroupComponent],
   templateUrl: './item-form.component.html',
-  styleUrls: ['./item-form.component.scss']
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrls: ['./item-form.component.scss'],
 })
 export class ItemFormComponent {
   private readonly fb = inject(FormBuilder);
@@ -28,7 +46,11 @@ export class ItemFormComponent {
   readonly submitted = signal(false);
 
   readonly categoryOptions: ChoiceOption<string>[] = [
-    'Toy', 'Clothing', 'Book', 'Electronics', 'Other',
+    'Toy',
+    'Clothing',
+    'Book',
+    'Electronics',
+    'Other',
   ].map((value) => ({ label: value, value }));
 
   readonly form = this.fb.nonNullable.group({
@@ -41,7 +63,9 @@ export class ItemFormComponent {
   });
 
   hasInput(): boolean {
-    return Object.values(this.form.getRawValue()).some((value) => value.trim() !== '');
+    return Object.values(this.form.getRawValue()).some(
+      (value) => value.trim() !== '',
+    );
   }
 
   /**

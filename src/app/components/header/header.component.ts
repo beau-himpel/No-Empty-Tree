@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../auth.service';
 import { NominationSettingsService } from '../../nomination-settings.service';
@@ -8,12 +8,13 @@ import { NominationSettingsService } from '../../nomination-settings.service';
   standalone: true,
   imports: [RouterLink, RouterLinkActive],
   templateUrl: './header.component.html',
-  styleUrls: ['./header.component.scss']
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrls: ['./header.component.scss'],
 })
 export class HeaderComponent {
   private readonly authService = inject(AuthService);
   private readonly nominationSettingsService = inject(
-    NominationSettingsService
+    NominationSettingsService,
   );
 
   readonly nominationsEnabled =

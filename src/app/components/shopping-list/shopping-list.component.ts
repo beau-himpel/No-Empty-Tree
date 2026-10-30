@@ -1,5 +1,14 @@
 import { TitleCasePipe } from '@angular/common';
-import { Component, computed, DestroyRef, inject, linkedSignal, OnInit, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  linkedSignal,
+  OnInit,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AdoptionService } from '../../adoption.service';
 import { AuthService } from '../../auth.service';
@@ -8,7 +17,12 @@ import { FamilyTabComponent } from '../../shared/family-tab.component';
 import { ToastService } from '../../shared/toast/toast.service';
 import { Family, WishItem } from '../../shared/types';
 import { SupabaseService } from '../../supabase.service';
-import { adoptedBy, giftCount, itemMeta, memberLine } from '../my-adoptions/adopted-by';
+import {
+  adoptedBy,
+  giftCount,
+  itemMeta,
+  memberLine,
+} from '../my-adoptions/adopted-by';
 
 const STORAGE_PREFIX = 'net:shopping-list:';
 const PENDING_PREFIX = 'net:shopping-list-pending:';
@@ -30,6 +44,7 @@ type PendingTicks = Record<string, boolean>;
   standalone: true,
   imports: [RouterLink, TitleCasePipe, FamilyTabComponent],
   templateUrl: './shopping-list.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./shopping-list.component.scss'],
 })
 export class ShoppingListComponent implements OnInit {
@@ -46,26 +61,47 @@ export class ShoppingListComponent implements OnInit {
   /** Families A–Z; people stay in the order the family was nominated, as elsewhere in the app. */
   readonly adoptedFamilies = computed(() => {
     this.adoptionService.version();
-    return adoptedBy(this.families(), this.authService.currentUser()?.id).sort((a, b) =>
-      a.last_name.localeCompare(b.last_name, undefined, { sensitivity: 'base' })
+    return adoptedBy(this.families(), this.authService.currentUser()?.id).sort(
+      (a, b) =>
+        a.last_name.localeCompare(b.last_name, undefined, {
+          sensitivity: 'base',
+        }),
     );
   });
 
-  private readonly userId = computed(() => this.authService.currentUser()?.id ?? null);
-  private readonly storageKey = computed(() => STORAGE_PREFIX + (this.userId() ?? 'anonymous'));
-  private readonly pendingKey = computed(() => PENDING_PREFIX + (this.userId() ?? 'anonymous'));
+  private readonly userId = computed(
+    () => this.authService.currentUser()?.id ?? null,
+  );
+  private readonly storageKey = computed(
+    () => STORAGE_PREFIX + (this.userId() ?? 'anonymous'),
+  );
+  private readonly pendingKey = computed(
+    () => PENDING_PREFIX + (this.userId() ?? 'anonymous'),
+  );
   /** Ticked gift ids, reloaded for whoever is signed in; starts from the device copy. */
-  readonly bought = linkedSignal<ReadonlySet<string>>(() => this.readBought(this.storageKey()));
+  readonly bought = linkedSignal<ReadonlySet<string>>(() =>
+    this.readBought(this.storageKey()),
+  );
   /** Ticks made on this device that the server hasn't confirmed yet. */
-  private readonly pending = linkedSignal<PendingTicks>(() => this.readPending(this.pendingKey()));
+  private readonly pending = linkedSignal<PendingTicks>(() =>
+    this.readPending(this.pendingKey()),
+  );
   /** The last attempt to reach the server failed, so ticks are only on this device for now. */
   readonly syncProblem = signal(false);
-  readonly hasUnsyncedTicks = computed(() => Object.keys(this.pending()).length > 0);
+  readonly hasUnsyncedTicks = computed(
+    () => Object.keys(this.pending()).length > 0,
+  );
   private isSyncing = false;
 
   readonly totals = computed(() => {
     const families = this.adoptedFamilies();
-    const ids = new Set(families.flatMap((f) => f.family_members.flatMap((m) => (m.wishlist_items || []).map((i) => i.id))));
+    const ids = new Set(
+      families.flatMap((f) =>
+        f.family_members.flatMap((m) =>
+          (m.wishlist_items || []).map((i) => i.id),
+        ),
+      ),
+    );
     const bought = [...this.bought()].filter((id) => ids.has(id)).length;
     const gifts = giftCount(families);
     return {
@@ -79,7 +115,9 @@ export class ShoppingListComponent implements OnInit {
   constructor() {
     const retry = () => this.sync();
     window.addEventListener('online', retry);
-    inject(DestroyRef).onDestroy(() => window.removeEventListener('online', retry));
+    inject(DestroyRef).onDestroy(() =>
+      window.removeEventListener('online', retry),
+    );
   }
 
   ngOnInit() {
@@ -93,12 +131,16 @@ export class ShoppingListComponent implements OnInit {
       const [familiesData] = await Promise.all([
         this.nominationSettings
           .currentSeason()
-          .then((season) => this.supabaseService.getFamiliesWithMembers(season)),
+          .then((season) =>
+            this.supabaseService.getFamiliesWithMembers(season),
+          ),
         this.loadSavedTicks(),
       ]);
       this.families.set((familiesData ?? []) as unknown as Family[]);
     } catch {
-      this.error.set("We couldn't load your adoptions. Check your connection and try again.");
+      this.error.set(
+        "We couldn't load your adoptions. Check your connection and try again.",
+      );
     } finally {
       this.isLoading.set(false);
     }
@@ -173,7 +215,8 @@ export class ShoppingListComponent implements OnInit {
         } catch (error) {
           // Refused rather than unreachable (e.g. the gift is no longer adopted by this
           // donor): retrying can never succeed, so drop it. Anything else stops and retries later.
-          if ((error as { code?: string })?.code !== ROW_LEVEL_SECURITY_CODE) throw error;
+          if ((error as { code?: string })?.code !== ROW_LEVEL_SECURITY_CODE)
+            throw error;
         }
         if (this.pending()[id] === isBought) {
           const { [id]: _sent, ...rest } = this.pending();
@@ -207,7 +250,11 @@ export class ShoppingListComponent implements OnInit {
   private readBought(key: string): Set<string> {
     try {
       const stored = JSON.parse(localStorage.getItem(key) ?? '[]');
-      return new Set(Array.isArray(stored) ? stored.filter((id) => typeof id === 'string') : []);
+      return new Set(
+        Array.isArray(stored)
+          ? stored.filter((id) => typeof id === 'string')
+          : [],
+      );
     } catch {
       return new Set();
     }
@@ -220,14 +267,21 @@ export class ShoppingListComponent implements OnInit {
 
   private setPending(ticks: PendingTicks) {
     this.pending.set(ticks);
-    this.store(this.pendingKey(), Object.keys(ticks).length === 0 ? null : ticks);
+    this.store(
+      this.pendingKey(),
+      Object.keys(ticks).length === 0 ? null : ticks,
+    );
   }
 
   private readPending(key: string): PendingTicks {
     try {
       const stored = JSON.parse(localStorage.getItem(key) ?? '{}');
       return stored && typeof stored === 'object' && !Array.isArray(stored)
-        ? Object.fromEntries(Object.entries(stored).filter(([, value]) => typeof value === 'boolean')) as PendingTicks
+        ? (Object.fromEntries(
+            Object.entries(stored).filter(
+              ([, value]) => typeof value === 'boolean',
+            ),
+          ) as PendingTicks)
         : {};
     } catch {
       return {};

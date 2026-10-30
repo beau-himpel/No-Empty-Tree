@@ -2,56 +2,64 @@
   <div class="min-w-0 flex-1">
     <app-item-info [item]="item()" [muted]="status() === 'taken'" />
 
-    @if (status() === 'mine' && showAdoptionStatus()) {
-    <p
-      class="mt-2 flex items-center gap-1.5 text-sm font-semibold text-berry-700"
-      [class.animate-fade-up]="justAdopted()"
-    >
-      <i
-        class="pi pi-heart-fill text-[0.75rem]"
-        [class.animate-pop]="justAdopted()"
-        aria-hidden="true"
-      ></i>
-      Adopted by you
-    </p>
-    } @else if (status() === 'taken') {
-    <p class="mt-2 flex items-center gap-1.5 text-sm font-medium text-stone-400">
-      <i class="pi pi-check text-[0.75rem]" aria-hidden="true"></i>
-      Adopted by
-      {{ (item().adopted_by_name?.full_name | titlecase) || "another donor" }}
-    </p>
+    @if (status() === "mine" && showAdoptionStatus()) {
+      <p
+        class="mt-2 flex items-center gap-1.5 text-sm font-semibold text-berry-700"
+        [class.animate-fade-up]="justAdopted()"
+      >
+        <i
+          class="pi pi-heart-fill text-[0.75rem]"
+          [class.animate-pop]="justAdopted()"
+          aria-hidden="true"
+        ></i>
+        Adopted by you
+      </p>
+    } @else if (status() === "taken") {
+      <p
+        class="mt-2 flex items-center gap-1.5 text-sm font-medium text-stone-400"
+      >
+        <i class="pi pi-check text-[0.75rem]" aria-hidden="true"></i>
+        Adopted by
+        {{
+          (item().adopted_by_name?.full_name | titlecase) || "another donor"
+        }}
+      </p>
     }
   </div>
 
   <div class="flex shrink-0 justify-end pt-0.5">
-    @if (status() === 'open') {
-    <button
-      type="button"
-      class="btn-adopt btn-sm min-w-[5.75rem]"
-      [disabled]="pending()"
-      (click)="adopt()"
-      [attr.aria-label]="'Adopt ' + item().description"
-    >
-      @if (pending()) {
-      <i class="pi pi-spin pi-spinner text-sm" aria-hidden="true"></i>
-      } @else {
-      <i class="pi pi-heart-fill text-xs" aria-hidden="true"></i>
-      Adopt
-      }
-    </button>
-    } @else if (status() === 'mine') {
-    <button
-      type="button"
-      class="btn-quiet btn-sm min-w-[5.75rem]"
-      [class.animate-fade-in]="justAdopted()"
-      [disabled]="pending()"
-      (click)="remove()"
-      [attr.aria-label]="'Remove ' + item().description + ' from my adoptions'"
-    >
-      @if (pending()) {
-      <i class="pi pi-spin pi-spinner text-sm" aria-hidden="true"></i>
-      } @else { Remove }
-    </button>
+    @if (status() === "open") {
+      <button
+        type="button"
+        class="btn-adopt btn-sm min-w-[5.75rem]"
+        [disabled]="pending()"
+        (click)="adopt()"
+        [attr.aria-label]="'Adopt ' + item().description"
+      >
+        @if (pending()) {
+          <i class="pi pi-spin pi-spinner text-sm" aria-hidden="true"></i>
+        } @else {
+          <i class="pi pi-heart-fill text-xs" aria-hidden="true"></i>
+          Adopt
+        }
+      </button>
+    } @else if (status() === "mine") {
+      <button
+        type="button"
+        class="btn-quiet btn-sm min-w-[5.75rem]"
+        [class.animate-fade-in]="justAdopted()"
+        [disabled]="pending()"
+        (click)="remove()"
+        [attr.aria-label]="
+          'Remove ' + item().description + ' from my adoptions'
+        "
+      >
+        @if (pending()) {
+          <i class="pi pi-spin pi-spinner text-sm" aria-hidden="true"></i>
+        } @else {
+          Remove
+        }
+      </button>
     }
   </div>
 </div>

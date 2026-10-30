@@ -1,5 +1,10 @@
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
-import { Component, inject, signal } from '@angular/core';
+import {
+  Component,
+  inject,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs/operators';
 
@@ -31,21 +36,24 @@ const LEAVE_FALLBACK_MS = 400;
       (animationend)="onAnimationEnd($event)"
     >
       @if (data.asSheet) {
-      <div class="mx-auto mb-6 h-1 w-10 rounded-full bg-stone-200" aria-hidden="true"></div>
+        <div
+          class="mx-auto mb-6 h-1 w-10 rounded-full bg-stone-200"
+          aria-hidden="true"
+        ></div>
       }
       @if (data.icon) {
-      <div
-        class="mb-4 flex h-12 w-12 items-center justify-center rounded-full"
-        [class.bg-berry-50]="data.tone !== 'dark'"
-        [class.bg-stone-100]="data.tone === 'dark'"
-      >
-        <i
-          class="pi text-xl {{ data.icon }}"
-          [class.text-berry-600]="data.tone !== 'dark'"
-          [class.text-stone-700]="data.tone === 'dark'"
-          aria-hidden="true"
-        ></i>
-      </div>
+        <div
+          class="mb-4 flex h-12 w-12 items-center justify-center rounded-full"
+          [class.bg-berry-50]="data.tone !== 'dark'"
+          [class.bg-stone-100]="data.tone === 'dark'"
+        >
+          <i
+            class="pi text-xl {{ data.icon }}"
+            [class.text-berry-600]="data.tone !== 'dark'"
+            [class.text-stone-700]="data.tone === 'dark'"
+            aria-hidden="true"
+          ></i>
+        </div>
       }
       <h2
         id="confirm-sheet-title"
@@ -66,12 +74,17 @@ const LEAVE_FALLBACK_MS = 400;
         >
           {{ data.confirmLabel }}
         </button>
-        <button type="button" class="btn-quiet btn-lg w-full" (click)="close(false)">
+        <button
+          type="button"
+          class="btn-quiet btn-lg w-full"
+          (click)="close(false)"
+        >
           {{ data.cancelLabel ?? 'Cancel' }}
         </button>
       </div>
     </div>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: `
     .panel {
       background: #fff;
@@ -96,19 +109,29 @@ const LEAVE_FALLBACK_MS = 400;
     }
 
     @keyframes sheet-up {
-      from { transform: translateY(100%); }
+      from {
+        transform: translateY(100%);
+      }
     }
 
     @keyframes sheet-down {
-      to { transform: translateY(100%); }
+      to {
+        transform: translateY(100%);
+      }
     }
 
     @keyframes card-in {
-      from { opacity: 0; transform: translateY(8px) scale(0.98); }
+      from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.98);
+      }
     }
 
     @keyframes card-out {
-      to { opacity: 0; transform: translateY(4px) scale(0.98); }
+      to {
+        opacity: 0;
+        transform: translateY(4px) scale(0.98);
+      }
     }
   `,
 })
@@ -126,7 +149,7 @@ export class ConfirmSheetComponent {
     this.dialogRef.keydownEvents
       .pipe(
         filter((event) => event.key === 'Escape'),
-        takeUntilDestroyed()
+        takeUntilDestroyed(),
       )
       .subscribe(() => this.close(false));
   }

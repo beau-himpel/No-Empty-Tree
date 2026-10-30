@@ -1,5 +1,12 @@
 import { TitleCasePipe } from '@angular/common';
-import { Component, computed, inject, input, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { AdoptionService } from '../../adoption.service';
 import { ConfirmService } from '../../shared/confirm/confirm.service';
 import { Family, WishItem } from '../../shared/types';
@@ -11,6 +18,7 @@ import { MemberDetailsComponent } from '../nominate-family/member-details/member
   imports: [MemberDetailsComponent],
   providers: [TitleCasePipe],
   templateUrl: './family-details.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./family-details.component.scss'],
 })
 export class FamilyDetailsComponent {
@@ -25,7 +33,9 @@ export class FamilyDetailsComponent {
   readonly gifts = computed(() => {
     this.adoptionService.version();
     const items: WishItem[] =
-      this.family()?.family_members.flatMap((member) => member.wishlist_items || []) ?? [];
+      this.family()?.family_members.flatMap(
+        (member) => member.wishlist_items || [],
+      ) ?? [];
     const remaining = items.filter((item) => !item.is_adopted);
     return {
       total: items.length,
@@ -38,8 +48,11 @@ export class FamilyDetailsComponent {
   readonly adoptAllLabel = computed(() => {
     const { remaining, someAdopted } = this.gifts();
     const count = remaining.length;
-    if (count === 1) return someAdopted ? 'Adopt the last gift' : 'Adopt this gift';
-    return someAdopted ? `Adopt remaining ${count} gifts` : `Adopt all ${count} gifts`;
+    if (count === 1)
+      return someAdopted ? 'Adopt the last gift' : 'Adopt this gift';
+    return someAdopted
+      ? `Adopt remaining ${count} gifts`
+      : `Adopt all ${count} gifts`;
   });
 
   async adoptAll(): Promise<void> {

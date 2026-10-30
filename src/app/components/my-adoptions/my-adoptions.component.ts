@@ -7,6 +7,7 @@ import {
   Injector,
   OnInit,
   signal,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AdoptionService } from '../../adoption.service';
@@ -23,9 +24,16 @@ import { adoptedBy, giftCount } from './adopted-by';
 @Component({
   selector: 'app-my-adoptions',
   standalone: true,
-  imports: [MemberDetailsComponent, TitleCasePipe, AnimatedNumberComponent, RouterLink, FamilyTabComponent],
+  imports: [
+    MemberDetailsComponent,
+    TitleCasePipe,
+    AnimatedNumberComponent,
+    RouterLink,
+    FamilyTabComponent,
+  ],
   templateUrl: './my-adoptions.component.html',
   styleUrls: ['./my-adoptions.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   animations: [expandCollapse],
 })
 export class MyAdoptionsComponent implements OnInit {
@@ -63,14 +71,19 @@ export class MyAdoptionsComponent implements OnInit {
 
     try {
       const season = await this.nominationSettings.currentSeason();
-      const familiesData = await this.supabaseService.getFamiliesWithMembers(season);
+      const familiesData =
+        await this.supabaseService.getFamiliesWithMembers(season);
       this.families.set((familiesData ?? []) as unknown as Family[]);
     } catch (error) {
       console.error('Error loading adopted items:', error);
-      this.error.set("We couldn't load your adoptions. Check your connection and try again.");
+      this.error.set(
+        "We couldn't load your adoptions. Check your connection and try again.",
+      );
     } finally {
       this.isLoading.set(false);
-      afterNextRender(() => this.animateChanges.set(true), { injector: this.injector });
+      afterNextRender(() => this.animateChanges.set(true), {
+        injector: this.injector,
+      });
     }
   }
 

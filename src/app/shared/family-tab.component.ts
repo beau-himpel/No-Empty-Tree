@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 /**
  * A family's name on a red tab whose base runs on as a thin bar to the right edge,
@@ -8,9 +8,12 @@ import { Component } from '@angular/core';
   selector: 'app-family-tab',
   standalone: true,
   template: `
-    <span class="tab-label"><span class="block truncate"><ng-content /></span></span>
+    <span class="tab-label"
+      ><span class="block truncate"><ng-content /></span
+    ></span>
   `,
   host: { class: 'family-tab' },
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: `
     :host {
       --tab-color: #d84e62; /* berry-500 */
