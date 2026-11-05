@@ -108,7 +108,9 @@ never touches the column.
 
 - **families** — `last_name`, `address`, `phone`, `email`, `nominated_by` (user id),
   `season` (the Christmas year it was nominated for; defaults to the current year).
-  Address/phone/email are collected but **not displayed** in the adopt UI.
+  Address/phone/email are collected but **not readable through the API** (column
+  privileges, `supabase/migrations/20261105234000_hide_family_contact_details.sql`); the
+  app never selects them, and organizers read them from the Supabase dashboard.
 - **family_members** — `first_name`, `age`, `sex` ('male' | 'female' | 'other'),
   `is_parent`, optional `ethnicity` (text, max 100 characters; added by
   `supabase/migrations/20261023030718_add_family_members_ethnicity.sql`, not selected or
@@ -132,7 +134,8 @@ never touches the column.
 
 ## Technical structure
 
-- **Stack**: Angular 20 (standalone components, signals, new `@if`/`@for` control flow),
+- **Stack**: Angular 22 (standalone components, signals, zoneless change detection,
+  `@if`/`@for` control flow),
   Tailwind CSS with a shared component layer in `src/styles.scss`, Angular CDK (confirm
   sheet), `@angular/animations` (expand/collapse), and the Geist variable font
   (self-hosted via `@fontsource-variable/geist`). PrimeIcons for icons; PrimeNG has been
@@ -209,8 +212,9 @@ color used sparingly.
   warning budget; most of it is the Supabase client and Angular itself.
 - Auth redirect URLs (`/` and `/reset-password` on each deployed origin) must be in
   Supabase's allowed Redirect URLs, or Supabase falls back to the Site URL.
-- Unadopt isn't guarded server-side to the adopter (the UI only offers it to them).
-  Adopt is guarded: it only succeeds while the item is still unadopted.
+- Adoption is guarded server-side: a donor can only adopt an open item for themselves or
+  release their own, and a trigger blocks donors from editing any other column
+  (`supabase/migrations/20261105233000_lock_down_gift_updates_and_profiles.sql`).
 
 ## Constraints for UI work
 

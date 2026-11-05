@@ -1,9 +1,7 @@
 export interface Family {
   id: string;
   last_name: string;
-  address: string;
-  phone?: string;
-  email?: string;
+  // address/phone/email are stored but never readable through the API
   nominated_by?: string; // User ID of the user who nominated this family
   season: number; // Christmas season (year) the family was nominated for
   created_at: string;
