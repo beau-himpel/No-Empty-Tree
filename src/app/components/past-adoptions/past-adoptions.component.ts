@@ -1,11 +1,21 @@
 import { TitleCasePipe } from '@angular/common';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  OnInit,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../auth.service';
 import { NominationSettingsService } from '../../nomination-settings.service';
-import { ChoiceGroupComponent, ChoiceOption } from '../../shared/choice-group.component';
+import {
+  ChoiceGroupComponent,
+  ChoiceOption,
+} from '../../shared/choice-group.component';
 import { FamilyTabComponent } from '../../shared/family-tab.component';
 import { Family } from '../../shared/types';
 import { SupabaseService } from '../../supabase.service';
@@ -30,6 +40,7 @@ interface PastSeason {
     FamilyTabComponent,
     ItemInfoComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './past-adoptions.component.html',
 })
 export class PastAdoptionsComponent implements OnInit {
@@ -46,26 +57,43 @@ export class PastAdoptionsComponent implements OnInit {
   /** Newest season first; families arrive A–Z within each season. */
   readonly seasons = computed<PastSeason[]>(() => {
     const bySeason = new Map<number, Family[]>();
-    for (const family of adoptedBy(this.families(), this.authService.currentUser()?.id)) {
-      bySeason.set(family.season, [...(bySeason.get(family.season) ?? []), family]);
+    for (const family of adoptedBy(
+      this.families(),
+      this.authService.currentUser()?.id,
+    )) {
+      bySeason.set(family.season, [
+        ...(bySeason.get(family.season) ?? []),
+        family,
+      ]);
     }
     return [...bySeason.entries()]
       .sort(([a], [b]) => b - a)
-      .map(([season, families]) => ({ season, families, gifts: giftCount(families) }));
+      .map(([season, families]) => ({
+        season,
+        families,
+        gifts: giftCount(families),
+      }));
   });
 
   /** null shows every year. */
   readonly yearControl = new FormControl<number | null>(null);
-  private readonly selectedYear = toSignal(this.yearControl.valueChanges, { initialValue: null });
+  private readonly selectedYear = toSignal(this.yearControl.valueChanges, {
+    initialValue: null,
+  });
 
   readonly yearOptions = computed<ChoiceOption<number | null>[]>(() => [
     { label: 'All years', value: null },
-    ...this.seasons().map((s) => ({ label: String(s.season), value: s.season })),
+    ...this.seasons().map((s) => ({
+      label: String(s.season),
+      value: s.season,
+    })),
   ]);
 
   readonly visibleSeasons = computed(() => {
     const year = this.selectedYear();
-    return year === null ? this.seasons() : this.seasons().filter((s) => s.season === year);
+    return year === null
+      ? this.seasons()
+      : this.seasons().filter((s) => s.season === year);
   });
 
   readonly totals = computed(() => ({
@@ -82,10 +110,13 @@ export class PastAdoptionsComponent implements OnInit {
     this.error.set(null);
     try {
       const season = await this.nominationSettings.currentSeason();
-      const familiesData = await this.supabaseService.getFamiliesBeforeSeason(season);
+      const familiesData =
+        await this.supabaseService.getFamiliesBeforeSeason(season);
       this.families.set((familiesData ?? []) as unknown as Family[]);
     } catch {
-      this.error.set("We couldn't load your past adoptions. Check your connection and try again.");
+      this.error.set(
+        "We couldn't load your past adoptions. Check your connection and try again.",
+      );
     } finally {
       this.isLoading.set(false);
     }

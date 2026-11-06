@@ -7,6 +7,7 @@ import {
   Injector,
   signal,
   viewChild,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
@@ -16,9 +17,17 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { AuthErrorKind, authErrorKind, authErrorMessage, AuthService } from '../../auth.service';
+import {
+  AuthErrorKind,
+  authErrorKind,
+  authErrorMessage,
+  AuthService,
+} from '../../auth.service';
 import { PANEL_EASE, PANEL_OPEN_MS } from '../../shared/animations';
-import { ChoiceGroupComponent, ChoiceOption } from '../../shared/choice-group.component';
+import {
+  ChoiceGroupComponent,
+  ChoiceOption,
+} from '../../shared/choice-group.component';
 import { prefersReducedMotion } from '../../shared/motion';
 
 type Mode = 'signin' | 'signup' | 'forgot' | 'reset-sent' | 'check-email';
@@ -27,11 +36,15 @@ export const MIN_PASSWORD_LENGTH = 6;
 
 const emailAddress = (control: AbstractControl) => {
   const value = String(control.value ?? '').trim();
-  return value === '' || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? null : { email: true };
+  return value === '' || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+    ? null
+    : { email: true };
 };
 
 const notBlank = (control: AbstractControl) =>
-  typeof control.value === 'string' && control.value.trim() === '' ? { required: true } : null;
+  typeof control.value === 'string' && control.value.trim() === ''
+    ? { required: true }
+    : null;
 
 @Component({
   selector: 'app-auth-panel',
@@ -42,6 +55,7 @@ const notBlank = (control: AbstractControl) =>
     '[style.--switch-ms]': 'switchMs + "ms"',
     '[style.--switch-ease]': 'switchEase',
   },
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: `
     /* Sign in sits left of Create account (as in the toggle), so each slides out toward its side */
     .auth-form {
@@ -86,18 +100,23 @@ export class AuthPanelComponent {
   readonly switchMs = PANEL_OPEN_MS;
   readonly switchEase = PANEL_EASE;
 
-  private readonly formSwitcher = viewChild<ElementRef<HTMLElement>>('formSwitcher');
+  private readonly formSwitcher =
+    viewChild<ElementRef<HTMLElement>>('formSwitcher');
   private heightAnimation: Animation | null = null;
 
   readonly mode = signal<Mode>('signin');
-  readonly modeControl = new FormControl<'signin' | 'signup'>('signin', { nonNullable: true });
+  readonly modeControl = new FormControl<'signin' | 'signup'>('signin', {
+    nonNullable: true,
+  });
   readonly modeOptions: ChoiceOption<'signin' | 'signup'>[] = [
     { label: 'Sign in', value: 'signin' },
     { label: 'Create account', value: 'signup' },
   ];
 
   readonly busy = signal<'email' | 'google' | null>(null);
-  readonly error = signal<{ kind: AuthErrorKind; message: string } | null>(null);
+  readonly error = signal<{ kind: AuthErrorKind; message: string } | null>(
+    null,
+  );
   readonly submitted = signal(false);
   readonly showPassword = signal(false);
   /** The address a confirmation or reset email was just sent to. */
@@ -112,7 +131,10 @@ export class AuthPanelComponent {
   readonly signUpForm = this.fb.nonNullable.group({
     name: ['', [Validators.required, notBlank]],
     email: ['', [Validators.required, emailAddress]],
-    password: ['', [Validators.required, Validators.minLength(MIN_PASSWORD_LENGTH)]],
+    password: [
+      '',
+      [Validators.required, Validators.minLength(MIN_PASSWORD_LENGTH)],
+    ],
   });
 
   readonly forgotForm = this.fb.nonNullable.group({
@@ -127,7 +149,10 @@ export class AuthPanelComponent {
 
   setMode(mode: Mode): void {
     const email = this.currentEmail();
-    const isFormSwitch = this.isSignInOrUp(this.mode()) && this.isSignInOrUp(mode) && this.mode() !== mode;
+    const isFormSwitch =
+      this.isSignInOrUp(this.mode()) &&
+      this.isSignInOrUp(mode) &&
+      this.mode() !== mode;
     if (isFormSwitch) this.animateFormSwitch();
     this.mode.set(mode);
     this.error.set(null);
@@ -168,11 +193,11 @@ export class AuthPanelComponent {
             { height: `${from}px`, overflow: 'hidden' },
             { height: `${to}px`, overflow: 'hidden' },
           ],
-          { duration: PANEL_OPEN_MS, easing: PANEL_EASE }
+          { duration: PANEL_OPEN_MS, easing: PANEL_EASE },
         );
         this.heightAnimation.onfinish = () => (this.heightAnimation = null);
       },
-      { injector: this.injector }
+      { injector: this.injector },
     );
   }
 
@@ -180,26 +205,39 @@ export class AuthPanelComponent {
     // Both sign-in forms stay rendered; only the one in use shows errors
     if (form !== this.mode()) return false;
     const group: AbstractControl =
-      form === 'signin' ? this.signInForm : form === 'signup' ? this.signUpForm : this.forgotForm;
+      form === 'signin'
+        ? this.signInForm
+        : form === 'signup'
+          ? this.signUpForm
+          : this.forgotForm;
     const control = group.get(field);
-    return !!control && control.invalid && (control.touched || this.submitted());
+    return (
+      !!control && control.invalid && (control.touched || this.submitted())
+    );
   }
 
   async submitSignIn(): Promise<void> {
     if (!this.validate(this.signInForm)) return;
     const { email, password } = this.signInForm.getRawValue();
-    await this.run(() => this.authService.signInWithEmail(email.trim(), password), {
-      keepBusyOnSuccess: true,
-    });
+    await this.run(
+      () => this.authService.signInWithEmail(email.trim(), password),
+      {
+        keepBusyOnSuccess: true,
+      },
+    );
   }
 
   async submitSignUp(): Promise<void> {
     if (!this.validate(this.signUpForm)) return;
     const { name, email, password } = this.signUpForm.getRawValue();
     await this.run(async () => {
-      const result = await this.authService.signUpWithEmail(email.trim(), password, {
-        full_name: name.trim(),
-      });
+      const result = await this.authService.signUpWithEmail(
+        email.trim(),
+        password,
+        {
+          full_name: name.trim(),
+        },
+      );
       if (result.needsConfirmation) {
         this.sentTo.set(email.trim());
         this.setMode('check-email');
@@ -225,7 +263,10 @@ export class AuthPanelComponent {
       // Redirects away on success
       await this.authService.signInWithGoogle();
     } catch (error) {
-      this.error.set({ kind: authErrorKind(error), message: "Couldn't start Google sign-in. Please try again." });
+      this.error.set({
+        kind: authErrorKind(error),
+        message: "Couldn't start Google sign-in. Please try again.",
+      });
       this.busy.set(null);
     }
   }
@@ -240,7 +281,10 @@ export class AuthPanelComponent {
       this.resendState.set('sent');
     } catch (error) {
       this.resendState.set('idle');
-      this.error.set({ kind: authErrorKind(error), message: authErrorMessage(error) });
+      this.error.set({
+        kind: authErrorKind(error),
+        message: authErrorMessage(error),
+      });
     }
   }
 
@@ -254,21 +298,27 @@ export class AuthPanelComponent {
     return form?.controls.email.value.trim() ?? '';
   }
 
-  private validate(form: { invalid: boolean; markAllAsTouched(): void }): boolean {
+  private validate(form: {
+    invalid: boolean;
+    markAllAsTouched(): void;
+  }): boolean {
     this.submitted.set(true);
     form.markAllAsTouched();
     if (!form.invalid) return true;
     afterNextRender(
       // Skip the inactive (inert) form, which may still hold touched fields
-      () => this.host.nativeElement.querySelector<HTMLElement>('form:not([inert]) .field-input-invalid')?.focus(),
-      { injector: this.injector }
+      () =>
+        this.host.nativeElement
+          .querySelector<HTMLElement>('form:not([inert]) .field-input-invalid')
+          ?.focus(),
+      { injector: this.injector },
     );
     return false;
   }
 
   private async run(
     action: () => Promise<void>,
-    options: { keepBusyOnSuccess?: boolean } = {}
+    options: { keepBusyOnSuccess?: boolean } = {},
   ): Promise<void> {
     if (this.busy()) return;
     this.error.set(null);
@@ -278,7 +328,10 @@ export class AuthPanelComponent {
       // Signing in swaps this whole screen for the app; keep the spinner until then
       if (!options.keepBusyOnSuccess) this.busy.set(null);
     } catch (error) {
-      this.error.set({ kind: authErrorKind(error), message: authErrorMessage(error) });
+      this.error.set({
+        kind: authErrorKind(error),
+        message: authErrorMessage(error),
+      });
       this.busy.set(null);
     }
   }

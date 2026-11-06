@@ -129,9 +129,6 @@ export class SupabaseService {
       .select(`
         id,
         last_name,
-        address,
-        phone,
-        email,
         nominated_by,
         season,
         created_at,
@@ -170,9 +167,6 @@ export class SupabaseService {
       .select(`
         id,
         last_name,
-        address,
-        phone,
-        email,
         nominated_by,
         created_at,
         updated_at,
@@ -225,7 +219,8 @@ export class SupabaseService {
     const { data, error } = await this.supabase
       .from('families')
       .insert(familyData)
-      .select()
+      // Contact details are write-only for the API, so read back only the new id
+      .select('id')
       .single();
 
     if (error) throw error;
@@ -261,7 +256,7 @@ export class SupabaseService {
       .from('families')
       .update(updates)
       .eq('id', familyId)
-      .select()
+      .select('id, last_name, nominated_by, season, created_at, updated_at')
       .single();
 
     if (error) throw error;
@@ -309,9 +304,6 @@ export class SupabaseService {
       .select(`
         id,
         last_name,
-        address,
-        phone,
-        email,
         nominated_by,
         created_at,
         updated_at,

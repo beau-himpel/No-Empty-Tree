@@ -6,6 +6,7 @@ import {
   input,
   signal,
   viewChildren,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
@@ -28,39 +29,42 @@ export interface ChoiceOption<T> {
       multi: true,
     },
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div
       role="radiogroup"
       [attr.aria-labelledby]="labelledBy() || null"
       [attr.aria-invalid]="invalid() || null"
       (keydown)="onKeydown($event)"
-      [class]="variant() === 'segmented' ? segmentedClass() : 'flex flex-wrap gap-2'"
+      [class]="
+        variant() === 'segmented' ? segmentedClass() : 'flex flex-wrap gap-2'
+      "
     >
       @if (variant() === 'segmented') {
-      <span
-        class="pointer-events-none absolute bottom-1 left-1 top-1 rounded-lg bg-white shadow-sm transition-[transform,opacity]"
-        [style.width]="indicatorWidth()"
-        [style.transition-duration.ms]="indicatorMs()"
-        [style.transition-timing-function]="indicatorEasing()"
-        [style.transform]="'translateX(' + selectedIndex() * 100 + '%)'"
-        [style.opacity]="selectedIndex() < 0 ? 0 : 1"
-        aria-hidden="true"
-      ></span>
+        <span
+          class="pointer-events-none absolute bottom-1 left-1 top-1 rounded-lg bg-white shadow-sm transition-[transform,opacity]"
+          [style.width]="indicatorWidth()"
+          [style.transition-duration.ms]="indicatorMs()"
+          [style.transition-timing-function]="indicatorEasing()"
+          [style.transform]="'translateX(' + selectedIndex() * 100 + '%)'"
+          [style.opacity]="selectedIndex() < 0 ? 0 : 1"
+          aria-hidden="true"
+        ></span>
       }
       @for (option of options(); track option.label; let i = $index) {
-      <button
-        #choice
-        type="button"
-        role="radio"
-        [attr.aria-checked]="i === selectedIndex()"
-        [tabindex]="i === focusableIndex() ? 0 : -1"
-        [disabled]="disabled()"
-        [class]="i === selectedIndex() ? selectedClass() : idleClass()"
-        (click)="select(i)"
-        (blur)="onTouched()"
-      >
-        {{ option.label }}
-      </button>
+        <button
+          #choice
+          type="button"
+          role="radio"
+          [attr.aria-checked]="i === selectedIndex()"
+          [tabindex]="i === focusableIndex() ? 0 : -1"
+          [disabled]="disabled()"
+          [class]="i === selectedIndex() ? selectedClass() : idleClass()"
+          (click)="select(i)"
+          (blur)="onTouched()"
+        >
+          {{ option.label }}
+        </button>
       }
     </div>
   `,
@@ -76,20 +80,21 @@ export class ChoiceGroupComponent<T> implements ControlValueAccessor {
 
   private readonly value = signal<T | null>(null);
   readonly disabled = signal(false);
-  private readonly buttons = viewChildren<ElementRef<HTMLButtonElement>>('choice');
+  private readonly buttons =
+    viewChildren<ElementRef<HTMLButtonElement>>('choice');
 
   readonly selectedIndex = computed(() =>
-    this.options().findIndex((option) => option.value === this.value())
+    this.options().findIndex((option) => option.value === this.value()),
   );
   readonly focusableIndex = computed(() => Math.max(this.selectedIndex(), 0));
   readonly indicatorWidth = computed(
-    () => `calc((100% - 0.5rem) / ${this.options().length})`
+    () => `calc((100% - 0.5rem) / ${this.options().length})`,
   );
 
   readonly segmentedClass = computed(
     () =>
       'relative grid auto-cols-fr grid-flow-col rounded-xl bg-stone-100 p-1 ' +
-      (this.invalid() ? 'ring-1 ring-berry-600' : '')
+      (this.invalid() ? 'ring-1 ring-berry-600' : ''),
   );
 
   private readonly baseClass =
@@ -98,7 +103,7 @@ export class ChoiceGroupComponent<T> implements ControlValueAccessor {
   readonly selectedClass = computed(() =>
     this.variant() === 'segmented'
       ? `${this.baseClass} rounded-lg py-2.5 text-[0.9375rem] text-stone-900`
-      : `${this.baseClass} rounded-full border border-stone-900 bg-stone-900 px-4 py-2 text-sm text-white`
+      : `${this.baseClass} rounded-full border border-stone-900 bg-stone-900 px-4 py-2 text-sm text-white`,
   );
 
   readonly idleClass = computed(() =>
@@ -106,7 +111,7 @@ export class ChoiceGroupComponent<T> implements ControlValueAccessor {
       ? `${this.baseClass} rounded-lg py-2.5 text-[0.9375rem] text-stone-500 hover:text-stone-700`
       : `${this.baseClass} rounded-full border px-4 py-2 text-sm text-stone-700 hover:border-stone-400 ${
           this.invalid() ? 'border-berry-600' : 'border-stone-300'
-        }`
+        }`,
   );
 
   private onChange: (value: T) => void = () => {};
@@ -120,7 +125,9 @@ export class ChoiceGroupComponent<T> implements ControlValueAccessor {
   }
 
   onKeydown(event: KeyboardEvent): void {
-    const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[event.key];
+    const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[
+      event.key
+    ];
     if (!step) return;
     event.preventDefault();
     const count = this.options().length;

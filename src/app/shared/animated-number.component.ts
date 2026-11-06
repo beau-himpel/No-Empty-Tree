@@ -7,6 +7,7 @@ import {
   input,
   signal,
   untracked,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { prefersReducedMotion } from './motion';
 
@@ -15,6 +16,7 @@ import { prefersReducedMotion } from './motion';
   selector: 'app-animated-number',
   standalone: true,
   template: `{{ formatted() }}`,
+  changeDetection: ChangeDetectionStrategy.Eager,
   host: { class: 'tabular-nums' },
 })
 export class AnimatedNumberComponent {
@@ -22,7 +24,9 @@ export class AnimatedNumberComponent {
   readonly durationMs = input(900);
 
   private readonly display = signal(0);
-  readonly formatted = computed(() => Math.round(this.display()).toLocaleString());
+  readonly formatted = computed(() =>
+    Math.round(this.display()).toLocaleString(),
+  );
 
   private frame = 0;
 

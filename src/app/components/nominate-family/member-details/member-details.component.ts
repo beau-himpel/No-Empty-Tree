@@ -1,22 +1,31 @@
-import { Component, computed, inject, input, linkedSignal } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  linkedSignal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AdoptionService } from '../../../adoption.service';
 import { expandCollapse } from '../../../shared/animations';
-import { PERSON_TONE_TEXT, PersonBadgeComponent, personTone, roleLabel } from '../../../shared/person-badge.component';
+import {
+  PERSON_TONE_TEXT,
+  PersonBadgeComponent,
+  personTone,
+  roleLabel,
+} from '../../../shared/person-badge.component';
 import { FamilyMember } from '../../../shared/types';
 import { WishItemComponent } from '../../wish-item/wish-item.component';
 
 @Component({
   selector: 'app-member-details',
   standalone: true,
-  imports: [
-    CommonModule,
-    WishItemComponent,
-    PersonBadgeComponent,
-  ],
+  imports: [CommonModule, WishItemComponent, PersonBadgeComponent],
   templateUrl: './member-details.component.html',
   styleUrls: ['./member-details.component.scss'],
-  animations: [expandCollapse]
+  changeDetection: ChangeDetectionStrategy.Eager,
+  animations: [expandCollapse],
 })
 export class MemberDetailsComponent {
   member = input.required<FamilyMember>();
@@ -34,15 +43,21 @@ export class MemberDetailsComponent {
   /** Clip the wish list while closed or moving; unclipped once open so focus rings show. */
   readonly clipContent = linkedSignal(() => !this.startExpanded());
 
-  readonly tone = computed(() => personTone(this.member().is_parent, this.member().sex));
+  readonly tone = computed(() =>
+    personTone(this.member().is_parent, this.member().sex),
+  );
   readonly roleTextClass = computed(() => PERSON_TONE_TEXT[this.tone()]);
 
-  readonly roleLabel = computed(() => roleLabel(this.member().is_parent, this.member().sex));
+  readonly roleLabel = computed(() =>
+    roleLabel(this.member().is_parent, this.member().sex),
+  );
 
   /** Read out in place of the badge, which is decorative. */
   readonly ageLabel = computed(() => {
     const age = this.member().age;
-    return age === 0 ? 'under 1 year old' : `${age} ${age === 1 ? 'year' : 'years'} old`;
+    return age === 0
+      ? 'under 1 year old'
+      : `${age} ${age === 1 ? 'year' : 'years'} old`;
   });
 
   readonly giftCounts = computed(() => {
@@ -60,7 +75,7 @@ export class MemberDetailsComponent {
   toggleWishlist(event: Event) {
     event.stopPropagation();
     this.clipContent.set(true);
-    this.isCollapsed.update(value => !value);
+    this.isCollapsed.update((value) => !value);
   }
 
   onWishlistTransitionEnd(event: TransitionEvent) {

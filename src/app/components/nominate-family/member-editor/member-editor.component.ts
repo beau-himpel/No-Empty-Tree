@@ -12,30 +12,55 @@ import {
   output,
   signal,
   viewChild,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { expandCollapse } from '../../../shared/animations';
-import { ChoiceGroupComponent, ChoiceOption } from '../../../shared/choice-group.component';
+import {
+  ChoiceGroupComponent,
+  ChoiceOption,
+} from '../../../shared/choice-group.component';
 import { scrollBehavior } from '../../../shared/motion';
 import { ItemInfoComponent } from '../../item-info/item-info.component';
 import { ItemFormComponent } from '../item-form/item-form.component';
 import { NominationDraftService } from '../nomination-draft.service';
-import { Gender, Item, MAX_AGE, MAX_ETHNICITY_LENGTH, memberProblems } from '../nomination.model';
+import {
+  Gender,
+  Item,
+  MAX_AGE,
+  MAX_ETHNICITY_LENGTH,
+  memberProblems,
+} from '../nomination.model';
 
 const ADULT_AGE = 18;
 
 const notBlank = (control: AbstractControl) =>
-  typeof control.value === 'string' && control.value.trim() === '' ? { required: true } : null;
+  typeof control.value === 'string' && control.value.trim() === ''
+    ? { required: true }
+    : null;
 
 const wholeNumber = (control: AbstractControl) =>
-  control.value === null || Number.isInteger(control.value) ? null : { wholeNumber: true };
+  control.value === null || Number.isInteger(control.value)
+    ? null
+    : { wholeNumber: true };
 
 @Component({
   selector: 'app-member-editor',
   standalone: true,
-  imports: [ReactiveFormsModule, ChoiceGroupComponent, ItemFormComponent, ItemInfoComponent],
+  imports: [
+    ReactiveFormsModule,
+    ChoiceGroupComponent,
+    ItemFormComponent,
+    ItemInfoComponent,
+  ],
   templateUrl: './member-editor.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   animations: [expandCollapse],
 })
 export class MemberEditorComponent implements OnInit {
@@ -52,7 +77,8 @@ export class MemberEditorComponent implements OnInit {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   private readonly giftForm = viewChild(ItemFormComponent);
-  private readonly giftSection = viewChild<ElementRef<HTMLElement>>('giftSection');
+  private readonly giftSection =
+    viewChild<ElementRef<HTMLElement>>('giftSection');
 
   readonly member = computed(() => this.drafts.member(this.memberId()));
   readonly items = computed(() => this.member()?.items ?? []);
@@ -75,7 +101,9 @@ export class MemberEditorComponent implements OnInit {
     ]),
     isChild: this.fb.control<boolean | null>(null, [Validators.required]),
     gender: this.fb.nonNullable.control<Gender>('', [Validators.required]),
-    ethnicity: this.fb.nonNullable.control('', [Validators.maxLength(MAX_ETHNICITY_LENGTH)]),
+    ethnicity: this.fb.nonNullable.control('', [
+      Validators.maxLength(MAX_ETHNICITY_LENGTH),
+    ]),
   });
 
   readonly maxEthnicityLength = MAX_ETHNICITY_LENGTH;
@@ -90,8 +118,15 @@ export class MemberEditorComponent implements OnInit {
   readonly genderOptions = computed<ChoiceOption<Gender>[]>(() => {
     const isChild = this.isChild();
     return [
-      { label: isChild === true ? 'Boy' : isChild === false ? 'Man' : 'Male', value: 'Male' },
-      { label: isChild === true ? 'Girl' : isChild === false ? 'Woman' : 'Female', value: 'Female' },
+      {
+        label: isChild === true ? 'Boy' : isChild === false ? 'Man' : 'Male',
+        value: 'Male',
+      },
+      {
+        label:
+          isChild === true ? 'Girl' : isChild === false ? 'Woman' : 'Female',
+        value: 'Female',
+      },
     ];
   });
 
@@ -111,34 +146,46 @@ export class MemberEditorComponent implements OnInit {
         gender: member.gender,
         ethnicity: member.ethnicity,
       },
-      { emitEvent: false }
+      { emitEvent: false },
     );
     this.isChild.set(member.isChild);
     this.typeChosenByUser = member.isChild !== null;
     this.showGiftForm.set(member.items.length === 0);
 
     const { age, isChild } = this.form.controls;
-    age.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
-      if (this.typeChosenByUser || value === null || value < 0 || value > MAX_AGE) return;
-      this.settingTypeFromAge = true;
-      isChild.setValue(value < ADULT_AGE);
-      this.settingTypeFromAge = false;
-    });
-    isChild.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
-      this.isChild.set(value);
-      if (!this.settingTypeFromAge) this.typeChosenByUser = true;
-    });
-
-    this.form.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      const value = this.form.getRawValue();
-      this.drafts.updateMember(this.memberId(), {
-        name: value.name,
-        age: value.age,
-        isChild: value.isChild,
-        gender: value.gender,
-        ethnicity: value.ethnicity,
+    age.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        if (
+          this.typeChosenByUser ||
+          value === null ||
+          value < 0 ||
+          value > MAX_AGE
+        )
+          return;
+        this.settingTypeFromAge = true;
+        isChild.setValue(value < ADULT_AGE);
+        this.settingTypeFromAge = false;
       });
-    });
+    isChild.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        this.isChild.set(value);
+        if (!this.settingTypeFromAge) this.typeChosenByUser = true;
+      });
+
+    this.form.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        const value = this.form.getRawValue();
+        this.drafts.updateMember(this.memberId(), {
+          name: value.name,
+          age: value.age,
+          isChild: value.isChild,
+          gender: value.gender,
+          ethnicity: value.ethnicity,
+        });
+      });
   }
 
   showError(name: 'name' | 'age' | 'isChild' | 'gender'): boolean {
@@ -146,7 +193,9 @@ export class MemberEditorComponent implements OnInit {
     return control.invalid && (control.touched || this.submitted());
   }
 
-  readonly giftsMissing = computed(() => this.submitted() && this.items().length === 0);
+  readonly giftsMissing = computed(
+    () => this.submitted() && this.items().length === 0,
+  );
 
   addItem(item: Item): void {
     this.drafts.addItem(this.memberId(), item);
@@ -160,8 +209,11 @@ export class MemberEditorComponent implements OnInit {
   openGiftForm(): void {
     this.showGiftForm.set(true);
     afterNextRender(
-      () => this.host.nativeElement.querySelector<HTMLElement>('app-item-form [role="radio"]')?.focus(),
-      { injector: this.injector }
+      () =>
+        this.host.nativeElement
+          .querySelector<HTMLElement>('app-item-form [role="radio"]')
+          ?.focus(),
+      { injector: this.injector },
     );
   }
 
@@ -187,7 +239,10 @@ export class MemberEditorComponent implements OnInit {
   /** Adds a finished gift that hasn't been added yet; blocks on a half-filled one. */
   private settleGiftForm(): boolean {
     if (this.giftForm()?.commit() === 'invalid') {
-      this.giftSection()?.nativeElement.scrollIntoView({ block: 'start', behavior: scrollBehavior() });
+      this.giftSection()?.nativeElement.scrollIntoView({
+        block: 'start',
+        behavior: scrollBehavior(),
+      });
       return false;
     }
     return true;
@@ -197,12 +252,13 @@ export class MemberEditorComponent implements OnInit {
     afterNextRender(
       () => {
         const target = this.host.nativeElement.querySelector<HTMLElement>(
-          '.field-input-invalid, [role="radiogroup"][aria-invalid="true"] [role="radio"], #gifts-missing'
+          '.field-input-invalid, [role="radiogroup"][aria-invalid="true"] [role="radio"], #gifts-missing',
         );
         target?.scrollIntoView({ block: 'center', behavior: scrollBehavior() });
-        if (target && target.id !== 'gifts-missing') target.focus({ preventScroll: true });
+        if (target && target.id !== 'gifts-missing')
+          target.focus({ preventScroll: true });
       },
-      { injector: this.injector }
+      { injector: this.injector },
     );
   }
 }

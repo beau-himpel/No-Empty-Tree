@@ -1,4 +1,9 @@
-import { Component, computed, input } from '@angular/core';
+import {
+  Component,
+  computed,
+  input,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 
 export type PersonTone = 'adult' | 'boy' | 'girl' | 'unknown';
 
@@ -17,7 +22,10 @@ export const PERSON_TONE_TEXT: Record<PersonTone, string> = {
   unknown: 'text-stone-500',
 };
 
-export function personTone(isAdult: boolean | null, sex: string | null | undefined): PersonTone {
+export function personTone(
+  isAdult: boolean | null,
+  sex: string | null | undefined,
+): PersonTone {
   if (isAdult) return 'adult';
   const normalized = sex?.toLowerCase();
   if (normalized === 'male') return 'boy';
@@ -26,10 +34,22 @@ export function personTone(isAdult: boolean | null, sex: string | null | undefin
 }
 
 /** "Girl", "Man"… from how a family member was nominated. */
-export function roleLabel(isAdult: boolean, sex: string | null | undefined): string {
+export function roleLabel(
+  isAdult: boolean,
+  sex: string | null | undefined,
+): string {
   const normalized = sex?.toLowerCase();
-  if (isAdult) return normalized === 'male' ? 'Man' : normalized === 'female' ? 'Woman' : 'Adult';
-  return normalized === 'male' ? 'Boy' : normalized === 'female' ? 'Girl' : 'Child';
+  if (isAdult)
+    return normalized === 'male'
+      ? 'Man'
+      : normalized === 'female'
+        ? 'Woman'
+        : 'Adult';
+  return normalized === 'male'
+    ? 'Boy'
+    : normalized === 'female'
+      ? 'Girl'
+      : 'Child';
 }
 
 /** A person's age, tinted by who they are, so a family reads at a glance. */
@@ -37,13 +57,21 @@ export function roleLabel(isAdult: boolean, sex: string | null | undefined): str
   selector: 'app-person-badge',
   standalone: true,
   template: `
-    <span class="text-[1.0625rem] font-semibold leading-none tracking-snug tabular-nums">{{ ageText() }}</span>
+    <span
+      class="text-[1.0625rem] font-semibold leading-none tracking-snug tabular-nums"
+      >{{ ageText() }}</span
+    >
     @if (unit()) {
-    <span class="mt-0.5 text-[0.625rem] font-semibold uppercase leading-none tracking-wide opacity-70">{{ unit() }}</span>
+      <span
+        class="mt-0.5 text-[0.625rem] font-semibold uppercase leading-none tracking-wide opacity-70"
+        >{{ unit() }}</span
+      >
     }
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   host: {
-    class: 'flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-full',
+    class:
+      'flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-full',
     '[class]': 'toneClass()',
     'aria-hidden': 'true',
   },

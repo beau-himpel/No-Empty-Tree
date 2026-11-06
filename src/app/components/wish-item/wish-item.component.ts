@@ -1,5 +1,12 @@
 import { TitleCasePipe } from '@angular/common';
-import { Component, computed, inject, input, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { AdoptionService } from '../../adoption.service';
 import { WishItem } from '../../shared/types';
 import { ItemInfoComponent } from '../item-info/item-info.component';
@@ -9,7 +16,8 @@ import { ItemInfoComponent } from '../item-info/item-info.component';
   standalone: true,
   imports: [ItemInfoComponent, TitleCasePipe],
   templateUrl: './wish-item.component.html',
-  styleUrls: ['./wish-item.component.scss']
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrls: ['./wish-item.component.scss'],
 })
 export class WishItemComponent {
   item = input.required<WishItem>();
@@ -27,7 +35,9 @@ export class WishItemComponent {
     return this.adoptionService.isAdoptedByCurrentUser(item) ? 'mine' : 'taken';
   });
 
-  readonly pending = computed(() => this.adoptionService.isPending(this.item().id));
+  readonly pending = computed(() =>
+    this.adoptionService.isPending(this.item().id),
+  );
 
   async adopt(): Promise<void> {
     const adopted = await this.adoptionService.adopt([this.item()]);

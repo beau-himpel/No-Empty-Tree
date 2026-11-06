@@ -1,4 +1,9 @@
-import { Component, computed, input } from '@angular/core';
+import {
+  Component,
+  computed,
+  input,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { WishItem } from '../../shared/types';
 import { Item } from '../nominate-family/nomination.model';
 
@@ -6,7 +11,8 @@ import { Item } from '../nominate-family/nomination.model';
   selector: 'app-item-info',
   standalone: true,
   templateUrl: './item-info.component.html',
-  styleUrls: ['./item-info.component.scss']
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrls: ['./item-info.component.scss'],
 })
 export class ItemInfoComponent {
   item = input.required<WishItem | Item>();

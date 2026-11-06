@@ -8,6 +8,7 @@ import {
   Injector,
   OnInit,
   signal,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { AdoptionService } from '../../adoption.service';
@@ -15,7 +16,11 @@ import { BreakpointService } from '../../breakpoint.service';
 import { NominationSettingsService } from '../../nomination-settings.service';
 import { AnimatedNumberComponent } from '../../shared/animated-number.component';
 import { FamilyTabComponent } from '../../shared/family-tab.component';
-import { PANEL_EASE_POINTS, PANEL_OPEN_MS, panelExpand } from '../../shared/animations';
+import {
+  PANEL_EASE_POINTS,
+  PANEL_OPEN_MS,
+  panelExpand,
+} from '../../shared/animations';
 import { cubicBezier, prefersReducedMotion } from '../../shared/motion';
 import { Family } from '../../shared/types';
 import { SupabaseService } from '../../supabase.service';
@@ -40,9 +45,16 @@ export interface FamilyRow {
 @Component({
   selector: 'app-adopt-family',
   standalone: true,
-  imports: [FamilyDetailsComponent, TitleCasePipe, AnimatedNumberComponent, NgTemplateOutlet, FamilyTabComponent],
+  imports: [
+    FamilyDetailsComponent,
+    TitleCasePipe,
+    AnimatedNumberComponent,
+    NgTemplateOutlet,
+    FamilyTabComponent,
+  ],
   templateUrl: './adopt-family.component.html',
   styleUrls: ['./adopt-family.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   animations: [panelExpand],
 })
 export class AdoptFamilyComponent implements OnInit {
@@ -52,7 +64,9 @@ export class AdoptFamilyComponent implements OnInit {
   private readonly supabaseService = inject(SupabaseService);
   private readonly adoptionService = inject(AdoptionService);
   private readonly breakpointService = inject(BreakpointService);
-  private readonly nominationSettingsService = inject(NominationSettingsService);
+  private readonly nominationSettingsService = inject(
+    NominationSettingsService,
+  );
 
   readonly selectedFamilyId = signal<string | null>(null);
   readonly suppressAnimations = signal(false);
@@ -60,7 +74,8 @@ export class AdoptFamilyComponent implements OnInit {
   readonly error = signal<string | null>(null);
 
   readonly availableFamilies = signal<Family[]>([]);
-  readonly nominationsEnabled = this.nominationSettingsService.nominationsEnabled;
+  readonly nominationsEnabled =
+    this.nominationSettingsService.nominationsEnabled;
   readonly isMobile = this.breakpointService.isMobile;
 
   /** Grouping is decided once per load so rows never move while someone is adopting. */
@@ -72,7 +87,7 @@ export class AdoptFamilyComponent implements OnInit {
   private readonly rowsById = computed(() => {
     this.adoptionService.version();
     return new Map(
-      this.availableFamilies().map((family) => [family.id, this.toRow(family)])
+      this.availableFamilies().map((family) => [family.id, this.toRow(family)]),
     );
   });
 
@@ -106,17 +121,21 @@ export class AdoptFamilyComponent implements OnInit {
 
     try {
       const familiesData = (await this.supabaseService.getFamiliesWithMembers(
-        await this.nominationSettingsService.currentSeason()
+        await this.nominationSettingsService.currentSeason(),
       )) as unknown as Family[];
       this.availableFamilies.set(familiesData);
 
       const rows = familiesData.map((family) => this.toRow(family));
       this.groupOrder.set({
-        needs: rows.filter((row) => !row.fullyAdopted).map((row) => row.info.id),
+        needs: rows
+          .filter((row) => !row.fullyAdopted)
+          .map((row) => row.info.id),
         done: rows.filter((row) => row.fullyAdopted).map((row) => row.info.id),
       });
     } catch (err) {
-      this.error.set("We couldn't load families. Check your connection and try again.");
+      this.error.set(
+        "We couldn't load families. Check your connection and try again.",
+      );
     } finally {
       this.isLoading.set(false);
     }
@@ -159,13 +178,14 @@ export class AdoptFamilyComponent implements OnInit {
 
     afterNextRender(
       () => {
-        const topAfter = this.rowElement(family.id)?.getBoundingClientRect().top ?? topBefore;
+        const topAfter =
+          this.rowElement(family.id)?.getBoundingClientRect().top ?? topBefore;
         window.scrollBy({ top: topAfter - topBefore, behavior: 'instant' });
         this.suppressAnimations.set(false);
         this.selectedFamilyId.set(family.id);
         this.revealRow(family.id);
       },
-      { injector: this.injector }
+      { injector: this.injector },
     );
   }
 
@@ -183,7 +203,7 @@ export class AdoptFamilyComponent implements OnInit {
           this.glideScrollTo(window.scrollY + top - HEADER_OFFSET_PX);
         }
       },
-      { injector: this.injector }
+      { injector: this.injector },
     );
   }
 
@@ -204,8 +224,12 @@ export class AdoptFamilyComponent implements OnInit {
     const step = (now: number) => {
       const progress = Math.min(1, (now - startTime) / PANEL_OPEN_MS);
       const eased = revealEase(progress);
-      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-      window.scrollTo({ top: Math.min(start + (target - start) * eased, maxScroll), behavior: 'instant' });
+      const maxScroll =
+        document.documentElement.scrollHeight - window.innerHeight;
+      window.scrollTo({
+        top: Math.min(start + (target - start) * eased, maxScroll),
+        behavior: 'instant',
+      });
       if (progress < 1) {
         this.glideFrame = requestAnimationFrame(step);
       } else {
@@ -233,24 +257,35 @@ export class AdoptFamilyComponent implements OnInit {
 
   private rowsFor(ids: string[]): FamilyRow[] {
     const rows = this.rowsById();
-    return ids.map((id) => rows.get(id)).filter((row): row is FamilyRow => !!row);
+    return ids
+      .map((id) => rows.get(id))
+      .filter((row): row is FamilyRow => !!row);
   }
 
   private toRow(family: Family): FamilyRow {
     const members = family.family_members;
     const adults = members.filter((member) => member.is_parent).length;
-    const boys = members.filter((member) => !member.is_parent && member.sex === 'male').length;
-    const girls = members.filter((member) => !member.is_parent && member.sex === 'female').length;
+    const boys = members.filter(
+      (member) => !member.is_parent && member.sex === 'male',
+    ).length;
+    const girls = members.filter(
+      (member) => !member.is_parent && member.sex === 'female',
+    ).length;
     const otherChildren = members.filter(
-      (member) => !member.is_parent && member.sex !== 'male' && member.sex !== 'female'
+      (member) =>
+        !member.is_parent && member.sex !== 'male' && member.sex !== 'female',
     ).length;
 
     const summaryParts: string[] = [];
-    if (adults > 0) summaryParts.push(`${adults} ${adults === 1 ? 'adult' : 'adults'}`);
+    if (adults > 0)
+      summaryParts.push(`${adults} ${adults === 1 ? 'adult' : 'adults'}`);
     if (boys > 0) summaryParts.push(`${boys} ${boys === 1 ? 'boy' : 'boys'}`);
-    if (girls > 0) summaryParts.push(`${girls} ${girls === 1 ? 'girl' : 'girls'}`);
+    if (girls > 0)
+      summaryParts.push(`${girls} ${girls === 1 ? 'girl' : 'girls'}`);
     if (otherChildren > 0) {
-      summaryParts.push(`${otherChildren} ${otherChildren === 1 ? 'child' : 'children'}`);
+      summaryParts.push(
+        `${otherChildren} ${otherChildren === 1 ? 'child' : 'children'}`,
+      );
     }
 
     const items = members.flatMap((member) => member.wishlist_items || []);
